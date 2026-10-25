@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Privacy Policy · Nandemo Go</title>
+<meta name="theme-color" content="#1b1530">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="logo" href="./" data-keep="./" data-t="name">南丁猫自贩机</a>
+    <div class="langs" role="group" aria-label="Language"></div>
+  </header>
+  <main class="lot doc" data-t="body"></main>
+  <footer>
+    <span>© 2026 Hanlai Chen</span>
+    <nav><a href="./" data-keep="./" data-t="home">首页</a><a href="support.html" data-keep="support.html" data-t="other">支持与联系</a></nav>
+  </footer>
+</div>
+<script src="i18n.js"></script>
+<script>
+// what the app does, from its code: no network code; the iCloud key-value store; StoreKit 2; local notifications only
+// the address people can write to (set before the site goes live)
+const MAIL = '{{CONTACT_EMAIL}}';
+SITE.page({
+  'zh-Hans': { title: '隐私政策 · 南丁猫自贩机', name: '南丁猫自贩机', home: '首页', other: '支持与联系', body: `
+    <h1>隐私政策</h1><p class="date">生效日期：2026 年 10 月 25 日</p>
+    <p>南丁猫自贩机（Nandemo Go: Idle Vending）由 Hanlai Chen 开发。本政策适用于这款 iPhone 应用和本网站。</p>
+    <h2>应用收集什么</h2><p>什么都不收集。应用没有账号、没有广告、没有数据统计和追踪，不会把你的任何数据发给我们或其他人。</p>
+    <h2>进度存在哪里</h2><p>游戏进度保存在你的 iPhone 上。如果开启了 iCloud，Apple 的 iCloud 也会在你自己的 iCloud 账户里保存一份，换一台登录同一 Apple 账户的 iPhone 可以接着玩。我们看不到这些数据。</p>
+    <h2>购买</h2><p>应用内购买由 Apple 通过 App Store 处理，我们拿不到你的付款信息。「恢复购买」只是向 Apple 查询你买过哪些项目。</p>
+    <h2>通知</h2><p>提醒（比如整条街卖空了、来了一只新猫）是在你的 iPhone 上本地安排的通知，只有你允许后才会出现，随时可以在 iPhone 的「设置」里关闭。没有服务器，也没有远程推送。</p>
+    <h2>小组件</h2><p>主屏幕小组件读取的是你 iPhone 上的游戏数据，不会离开设备。</p>
+    <h2>儿童</h2><p>应用不收集任何人的个人信息，包括儿童。</p>
+    <h2>本网站</h2><p>本网站不使用 Cookie，也不使用统计工具。网页字体由 Google Fonts 提供，App Store 下载徽章由 Apple 提供；和任何网页请求一样，它们会收到你的 IP 地址。</p>
+    <h2>变更</h2><p>本政策如有修改，会更新本页并修改上方的日期。</p>
+    <h2>联系</h2><p><a href="mailto:${MAIL}">${MAIL}</a></p>` },
+  'zh-Hant': { title: '隱私權政策 · 南丁貓自販機', name: '南丁貓自販機', home: '首頁', other: '支援與聯絡', body: `
+    <h1>隱私權政策</h1><p class="date">生效日期：2026 年 10 月 25 日</p>
+    <p>南丁貓自販機（Nandemo Go: Idle Vending）由 Hanlai Chen 開發。本政策適用於這款 iPhone App 與本網站。</p>
+    <h2>App 收集什麼</h2><p>什麼都不收集。App 沒有帳號、沒有廣告、沒有數據統計與追蹤，不會把你的任何資料傳給我們或其他人。</p>
+    <h2>進度存在哪裡</h2><p>遊戲進度保存在你的 iPhone 上。如果開啟了 iCloud，Apple 的 iCloud 也會在你自己的 iCloud 帳號裡保存一份，換一台登入同一 Apple 帳號的 iPhone 可以接著玩。我們看不到這些資料。</p>
+    <h2>購買</h2><p>App 內購買由 Apple 透過 App Store 處理，我們拿不到你的付款資訊。「回復購買」只是向 Apple 查詢你買過哪些項目。</p>
+    <h2>通知</h2><p>提醒（例如整條街賣空了、來了一隻新貓）是在你的 iPhone 上本機安排的通知，只有你允許後才會出現，隨時可以在 iPhone 的「設定」裡關閉。沒有伺服器，也沒有遠端推播。</p>
+    <h2>小工具</h2><p>主畫面小工具讀取的是你 iPhone 上的遊戲資料，不會離開裝置。</p>
+    <h2>兒童</h2><p>App 不收集任何人的個人資訊，包括兒童。</p>
+    <h2>本網站</h2><p>本網站不使用 Cookie，也不使用統計工具。網頁字型由 Google Fonts 提供，App Store 下載徽章由 Apple 提供；和任何網頁請求一樣，它們會收到你的 IP 位址。</p>
+    <h2>變更</h2><p>本政策如有修改，會更新本頁並修改上方的日期。</p>
+    <h2>聯絡</h2><p><a href="mailto:${MAIL}">${MAIL}</a></p>` },
+  'ja': { title: 'プライバシーポリシー · なんでも自販機', name: 'なんでも自販機', home: 'ホーム', other: 'サポート・お問い合わせ', body: `
+    <h1>プライバシーポリシー</h1><p class="date">施行日：2026年10月25日</p>
+    <p>なんでも自販機（Nandemo Go: Idle Vending）は Hanlai Chen が開発しています。このポリシーは iPhone アプリと本サイトに適用されます。</p>
+    <h2>アプリが集める情報</h2><p>何も集めません。アカウント、広告、分析、トラッキングはなく、あなたのデータを私たちや第三者に送ることはありません。</p>
+    <h2>進行データの保存場所</h2><p>ゲームの進行は iPhone に保存されます。iCloud がオンの場合は、Apple の iCloud があなた自身の iCloud アカウントにも保存し、同じ Apple アカウントの別の iPhone で続きを遊べます。私たちはこのデータを見られません。</p>
+    <h2>購入</h2><p>アプリ内課金は Apple が App Store を通じて処理し、支払い情報が私たちに届くことはありません。「購入を復元」は、購入済みの項目を Apple に問い合わせるだけです。</p>
+    <h2>通知</h2><p>お知らせ（通り全体が売り切れた、新しい猫が来た など）は iPhone 上でスケジュールされるローカル通知です。許可した場合のみ届き、いつでも iPhone の「設定」でオフにできます。サーバーもリモートプッシュもありません。</p>
+    <h2>ウィジェット</h2><p>ホーム画面のウィジェットは iPhone 上のゲームデータを読み取るだけで、データが端末の外に出ることはありません。</p>
+    <h2>子ども</h2><p>このアプリは子どもを含め、誰の個人情報も集めません。</p>
+    <h2>本サイト</h2><p>本サイトは Cookie も分析ツールも使いません。フォントは Google Fonts、App Store のダウンロードバッジは Apple から読み込まれ、通常のウェブリクエストと同様にあなたの IP アドレスを受け取ります。</p>
+    <h2>変更</h2><p>このポリシーを変更する場合は本ページを更新し、上記の日付を改めます。</p>
+    <h2>お問い合わせ</h2><p><a href="mailto:${MAIL}">${MAIL}</a></p>` },
+  'en': { title: 'Privacy Policy · Nandemo Go', name: 'Nandemo Go', home: 'Home', other: 'Support & contact', body: `
+    <h1>Privacy Policy</h1><p class="date">Effective October 25, 2026</p>
+    <p>Nandemo Go: Idle Vending is made by Hanlai Chen. This policy covers the iPhone app and this website.</p>
+    <h2>What the app collects</h2><p>Nothing. The app has no accounts, no ads, no analytics and no tracking, and it never sends your data to us or to anyone else.</p>
+    <h2>Where your progress is kept</h2><p>Your game progress is saved on your iPhone. If iCloud is on, Apple’s iCloud also keeps a copy in your own iCloud account, so another iPhone signed in to the same Apple Account can carry on. We cannot see it.</p>
+    <h2>Purchases</h2><p>In-app purchases are handled by Apple through the App Store. We never receive your payment details. Restore purchases only asks Apple which items you own.</p>
+    <h2>Notifications</h2><p>Reminders (for example, that the whole street has sold out, or that a new cat came by) are local notifications scheduled on your iPhone. They appear only if you allow them, and you can turn them off at any time in the iPhone Settings app. There is no server and no remote push.</p>
+    <h2>Widgets</h2><p>Home Screen widgets read the game’s data on your iPhone. Nothing leaves the device.</p>
+    <h2>Children</h2><p>The app collects no personal information from anyone, including children.</p>
+    <h2>This website</h2><p>This website uses no cookies and no analytics. Its fonts come from Google Fonts and the App Store badge from Apple; like any web request, these receive your IP address.</p>
+    <h2>Changes</h2><p>If this policy changes, this page will be updated and the date above changed.</p>
+    <h2>Contact</h2><p><a href="mailto:${MAIL}">${MAIL}</a></p>` }
+});
+</script>
+</body>
+</html>

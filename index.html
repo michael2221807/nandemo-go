@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>南丁猫自贩机 · Nandemo Go</title>
+<meta name="description" content="Run a row of moving vending machines on a rainy little street, and wait for the cats to drop by. An idle game for iPhone.">
+<meta name="theme-color" content="#1b1530">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nandemo Go: Idle Vending">
+<meta property="og:description" content="Run a row of moving vending machines on a rainy little street, and wait for the cats to drop by.">
+<meta property="og:url" content="https://michael2221807.github.io/nandemo-go/">
+<meta property="og:image" content="https://michael2221807.github.io/nandemo-go/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="logo" href="./" data-t="name">南丁猫自贩机</a>
+    <div class="langs" role="group" aria-label="Language"></div>
+  </header>
+
+  <section class="lot hero">
+    <div class="hero-copy">
+      <h1 data-t="h1">街角那台<em>什么都卖</em>的自贩机</h1>
+      <p class="lead" data-t="lead">在雨夜的小街上经营一排会动的自动贩卖机：回转寿司、关东煮、扭蛋、饮料。补货、升级，等猫来串门。</p>
+      <div class="ctas">
+        <a class="badge" id="dl" href="https://apps.apple.com/app/id6826643374"><img id="badge" src="https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/zh-cn" alt="在 App Store 下载" data-a="dl" width="150" height="50" onerror="this.parentNode.classList.add('off')"><span class="cta" data-t="dl">在 App Store 下载</span></a>
+        <a class="cta ghost" href="#trailer" data-t="watch">看预告片</a>
+      </div>
+    </div>
+    <div class="phone" id="phone">
+      <img id="shot" src="assets/phone-zh-Hans.jpg" alt="游戏截图：夜晚小街上的一排自贩机" data-a="shotA">
+      <button type="button" class="play" id="play"><i></i><span data-t="trailerV">预告片 · 55 秒竖版</span></button>
+    </div>
+  </section>
+
+  <section class="lot machines">
+    <h2 data-t="h2m">每一台都会动</h2>
+    <div class="m"><figure><img src="assets/m/sushi.jpg" alt="回转寿司自贩机" data-a="m1n" width="600" height="800" loading="lazy"></figure><b data-t="m1n">回转寿司</b><span data-t="m1">点一盘，看它在传送带上转过来；透视模式能看到里面的机关。</span></div>
+    <div class="m"><figure><img src="assets/m/oden.jpg" alt="关东煮自贩机" data-a="m2n" width="600" height="800" loading="lazy"></figure><b data-t="m2n">关东煮</b><span data-t="m2">锅里咕嘟咕嘟，捞篮把料一块块倒进纸杯。</span></div>
+    <div class="m"><figure><img src="assets/m/gacha.jpg" alt="扭蛋机" data-a="m3n" width="600" height="800" loading="lazy"></figure><b data-t="m3n">扭蛋</b><span data-t="m3">路人投币，旋钮转一圈，扭蛋顺着五道坡滚下来，敲响铃铛。</span></div>
+    <div class="m"><figure><img src="assets/m/drink.jpg" alt="罐装饮料自贩机" data-a="m4n" width="600" height="800" loading="lazy"></figure><b data-t="m4n">罐装饮料</b><span data-t="m4">第一台机器，罐子「哐」地掉下来。</span></div>
+  </section>
+
+  <section class="lot cats">
+    <div style="display:grid;gap:10px;min-width:0">
+      <h2 data-t="h2c">猫会自己来串门</h2>
+      <p class="lead" data-t="cats">喂饱它们，它们会用自己的方式帮身边的机器，有的还会招来客人。它们随心情来，不一定每次都在。</p>
+    </div>
+    <img src="assets/cats.jpg" alt="游戏画面：猫咪们围着碗吃饭" data-a="catsA" width="960" height="720" loading="lazy">
+  </section>
+
+  <section class="lot" id="trailer">
+    <h2 data-t="h2t">预告片</h2>
+    <video class="film" controls playsinline preload="none" poster="assets/poster-h.jpg" src="assets/trailer-h.mp4"></video>
+    <div class="rail" id="rail"></div>
+  </section>
+
+  <section class="lot faq">
+    <h2 data-t="h2f">常见问题</h2>
+    <dl>
+      <div><dt data-t="q1">要钱吗？</dt><dd data-t="a1">免费下载，可以一直玩下去。商店里有几件一次买断的东西，没有订阅。</dd></div>
+      <div><dt data-t="q2">有广告吗？</dt><dd data-t="a2">没有广告，也不追踪你。</dd></div>
+      <div><dt data-t="q3">要联网吗？</dt><dd data-t="a3">不用，离线就能玩。开了 iCloud 会在你的设备之间同步存档。</dd></div>
+      <div><dt data-t="q4">支持哪些设备？</dt><dd data-t="a4">iPhone，iOS 17 或更新。</dd></div>
+    </dl>
+  </section>
+
+  <footer>
+    <span>© 2026 Hanlai Chen</span>
+    <nav><a href="privacy.html" data-keep="privacy.html" data-t="privacy">隐私政策</a><a href="support.html" data-keep="support.html" data-t="support">支持与联系</a></nav>
+  </footer>
+</div>
+
+<script src="i18n.js"></script>
+<script>
+const BADGE = { 'zh-Hans': 'zh-cn', 'zh-Hant': 'zh-tw', ja: 'ja-jp', en: 'en-us' };
+SITE.page({
+  'zh-Hans': { title: '南丁猫自贩机 · Nandemo Go', name: '南丁猫自贩机', h1: '街角那台<em>什么都卖</em>的自贩机',
+    lead: '在雨夜的小街上经营一排会动的自动贩卖机：回转寿司、关东煮、扭蛋、饮料。补货、升级，等猫来串门。',
+    dl: '在 App Store 下载', watch: '看预告片', trailerV: '预告片 · 55 秒竖版', shotA: '游戏截图：夜晚小街上的一排自贩机',
+    h2m: '每一台都会动', m1n: '回转寿司', m1: '点一盘，看它在传送带上转过来；透视模式能看到里面的机关。',
+    m2n: '关东煮', m2: '锅里咕嘟咕嘟，捞篮把料一块块倒进纸杯。', m3n: '扭蛋', m3: '路人投币，旋钮转一圈，扭蛋顺着五道坡滚下来，敲响铃铛。',
+    m4n: '罐装饮料', m4: '第一台机器，罐子「哐」地掉下来。',
+    h2c: '猫会自己来串门', cats: '喂饱它们，它们会用自己的方式帮身边的机器，有的还会招来客人。它们随心情来，不一定每次都在。', catsA: '游戏画面：猫咪们围着碗吃饭',
+    h2t: '预告片', h2f: '常见问题',
+    q1: '要钱吗？', a1: '免费下载，可以一直玩下去。商店里有几件一次买断的东西，没有订阅。', q2: '有广告吗？', a2: '没有广告，也不追踪你。',
+    q3: '要联网吗？', a3: '不用，离线就能玩。开了 iCloud 会在你的设备之间同步存档。', q4: '支持哪些设备？', a4: 'iPhone，iOS 17 或更新。',
+    privacy: '隐私政策', support: '支持与联系' },
+  'zh-Hant': { title: '南丁貓自販機 · Nandemo Go', name: '南丁貓自販機', h1: '街角那台<em>什麼都賣</em>的自販機',
+    lead: '在雨夜的小街上經營一排會動的自動販賣機：迴轉壽司、關東煮、扭蛋、飲料。補貨、升級，等貓來串門子。',
+    dl: '在 App Store 下載', watch: '看預告片', trailerV: '預告片 · 55 秒直式', shotA: '遊戲截圖：夜晚小街上的一排自販機',
+    h2m: '每一台都會動', m1n: '迴轉壽司', m1: '點一盤，看它在輸送帶上轉過來；透視模式能看到裡面的機關。',
+    m2n: '關東煮', m2: '鍋裡咕嘟咕嘟，撈籃把料一塊塊倒進紙杯。', m3n: '扭蛋', m3: '路人投幣，旋鈕轉一圈，扭蛋順著五道坡滾下來，敲響鈴鐺。',
+    m4n: '罐裝飲料', m4: '第一台機器，罐子「哐」地掉下來。',
+    h2c: '貓會自己來串門子', cats: '餵飽牠們，牠們會用自己的方式幫身邊的機器，有的還會招來客人。牠們隨心情來，不一定每次都在。', catsA: '遊戲畫面：貓咪們圍著碗吃飯',
+    h2t: '預告片', h2f: '常見問題',
+    q1: '要錢嗎？', a1: '免費下載，可以一直玩下去。商店裡有幾件一次買斷的東西，沒有訂閱。', q2: '有廣告嗎？', a2: '沒有廣告，也不追蹤你。',
+    q3: '要連網嗎？', a3: '不用，離線就能玩。開了 iCloud 會在你的裝置之間同步存檔。', q4: '支援哪些裝置？', a4: 'iPhone，iOS 17 或更新版本。',
+    privacy: '隱私權政策', support: '支援與聯絡' },
+  ja: { title: 'なんでも自販機 · Nandemo Go', name: 'なんでも自販機', h1: '街角の<em>なんでも売る</em>自販機',
+    lead: '雨の夜の小さな通りで、動く自動販売機を並べて営む。回転寿司、おでん、ガチャ、ドリンク。補充して、改良して、猫が来るのを待つ。',
+    dl: 'App Store からダウンロード', watch: 'トレーラーを見る', trailerV: 'トレーラー · 55 秒 縦型', shotA: 'ゲーム画面：夜の通りに並ぶ自販機',
+    h2m: 'どの台もちゃんと動く', m1n: '回転寿司', m1: '一皿たのむと、ベルトに乗って回ってくる。透視モードで中のからくりも見える。',
+    m2n: 'おでん', m2: '鍋がぐつぐつ。かごが具をひとつずつカップへ。', m3n: 'ガチャ', m3: '通りがかりの人がコインを入れると、ハンドルがひと回り。カプセルが五つの坂を転がって、ベルを鳴らす。',
+    m4n: '缶ドリンク', m4: '最初の一台。缶が「ガコン」と落ちてくる。',
+    h2c: '猫がふらっと遊びに来る', cats: 'おなかいっぱいになると、そばの台をそれぞれのやり方で手伝う。お客さんを呼んでくる猫もいる。気まぐれなので、いつもいるとは限らない。', catsA: 'ゲーム画面：お皿を囲んでごはんを食べる猫たち',
+    h2t: 'トレーラー', h2f: 'よくある質問',
+    q1: 'お金はかかる？', a1: 'ダウンロード無料で、ずっと遊べる。ショップには買い切りのアイテムがいくつかあり、サブスクはない。', q2: '広告はある？', a2: '広告はなく、トラッキングもしない。',
+    q3: 'ネットは必要？', a3: 'いらない。オフラインで遊べる。iCloud をオンにすると、端末どうしでセーブを同期する。', q4: '対応端末は？', a4: 'iPhone、iOS 17 以降。',
+    privacy: 'プライバシーポリシー', support: 'サポート・お問い合わせ' },
+  en: { title: 'Nandemo Go: Idle Vending', name: 'Nandemo Go', h1: 'The corner vending machine that <em>sells anything</em>',
+    lead: 'Run a row of moving vending machines on a rainy little street: conveyor sushi, oden, capsule toys, drinks. Restock, upgrade, and wait for the cats to drop by.',
+    dl: 'Download on the App Store', watch: 'Watch the trailer', trailerV: 'Trailer · 55 s vertical', shotA: 'Game screenshot: a row of vending machines on a street at night',
+    h2m: 'Every machine moves', m1n: 'Conveyor sushi', m1: 'Order a plate and watch it ride round on the belt; X-ray shows the works inside.',
+    m2n: 'Oden', m2: 'The pot bubbles away; a basket tips each piece into a paper cup.', m3n: 'Capsule toys', m3: 'A passer-by drops a coin, the knob turns once, and a capsule rolls down five ramps and rings the bell.',
+    m4n: 'Canned drinks', m4: 'Your first machine: the can drops with a clunk.',
+    h2c: 'Cats drop by on their own', cats: 'Once fed, each one helps the machine it sits by in its own way, and some bring in customers. They visit when they feel like it, so they aren’t always there.', catsA: 'Game picture: cats eating around a bowl',
+    h2t: 'Trailer', h2f: 'Questions',
+    q1: 'Does it cost anything?', a1: 'Free to download and to keep playing. The shop has a few one-time purchases; no subscriptions.', q2: 'Are there ads?', a2: 'No ads, and no tracking.',
+    q3: 'Do I need to be online?', a3: 'No, it plays offline. With iCloud on, your save syncs between your devices.', q4: 'Which devices?', a4: 'iPhone with iOS 17 or later.',
+    privacy: 'Privacy policy', support: 'Support & contact' }
+}, lang => {
+  // this language's game screenshot in the phone, Apple's badge in this language, and the three store screenshots
+  const shot = document.getElementById('shot');
+  if (shot) shot.src = `assets/phone-${lang}.jpg`;
+  // Apple's badge in this language; if it can't load, the lemon button from the sketch stands in
+  document.getElementById('dl').classList.remove('off');
+  document.getElementById('badge').src = `https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/${BADGE[lang]}`;
+  document.getElementById('rail').innerHTML = ['1-street', '2-machine', '4-album']
+    .map(n => `<img src="assets/shots/${lang}-${n}.jpg" alt="" width="660" height="1434" loading="lazy">`).join('');
+});
+// the phone plays the vertical trailer in place of its screenshot
+document.getElementById('play').addEventListener('click', () => {
+  const phone = document.getElementById('phone');
+  phone.innerHTML = '<video controls playsinline autoplay poster="assets/poster-v.jpg" src="assets/trailer-v.mp4"></video>';
+  phone.querySelector('video').play().catch(() => {});
+});
+</script>
+</body>
+</html>

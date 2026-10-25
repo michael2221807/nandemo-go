@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Support · Nandemo Go</title>
+<meta name="theme-color" content="#1b1530">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="logo" href="./" data-keep="./" data-t="name">南丁猫自贩机</a>
+    <div class="langs" role="group" aria-label="Language"></div>
+  </header>
+  <main class="lot doc" data-t="body"></main>
+  <footer>
+    <span>© 2026 Hanlai Chen</span>
+    <nav><a href="./" data-keep="./" data-t="home">首页</a><a href="privacy.html" data-keep="privacy.html" data-t="other">隐私政策</a></nav>
+  </footer>
+</div>
+<script src="i18n.js"></script>
+<script>
+// the address people can write to (set before the site goes live)
+const MAIL = '{{CONTACT_EMAIL}}';
+SITE.page({
+  'zh-Hans': { title: '支持与联系 · 南丁猫自贩机', name: '南丁猫自贩机', home: '首页', other: '隐私政策', body: `
+    <h1>支持与联系</h1><p class="date">南丁猫自贩机 · iPhone · iOS 17 或更新</p>
+    <div class="qa"><b>换了手机，进度怎么带过去？</b><p>两台 iPhone 登录同一个 Apple 账户并开启 iCloud，进度会自动同步。</p></div><div class="qa"><b>买过的东西不见了？</b><p>打开游戏里的「设置」，点「恢复购买」。商店页最下面也有同样的按钮。</p></div><div class="qa"><b>不想收到提醒？</b><p>在 iPhone 的「设置」→「通知」里找到南丁猫自贩机，关掉即可。</p></div>
+    <h2>联系我们</h2><p>遇到问题或有建议，请写信到 <a href="mailto:${MAIL}">${MAIL}</a>，附上 iPhone 型号和 iOS 版本会更快。</p>` },
+  'zh-Hant': { title: '支援與聯絡 · 南丁貓自販機', name: '南丁貓自販機', home: '首頁', other: '隱私權政策', body: `
+    <h1>支援與聯絡</h1><p class="date">南丁貓自販機 · iPhone · iOS 17 或更新版本</p>
+    <div class="qa"><b>換了手機，進度怎麼帶過去？</b><p>兩台 iPhone 登入同一個 Apple 帳號並開啟 iCloud，進度會自動同步。</p></div><div class="qa"><b>買過的東西不見了？</b><p>打開遊戲裡的「設定」，點「回復購買」。商店頁最下面也有同樣的按鈕。</p></div><div class="qa"><b>不想收到提醒？</b><p>在 iPhone 的「設定」→「通知」裡找到南丁貓自販機，關掉即可。</p></div>
+    <h2>聯絡我們</h2><p>遇到問題或有建議，請寫信到 <a href="mailto:${MAIL}">${MAIL}</a>，附上 iPhone 型號和 iOS 版本會更快。</p>` },
+  'ja': { title: 'サポート・お問い合わせ · なんでも自販機', name: 'なんでも自販機', home: 'ホーム', other: 'プライバシーポリシー', body: `
+    <h1>サポート・お問い合わせ</h1><p class="date">なんでも自販機 · iPhone · iOS 17 以降</p>
+    <div class="qa"><b>機種変更したら、進行はどうなる？</b><p>2台の iPhone で同じ Apple アカウントにサインインし、iCloud をオンにすると自動で同期されます。</p></div><div class="qa"><b>購入したものが見当たらない</b><p>ゲームの「設定」を開き、「購入を復元」をタップしてください。ショップ画面の一番下にも同じボタンがあります。</p></div><div class="qa"><b>お知らせを止めたい</b><p>iPhone の「設定」→「通知」でなんでも自販機をオフにしてください。</p></div>
+    <h2>お問い合わせ</h2><p>不具合やご意見は <a href="mailto:${MAIL}">${MAIL}</a> までお送りください。iPhone の機種と iOS のバージョンを添えていただくと助かります。</p>` },
+  'en': { title: 'Support & Contact · Nandemo Go', name: 'Nandemo Go', home: 'Home', other: 'Privacy policy', body: `
+    <h1>Support &amp; contact</h1><p class="date">Nandemo Go: Idle Vending · iPhone · iOS 17 or later</p>
+    <div class="qa"><b>New iPhone. How do I bring my progress?</b><p>Sign in to the same Apple Account on both iPhones and turn on iCloud. Your progress syncs on its own.</p></div><div class="qa"><b>Something I bought is missing.</b><p>Open Settings in the game and tap Restore purchases. The same button is at the bottom of the shop.</p></div><div class="qa"><b>I don’t want reminders.</b><p>In the iPhone Settings app, go to Notifications, find Nandemo Go and turn it off.</p></div>
+    <h2>Contact</h2><p>For problems or ideas, write to <a href="mailto:${MAIL}">${MAIL}</a>. Your iPhone model and iOS version help.</p>` }
+});
+</script>
+</body>
+</html>
