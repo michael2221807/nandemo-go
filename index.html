@@ -40,7 +40,7 @@
 
   <section class="lot machines">
     <h2 data-t="h2m">每一台都会动</h2>
-    <div class="m"><figure><img src="assets/m/sushi.jpg" alt="回转寿司自贩机" data-a="m1n" width="600" height="800" loading="lazy"></figure><b data-t="m1n">回转寿司</b><span data-t="m1">点一盘，看它在传送带上转过来；透视模式能看到里面的机关。</span></div>
+    <div class="m"><figure class="xr"><video src="assets/m/sushi.mp4" poster="assets/m/sushi.jpg" width="600" height="800" autoplay muted loop playsinline aria-hidden="true"></video><video class="in" src="assets/m/sushi-xray.mp4" poster="assets/m/sushi-xray.jpg" width="600" height="800" autoplay muted loop playsinline aria-hidden="true"></video><i class="scan"></i><button class="xrb" type="button" aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="2.5" width="14" height="15" rx="2"/><path d="M3 10h14" stroke-dasharray="2 1.6"/><path d="M7 6h6M7 14h6" opacity=".6"/></svg><span data-t="xr">透视</span></button></figure><b data-t="m1n">回转寿司</b><span data-t="m1">点一盘，看它在传送带上转过来；透视模式能看到里面的机关。</span></div>
     <div class="m"><figure><img src="assets/m/oden.jpg" alt="关东煮自贩机" data-a="m2n" width="600" height="800" loading="lazy"></figure><b data-t="m2n">关东煮</b><span data-t="m2">锅里咕嘟咕嘟，捞篮把料一块块倒进纸杯。</span></div>
     <div class="m"><figure><img src="assets/m/gacha.jpg" alt="扭蛋机" data-a="m3n" width="600" height="800" loading="lazy"></figure><b data-t="m3n">扭蛋</b><span data-t="m3">路人投币，旋钮转一圈，扭蛋顺着五道坡滚下来，敲响铃铛。</span></div>
     <div class="m"><figure><img src="assets/m/drink.jpg" alt="罐装饮料自贩机" data-a="m4n" width="600" height="800" loading="lazy"></figure><b data-t="m4n">罐装饮料</b><span data-t="m4">第一台机器，罐子「哐」地掉下来。</span></div>
@@ -84,7 +84,7 @@ SITE.page({
   'zh-Hans': { title: '南丁猫自贩机 · Nandemo Go', name: '南丁猫自贩机', h1: '街角那台<em>什么都卖</em>的自贩机',
     lead: '在雨夜的小街上经营一排会动的自动贩卖机：回转寿司、关东煮、扭蛋、饮料。补货、升级，等猫来串门。',
     dl: '在 App Store 下载', watch: '看预告片', trailerV: '预告片 · 71 秒竖版', shotA: '游戏截图：夜晚小街上的一排自贩机',
-    h2m: '每一台都会动', m1n: '回转寿司', m1: '点一盘，看它在传送带上转过来；透视模式能看到里面的机关。',
+    h2m: '每一台都会动', m1n: '回转寿司', xr: '透视', m1: '点一盘，看它在传送带上转过来；透视模式能看到里面的机关。',
     m2n: '关东煮', m2: '锅里咕嘟咕嘟，捞篮把料一块块倒进纸杯。', m3n: '扭蛋', m3: '路人投币，旋钮转一圈，扭蛋顺着五道坡滚下来，敲响铃铛。',
     m4n: '罐装饮料', m4: '第一台机器，罐子「哐」地掉下来。',
     h2c: '猫会自己来串门', cats: '喂饱它们，它们会用自己的方式帮身边的机器，有的还会招来客人。它们随心情来，不一定每次都在。', catsA: '游戏画面：猫咪们围着碗吃饭',
@@ -95,7 +95,7 @@ SITE.page({
   'zh-Hant': { title: '南丁貓自販機 · Nandemo Go', name: '南丁貓自販機', h1: '街角那台<em>什麼都賣</em>的自販機',
     lead: '在雨夜的小街上經營一排會動的自動販賣機：迴轉壽司、關東煮、扭蛋、飲料。補貨、升級，等貓來串門子。',
     dl: '在 App Store 下載', watch: '看預告片', trailerV: '預告片 · 71 秒直式', shotA: '遊戲截圖：夜晚小街上的一排自販機',
-    h2m: '每一台都會動', m1n: '迴轉壽司', m1: '點一盤，看它在輸送帶上轉過來；透視模式能看到裡面的機關。',
+    h2m: '每一台都會動', m1n: '迴轉壽司', xr: '透視', m1: '點一盤，看它在輸送帶上轉過來；透視模式能看到裡面的機關。',
     m2n: '關東煮', m2: '鍋裡咕嘟咕嘟，撈籃把料一塊塊倒進紙杯。', m3n: '扭蛋', m3: '路人投幣，旋鈕轉一圈，扭蛋順著五道坡滾下來，敲響鈴鐺。',
     m4n: '罐裝飲料', m4: '第一台機器，罐子「哐」地掉下來。',
     h2c: '貓會自己來串門子', cats: '餵飽牠們，牠們會用自己的方式幫身邊的機器，有的還會招來客人。牠們隨心情來，不一定每次都在。', catsA: '遊戲畫面：貓咪們圍著碗吃飯',
@@ -106,7 +106,7 @@ SITE.page({
   ja: { title: 'なんでも自販機 · Nandemo Go', name: 'なんでも自販機', h1: '街角の<em>なんでも売る</em>自販機',
     lead: '雨の夜の小さな通りで、動く自動販売機を並べて営む。回転寿司、おでん、ガチャ、ドリンク。補充して、改良して、猫が来るのを待つ。',
     dl: 'App Store からダウンロード', watch: 'トレーラーを見る', trailerV: 'トレーラー · 71 秒 縦型', shotA: 'ゲーム画面：夜の通りに並ぶ自販機',
-    h2m: 'どの台もちゃんと動く', m1n: '回転寿司', m1: '一皿たのむと、ベルトに乗って回ってくる。透視モードで中のからくりも見える。',
+    h2m: 'どの台もちゃんと動く', m1n: '回転寿司', xr: '透視', m1: '一皿たのむと、ベルトに乗って回ってくる。透視モードで中のからくりも見える。',
     m2n: 'おでん', m2: '鍋がぐつぐつ。かごが具をひとつずつカップへ。', m3n: 'ガチャ', m3: '通りがかりの人がコインを入れると、ハンドルがひと回り。カプセルが五つの坂を転がって、ベルを鳴らす。',
     m4n: '缶ドリンク', m4: '最初の一台。缶が「ガコン」と落ちてくる。',
     h2c: '猫がふらっと遊びに来る', cats: 'おなかいっぱいになると、そばの台をそれぞれのやり方で手伝う。お客さんを呼んでくる猫もいる。気まぐれなので、いつもいるとは限らない。', catsA: 'ゲーム画面：お皿を囲んでごはんを食べる猫たち',
@@ -117,7 +117,7 @@ SITE.page({
   en: { title: 'Nandemo Go: Idle Vending', name: 'Nandemo Go', h1: 'The corner vending machine that <em>sells anything</em>',
     lead: 'Run a row of moving vending machines on a rainy little street: conveyor sushi, oden, capsule toys, drinks. Restock, upgrade, and wait for the cats to drop by.',
     dl: 'Download on the App Store', watch: 'Watch the trailer', trailerV: 'Trailer · 71 s vertical', shotA: 'Game screenshot: a row of vending machines on a street at night',
-    h2m: 'Every machine moves', m1n: 'Conveyor sushi', m1: 'Order a plate and watch it ride round on the belt; X-ray shows the works inside.',
+    h2m: 'Every machine moves', m1n: 'Conveyor sushi', xr: 'X-ray', m1: 'Order a plate and watch it ride round on the belt; X-ray shows the works inside.',
     m2n: 'Oden', m2: 'The pot bubbles away; a basket tips each piece into a paper cup.', m3n: 'Capsule toys', m3: 'A passer-by drops a coin, the knob turns once, and a capsule rolls down five ramps and rings the bell.',
     m4n: 'Canned drinks', m4: 'Your first machine: the can drops with a clunk.',
     h2c: 'Cats drop by on their own', cats: 'Once fed, each one helps the machine it sits by in its own way, and some bring in customers. They visit when they feel like it, so they aren’t always there.', catsA: 'Game picture: cats eating around a bowl',
@@ -138,6 +138,15 @@ SITE.page({
   document.getElementById('rail').innerHTML = ['1-street', '2-machine', '3-neon', '4-album']
     .map(n => `<img src="assets/shots/${lang}-${n}.jpg" alt="" width="660" height="1434" loading="lazy">`).join('');
 });
+// the sushi machine's 透视 switch, as in the game: a scan line sweeps down and the works show through (up again to switch back)
+const xr = document.querySelector('.m figure.xr');
+xr.querySelector('.xrb').addEventListener('click', e => {
+  const on = xr.classList.toggle('on'); e.currentTarget.setAttribute('aria-pressed', on); e.currentTarget.classList.add('used');
+  xr.classList.add('go'); clearTimeout(xr.t); xr.t = setTimeout(() => xr.classList.remove('go'), 650);
+  xr.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+});
+// the sushi machine's loops hold still for anyone who asked for less motion
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('.m video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
 // the phone plays the vertical trailer in place of its screenshot
 document.getElementById('play').addEventListener('click', () => {
   const phone = document.getElementById('phone');

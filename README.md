@@ -22,7 +22,7 @@
 
 - `assets/trailer-v.mp4`、`assets/trailer-h.mp4`：完整版预告片的网页压缩版（720p，71 秒）；繁中、日文、英文页分别用 `trailer-{v,h}-hant.mp4`、`-ja.mp4`、`-en.mp4`；原片在项目文件 `宣发/预告片样片/`。
 - `assets/phone-*.jpg`：各语言的模拟器街景截图，放在首页的手机里，点播放后换成竖版预告片。
-- `assets/m/`：四台机器的游戏内特写；`assets/cats.jpg`：猫围着碗吃饭。
+- `assets/m/`：四台机器的游戏内特写；第一台（寿司）可以像游戏里一样切换「透视」：平时放 `sushi.mp4`（外观），按左上角按钮扫一道线换成 `sushi-xray.mp4`（游戏里的透视画面，顾客买东西时里面的机关在动）；两段都是同一机位的 8 秒循环，同名 `.jpg` 是封面；`assets/cats.jpg`：猫围着碗吃饭。
 - `assets/shots/`：商店截图缩小版，每种语言四张（第 3 张是霓虹涂装的机器页，没有价格）。
 - 下载徽章直接引用 Apple 官方地址（tools.applemarketingtools.com），加载失败时显示柠檬色按钮。
 - 字体来自 Google Fonts。网站没有 Cookie，也没有统计。
