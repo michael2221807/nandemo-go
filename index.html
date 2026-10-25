@@ -126,7 +126,7 @@ SITE.page({
     q3: 'Do I need to be online?', a3: 'No, it plays offline. With iCloud on, your save syncs between your devices.', q4: 'Which devices?', a4: 'iPhone with iOS 17 or later.',
     privacy: 'Privacy policy', support: 'Support & contact' }
 }, lang => {
-  // this language's game screenshot in the phone, Apple's badge in this language, and the three store screenshots
+  // this language's game screenshot in the phone, Apple's badge in this language, and the four store screenshots
   const shot = document.getElementById('shot');
   if (shot) shot.src = `assets/phone-${lang}.jpg`;
   // Apple's badge in this language; if it can't load, the lemon button from the sketch stands in
@@ -135,7 +135,7 @@ SITE.page({
   // the trailer in this page's language (its bubbles, chips and end card)
   const film = document.querySelector('.film'), src = `assets/trailer-h${CUT[lang]}.mp4`;
   if (film.getAttribute('src') !== src) film.setAttribute('src', src);
-  document.getElementById('rail').innerHTML = ['1-street', '2-machine', '4-album']
+  document.getElementById('rail').innerHTML = ['1-street', '2-machine', '3-neon', '4-album']
     .map(n => `<img src="assets/shots/${lang}-${n}.jpg" alt="" width="660" height="1434" loading="lazy">`).join('');
 });
 // the phone plays the vertical trailer in place of its screenshot

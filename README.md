@@ -23,6 +23,6 @@
 - `assets/trailer-v.mp4`、`assets/trailer-h.mp4`：完整版预告片的网页压缩版（720p，50 秒）；英文页用 `trailer-{v,h}-en.mp4`；原片在项目文件 `宣发/预告片样片/`。
 - `assets/phone-*.jpg`：各语言的模拟器街景截图，放在首页的手机里，点播放后换成竖版预告片。
 - `assets/m/`：四台机器的游戏内特写；`assets/cats.jpg`：猫围着碗吃饭。
-- `assets/shots/`：商店截图缩小版，每种语言三张（第 3 张换成无价格界面后再加）。
+- `assets/shots/`：商店截图缩小版，每种语言四张（第 3 张是霓虹涂装的机器页，没有价格）。
 - 下载徽章直接引用 Apple 官方地址（tools.applemarketingtools.com），加载失败时显示柠檬色按钮。
 - 字体来自 Google Fonts。网站没有 Cookie，也没有统计。
