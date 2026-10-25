@@ -78,6 +78,7 @@
 
 <script src="i18n.js"></script>
 <script>
+const CUT = { 'zh-Hans': '', 'zh-Hant': '', ja: '', en: '-en' };
 const BADGE = { 'zh-Hans': 'zh-cn', 'zh-Hant': 'zh-tw', ja: 'ja-jp', en: 'en-us' };
 SITE.page({
   'zh-Hans': { title: '南丁猫自贩机 · Nandemo Go', name: '南丁猫自贩机', h1: '街角那台<em>什么都卖</em>的自贩机',
@@ -131,8 +132,8 @@ SITE.page({
   // Apple's badge in this language; if it can't load, the lemon button from the sketch stands in
   document.getElementById('dl').classList.remove('off');
   document.getElementById('badge').src = `https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/${BADGE[lang]}`;
-  // the trailer with English bubbles for English, the Chinese one for the rest
-  const film = document.querySelector('.film'), src = `assets/trailer-h${lang === 'en' ? '-en' : ''}.mp4`;
+  // the trailer in this page's language (its bubbles, chips and end card)
+  const film = document.querySelector('.film'), src = `assets/trailer-h${CUT[lang]}.mp4`;
   if (film.getAttribute('src') !== src) film.setAttribute('src', src);
   document.getElementById('rail').innerHTML = ['1-street', '2-machine', '4-album']
     .map(n => `<img src="assets/shots/${lang}-${n}.jpg" alt="" width="660" height="1434" loading="lazy">`).join('');
@@ -140,7 +141,7 @@ SITE.page({
 // the phone plays the vertical trailer in place of its screenshot
 document.getElementById('play').addEventListener('click', () => {
   const phone = document.getElementById('phone');
-  phone.innerHTML = '<video controls playsinline autoplay poster="assets/poster-v.jpg" src="assets/trailer-v' + (document.documentElement.lang === 'en' ? '-en' : '') + '.mp4"></video>';
+  phone.innerHTML = '<video controls playsinline autoplay poster="assets/poster-v.jpg" src="assets/trailer-v' + CUT[document.documentElement.lang] + '.mp4"></video>';
   phone.querySelector('video').play().catch(() => {});
 });
 </script>

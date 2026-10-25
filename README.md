@@ -12,15 +12,15 @@
 
 语言：网址后加 `?lang=zh-Hans`、`?lang=zh-Hant`、`?lang=ja`、`?lang=en`；不加时用上次选的，或按浏览器语言。
 
-## 上线前
+## 发布
 
-- 联系邮箱：`privacy.html` 和 `support.html` 里的 `{{CONTACT_EMAIL}}` 换成要公开的邮箱。
-- 开启 Pages：仓库 Settings → Pages → Source 选 `Deploy from a branch`，分支 `main`，目录 `/ (root)`。
+- 公开联系邮箱：michaeltiktok999@gmail.com（隐私页、支持页）。
+- GitHub Pages：从 `main` 分支根目录发布，推到 `main` 即更新网站。
 - App Store 链接 `https://apps.apple.com/app/id6826643374` 在应用上架前打不开，上架后自动可用。
 
 ## 素材
 
-- `assets/trailer-v.mp4`、`assets/trailer-h.mp4`：完整版预告片的网页压缩版（720p，50 秒）；英文页用带英文气泡的 `trailer-v-en.mp4`、`trailer-h-en.mp4`；原片在项目文件 `宣发/预告片样片/`。
+- `assets/trailer-v.mp4`、`assets/trailer-h.mp4`：完整版预告片的网页压缩版（720p，50 秒）；英文页用 `trailer-{v,h}-en.mp4`；原片在项目文件 `宣发/预告片样片/`。
 - `assets/phone-*.jpg`：各语言的模拟器街景截图，放在首页的手机里，点播放后换成竖版预告片。
 - `assets/m/`：四台机器的游戏内特写；`assets/cats.jpg`：猫围着碗吃饭。
 - `assets/shots/`：商店截图缩小版，每种语言三张（第 3 张换成无价格界面后再加）。
