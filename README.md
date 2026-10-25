@@ -16,6 +16,7 @@
 
 - 公开联系邮箱：michaeltiktok999@gmail.com（隐私页、支持页）。
 - GitHub Pages：从 `main` 分支根目录发布，推到 `main` 即更新网站。
+- 三个页面引用 `site.css` 和 `i18n.js` 时带版本号（`?v=…`）。改了这两个文件，就把三页里的版本号一起改掉，否则浏览器可能拿新网页配旧样式（GitHub Pages 缓存 10 分钟）。
 - App Store 链接 `https://apps.apple.com/app/id6826643374` 在应用上架前打不开，上架后自动可用。
 
 ## 素材
