@@ -131,13 +131,16 @@ SITE.page({
   // Apple's badge in this language; if it can't load, the lemon button from the sketch stands in
   document.getElementById('dl').classList.remove('off');
   document.getElementById('badge').src = `https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/${BADGE[lang]}`;
+  // the trailer with English bubbles for English, the Chinese one for the rest
+  const film = document.querySelector('.film'), src = `assets/trailer-h${lang === 'en' ? '-en' : ''}.mp4`;
+  if (film.getAttribute('src') !== src) film.setAttribute('src', src);
   document.getElementById('rail').innerHTML = ['1-street', '2-machine', '4-album']
     .map(n => `<img src="assets/shots/${lang}-${n}.jpg" alt="" width="660" height="1434" loading="lazy">`).join('');
 });
 // the phone plays the vertical trailer in place of its screenshot
 document.getElementById('play').addEventListener('click', () => {
   const phone = document.getElementById('phone');
-  phone.innerHTML = '<video controls playsinline autoplay poster="assets/poster-v.jpg" src="assets/trailer-v.mp4"></video>';
+  phone.innerHTML = '<video controls playsinline autoplay poster="assets/poster-v.jpg" src="assets/trailer-v' + (document.documentElement.lang === 'en' ? '-en' : '') + '.mp4"></video>';
   phone.querySelector('video').play().catch(() => {});
 });
 </script>
