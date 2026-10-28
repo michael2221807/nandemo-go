@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="stylesheet" href="site.css?v=20261028-1750">
+<link rel="stylesheet" href="site.css?v=20261028-1810">
 </head>
 <body>
 <div class="wrap">
@@ -30,8 +30,8 @@
       <h1 data-t="h1">街角那台<em>什么都卖</em>的自贩机</h1>
       <p class="lead" data-t="lead">在雨夜的小街上经营一排会动的自动贩卖机：回转寿司、关东煮、扭蛋、饮料。补货、升级，等猫来串门。</p>
       <div class="ctas">
-        <a class="badge" id="dl" href="https://apps.apple.com/app/id6826643374"><img id="badge" src="https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/zh-cn" alt="在 App Store 下载" data-a="dl" width="150" height="50" onerror="this.parentNode.classList.add('off')"><span class="cta" data-t="dl">在 App Store 下载</span></a>
         <a class="cta" id="try" href="demo/" data-t="try">在浏览器里试玩</a>
+        <a class="badge" id="dl" href="https://apps.apple.com/app/id6826643374"><img id="badge" src="https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/zh-cn" alt="在 App Store 下载" data-a="dl" width="150" height="50" onerror="this.parentNode.classList.add('off')"><span class="cta" data-t="dl">在 App Store 下载</span></a>
         <a class="cta ghost" href="#trailer" data-t="watch">看预告片</a>
       </div>
     </div>
@@ -86,7 +86,7 @@
   </footer>
 </div>
 
-<script src="i18n.js?v=20261028-1750"></script>
+<script src="i18n.js?v=20261028-1810"></script>
 <script>
 const CUT = { 'zh-Hans': '', 'zh-Hant': '-hant', ja: '-ja', en: '-en' };
 const BADGE = { 'zh-Hans': 'zh-cn', 'zh-Hant': 'zh-tw', ja: 'ja-jp', en: 'en-us' };
@@ -189,12 +189,20 @@ function startDemo(e) {
   if (!f) {
     phone.querySelector('#shot').remove(); phone.querySelector('#play').remove();
     phone.insertAdjacentHTML('afterbegin', `<iframe src="${demoSrc()}" title="Nandemo Go demo" allow="autoplay; fullscreen"></iframe>`);
-    f = phone.querySelector('iframe'); stage.classList.add('live');
+    f = phone.querySelector('iframe'); stage.classList.add('live'); fit();
   }
   if (!wide.matches) { stage.classList.add('open'); document.body.classList.add('lock'); document.getElementById('shut').hidden = false; }
   else stage.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   f.focus();
 }
+// the game is laid out at an iPhone's width (390) and scaled down to fit a narrower phone frame, so it looks as it
+// does in the app instead of squeezing its own layout (the owner, 2026-10-28: cramped on a phone)
+const fit = () => {
+  const f = phone.querySelector('iframe'); if (!f) return;
+  const W = phone.clientWidth, H = phone.clientHeight, k = Math.min(1, W / 390);
+  Object.assign(f.style, { width: W / k + 'px', height: H / k + 'px', transform: k < 1 ? `scale(${k})` : '', transformOrigin: '0 0' });
+};
+new ResizeObserver(fit).observe(phone);
 document.getElementById('play').addEventListener('click', startDemo);
 document.getElementById('try').addEventListener('click', startDemo);
 const back = document.createElement('button'); back.type = 'button'; back.className = 'cta back'; back.hidden = true;
