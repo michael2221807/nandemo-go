@@ -150,10 +150,13 @@ xr.querySelector('.xrb').addEventListener('click', e => {
 });
 // the sushi machine's loops hold still for anyone who asked for less motion
 if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('.m video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
+// the trailers start at half volume (the owner, 2026-10-28: the music was too loud); the player's slider still goes up
+document.querySelector('.film').volume = .5;
 // the phone plays the vertical trailer in place of its screenshot
 document.getElementById('play').addEventListener('click', () => {
   const phone = document.getElementById('phone');
   phone.innerHTML = '<video controls playsinline autoplay poster="assets/poster-v.jpg" src="assets/trailer-v' + CUT[document.documentElement.lang] + '.mp4"></video>';
+  phone.querySelector('video').volume = .5;
   phone.querySelector('video').play().catch(() => {});
 });
 </script>
