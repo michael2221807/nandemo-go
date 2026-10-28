@@ -105,6 +105,10 @@ footer a{color:var(--paper)}
 .stage{position:sticky;top:20px;display:grid;gap:10px;width:calc((100dvh - 96px) * 9 / 19.5);max-width:400px;min-width:300px}
 .stage-note{font-size:13px;color:var(--muted);text-align:center}
 .stage-note a{color:var(--lemon)}
+.fold{font:inherit;color:var(--lemon);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+/* 收起 on a wide screen: the page takes the whole width, the phone goes out of sight but stays loaded (the game runs on) */
+body.folded .layout{grid-template-columns:minmax(0,1fr)}
+body.folded .stage{position:fixed;right:0;bottom:0;visibility:hidden;pointer-events:none}
 .play{inset:auto 0 0;padding:28px 16px 22px}
 .play span{display:grid;gap:2px}
 .play b{font:700 17px var(--body);color:var(--lemon)}
@@ -127,6 +131,7 @@ footer a{color:var(--paper)}
   .stage{position:static;width:min(340px,100%);min-width:0;justify-self:center;order:-1}
   .flow{display:contents}
   .flow>.hero{order:-2}
+  .fold-w{display:none}
   .stage.open{position:fixed;inset:0;z-index:10;width:100%;max-width:none;justify-self:stretch;margin:0;padding:calc(52px + env(safe-area-inset-top,0px)) 0 0;background:var(--night)}
   .stage.open .phone{width:100%;height:100%;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}
   .stage.open .stage-note{display:none}
