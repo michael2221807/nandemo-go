@@ -14,7 +14,7 @@
 
 ## 试玩版
 
-- `demo/`：游戏的网页试玩版（nandemo-app 的 `python3 tools/build_www.py --release --web --trial` 生成，去掉 `turn.html`、`turnbake-hash.json`、`VERSION`），首页顶部的「在浏览器里试玩」在新标签页打开它（约 24 MB）。
+- `demo/`：游戏的网页试玩版（nandemo-app 的 `python3 tools/build_www.py --release --web --trial` 生成，去掉 `turn.html`、`turnbake-hash.json`、`VERSION`），首页右侧（手机上是首屏下面）那台手机就是它：点「开始试玩」才加载（约 24 MB）；宽屏时手机固定在右边，往下看介绍时游戏一直在跑；手机上全屏打开，「收起」后游戏不停，右下角「回到游戏」回来。也可以新标签页打开。
 - 试玩版只开放第一条街的四台机器，其他机器和猫在图鉴里能看到，标着「完整版」。游戏设置里输入兑换码可以解锁完整网页版（没有内购内容）。兑换码只在页面里核对。
 - 游戏跟着网站的语言：首页把 `?lang=` 传给 `demo/`；玩家在游戏里自己换了语言，会保持到网站语言再变。
 
