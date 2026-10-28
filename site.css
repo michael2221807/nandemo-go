@@ -12,7 +12,7 @@
 html:lang(zh-Hans){--body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif}
 html:lang(zh-Hant){--body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--display:"Chiron GoRound TC","Dela Gothic One","PingFang TC",sans-serif}
 *{box-sizing:border-box}
-html{background:var(--night)}
+html{background:var(--night);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   background-image:repeating-linear-gradient(105deg,transparent 0 22px,rgba(255,255,255,.025) 22px 23px)}
@@ -38,7 +38,7 @@ a{color:inherit}
 .hero h1 em{font-style:normal;color:var(--lemon);text-shadow:3px 3px 0 var(--neon)}
 .lead{color:var(--muted);max-width:34em}
 .ctas{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:6px}
-.badge{display:inline-block;line-height:0;border-radius:10px}
+.badge{display:inline-block;line-height:0;border-radius:10px;text-decoration:none}
 .badge img{height:50px;width:auto}
 .badge .cta{display:none}
 .badge.off{line-height:normal}
@@ -144,16 +144,17 @@ body.folded .stage{position:fixed;right:0;bottom:0;visibility:hidden;pointer-eve
 }
 @media (max-width:720px){.cats{grid-template-columns:minmax(0,1fr)}}
 /* a phone: the opening lot's buttons in one tidy block, the same height: 在浏览器里试玩 across, the App Store badge
-   and 看预告片 side by side under it */
+   and 看预告片 side by side under it. Their text may wrap: when Apple's badge image does not load (the owner's iPhone,
+   2026-10-28) its words stand in, and kept on one line they widened the column past the card */
 @media (max-width:600px){
-  .ctas{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .ctas>*{height:52px;margin:0}
-  .ctas .cta{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 6px;font-size:clamp(13px,3.9vw,16px);line-height:1.2;white-space:nowrap}
+  .ctas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .ctas>*{min-height:52px;min-width:0;margin:0}
+  .ctas .cta{display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 8px;font-size:clamp(13px,3.9vw,16px);line-height:1.2}
   .ctas #try{grid-column:1/-1}
   .ctas .badge:not(.off) .cta{display:none}
   .badge{display:flex;align-items:center;justify-content:center;background:#000;border:3px solid var(--ink);border-radius:12px}
   .badge img{height:40px}
   .badge.off{background:none;border:0}
-  .badge.off .cta{width:100%;height:100%}
+  .ctas .badge.off .cta{display:flex;width:100%;height:100%}
 }
 @media (prefers-reduced-motion:no-preference){.logo{animation:flick 6s infinite}@keyframes flick{0%,92%,100%{opacity:1}93%{opacity:.55}95%{opacity:1}96%{opacity:.7}}}
