@@ -1,0 +1,282 @@
+/* The app's changes to the prototype's look, loaded after the page's own <style>. Only layout for a real phone screen
+   and hiding what belongs to the prototype; no change to the game's art or animation. */
+
+/* DM Mono (the clock and other monospaced lettering), bundled instead of loaded from Google Fonts, which is
+   unreachable in mainland China (Latin subset, SIL OFL 1.1, licence in www/licenses/OFL-dmmono.txt) */
+@font-face { font-family: "DM Mono"; font-weight: 400; font-display: block; src: url(fonts/DMMono-400.woff2) format("woff2"); }
+@font-face { font-family: "DM Mono"; font-weight: 500; font-display: block; src: url(fonts/DMMono-500.woff2) format("woff2"); }
+
+/* the page fills the whole screen, as the prototype fills its 393×852 phone frame: inside the safe area the machine
+   came out ~15% smaller than in the prototype (2026-10-20, side by side). The top bar's chips sit either side of the
+   notch / Dynamic Island (the middle of that bar is empty in the app), the hint text ends above the home indicator's
+   strip. The prototype's phone media query (max-width:519px) already drops the frame */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { position: fixed; inset: 0; -webkit-text-size-adjust: 100%; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.shell { position: fixed; inset: 0; height: auto; min-height: 0; padding: 0; gap: 0; display: block; }
+.device { width: 100%; height: 100%; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; }
+
+/* prototype-only (handoff doc section 6): the art-style switch, every 演示 button, the phone preview entry in the
+   settings and the store's "clear purchases" */
+#art, .st-demo, .st-demos, .set-link[data-act="phone"], .pay-foot [data-act="reset"] { display: none !important; }
+
+/* the prototype's simulated notification prompt: the system's own prompt comes instead (platform/notify.js answers
+   the simulated one with what the player chose there) */
+#sys-alert { visibility: hidden !important; }
+
+/* touch screens keep :hover after a tap (S15): a street machine would stay lifted and the wallet nudged. Back to
+   their resting state where there is no hover */
+@media (hover: none) {
+  .st-m:hover .st-bob { transform: none; }
+  .st-wallet:hover { transform: rotate(-1deg); }
+}
+
+/* turning with pictures (platform/turn.js): the live machine's parts are out of the layout while pictures show */
+.nd-off { display: none !important; }
+
+/* the machine screen's top: the bar of chips and the machine switcher under it (2026-10-20, the owner: their background
+   and style did not belong to the game). The prototype gave the switcher a flat band of the old iso night (#1c1330,
+   opaque to 40%) that began in a hard line right under the chips and ignored the machine's tint, so the top read as
+   three stripes. Now one shade of the game's own deepest purple (the bottom stop of the ZZZ backdrop, #0f0a1e) runs
+   from the top of the screen, behind the chips and the notch, and fades out under the machine's name: the tint and
+   the halftone dots show through, no seam. The switcher's "Fig" line becomes the game's yellow tag (as 批发商 · 配货,
+   钱包), the page dots cream and yellow with an ink shadow instead of the iso orange glow. Colours, background and
+   shadow only: the negative margins keep every box where it was. ZZZ only (the app's one look) */
+.device[data-art="zzz"] .switcher { background: none; }
+.device[data-art="zzz"] .topbar::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 0; height: 134px; pointer-events: none;
+  background: linear-gradient(rgba(15, 10, 30, .9), rgba(15, 10, 30, .74) 48%, rgba(15, 10, 30, .3) 78%, rgba(15, 10, 30, 0));
+  transition: opacity .35s ease; }
+.device[data-art="zzz"].is-street .topbar::before { opacity: 0; }
+
+/* the notch / Dynamic Island (2026-10-20, review item 13): with the page filling the whole screen, the top bar's chips
+   (16 pt down) reached into the notch, worst on the wide notch of the XR / 11 (status bar 48 pt, chips 32 pt into it).
+   The stage, the backdrop and the gradient above still start at the very top; only the chips come down to the safe
+   area's edge, and what hangs under them (the machine switcher, ‹ 街 and 复位视角, the trial run's chip and buttons, the
+   toast under the machine's name) comes down by the same
+   amount, so their spacing stays the prototype's. `translate` adds to the transforms those boxes already have (centring, tilt). The gradient grows by
+   the same amount, so it still fades out under the machine's name. Without a notch (inset 0 or ≤ 16 pt) nothing moves */
+:root { --nd-safe-top: env(safe-area-inset-top, 0px); --nd-safe-bottom: env(safe-area-inset-bottom, 0px); --nd-top-shift: max(0px, var(--nd-safe-top) - 16px); }
+.topbar { padding-top: max(16px, var(--nd-safe-top)); }
+.switcher, .reset, .trialchip, .trialparts, .toast { translate: 0 var(--nd-top-shift); }
+.device[data-art="zzz"] .topbar::before { height: calc(134px + var(--nd-top-shift)); }
+/* the sheets (设置, 图鉴, 购买…) keep their 24 pt from the screen's edges, or the safe area's where that is more: the
+   settings card is as tall as the screen allows and began 24 pt down, under the notch, and ended over the home
+   indicator. (The bottom bar's buttons and the dock already end above the home indicator: nothing changes there) */
+.st-sheet { padding-top: max(24px, var(--nd-safe-top)); padding-bottom: max(24px, var(--nd-safe-bottom)); }
+/* the 图鉴 sheet has its own padding (an id rule, 58 pt above, 20 pt below): the same, by the same id */
+#st-album { padding-top: max(58px, var(--nd-safe-top)); padding-bottom: max(20px, var(--nd-safe-bottom)); }
+.device[data-art="zzz"] .fig small { color: var(--zink); background: #ffd23f; padding: 2px 8px; margin: -2px -8px; transform: skewX(-10deg); box-shadow: 2px 2px 0 var(--zink); }
+.device[data-art="zzz"] .dots i { background: rgba(255, 248, 236, .3); }
+.device[data-art="zzz"] .dots i.on { background: #ffd23f; box-shadow: 1px 1px 0 var(--zink); }
+
+/* buttons whose label sat off centre (2026-10-20, the owner: 所有按钮的居中问题). Measured on every screen's buttons
+   (ink against the box, 390×844 ×3); only these were off, the rest are within half a point. Sizes and positions stay:
+   only where the label sits inside its box changes.
+   - the machine switcher's ‹ › (38×38): drawn now, see "icons drawn, not typed" at the end (a 2 pt lift of the glyph
+     suited no font on both engines)
+   - the album's section tabs without a count under the name (商品, 装扮): the name stood at the top of a tab as tall as
+     its two-line neighbours; now in the middle (the two-line tabs have no room to move, so they stay put) */
+.al-secs button { align-content: center; }
+
+/* 试运转 / 试装 (2026-10-20, 方案B): the chip, 全部装上 (拆下) and 买下 as one row just above the bottom bar, 8 pt over 今夜
+   (platform.js moves them into the bar), instead of under the machine's name, where they covered its roof once the top UI
+   came down out of the notch. The game's own styles and show / hide rules; only where they sit changes, and only in trial
+   mode (outside it the row is not shown, as the three were not). Out of the bar's flow (the bar's padding above 今夜 is
+   34 pt, so the row's foot is 26 pt below the bar's top): the bar and its shade keep their size. A row too long for the
+   screen (English with a long price: "Buy · ¥80.00 quintillion", a narrow phone) stays one line and is scaled down to
+   fit by platform.js (it wrapped onto two lines, its second over the machine's base) */
+.nd-trialrow { display: none; }
+.device.trial .nd-trialrow { display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 6px;
+  position: absolute; left: 14px; right: 14px; bottom: calc(100% - 26px); pointer-events: none; transform-origin: 50% 100%; }
+/* behind the row, the bar's own shade begins higher, only in trial mode (the bar's gradient is still clear where the row
+   sits): the camera leaning in for 试装 (or the player zooming in) brought the machine's base and the X-ray scan's ⌃⌄
+   knob under the row, seen through 拆下 / 买下 (faded while the part goes in) and beside them. The bar's own night colour,
+   solid from the row's middle down to where the bar's gradient is solid itself (38% of the bar) */
+.device.trial .bottombar::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: -18px; bottom: 62%;
+  background: linear-gradient(transparent, var(--night) 34%); pointer-events: none; }
+.device .nd-trialrow > .trialparts { pointer-events: auto; }   /* (the row's empty width lets touches through to the machine; the chip never took them) */
+/* the toast: in trial mode the prototype moved it down (top 166) to make room under the chip and its buttons, which now
+   sit at the bottom; so back to where it sits outside trial mode, under the machine's name (112; the toast's own
+   translate above brings it down with the name, out of the notch) */
+.device.trial .toast { top: 112px; }
+.device .nd-trialrow > .trialchip, .device .nd-trialrow > .trialparts { position: static; transform: none; translate: none; }
+.device .nd-trialrow > .trialparts:active { transform: translate(1px, 1px); }
+
+/* the street's top (2026-10-20, the owner's 第二版): the wallet card first, at the top of the screen where the prototype
+   has it (58 pt; on a notch phone that is under the notch, so the street no longer comes down by the shift above and the
+   今日 line is off the signs again). 商店 and 设置 go up into the two "ears" beside the notch / Dynamic Island (the status
+   bar is hidden: the ears are empty), 商店 left, 设置 right; on the machine screen 设置 stays in the same place, so it
+   does not jump between the screens (the clock keeps the left of the top bar). Under the card: 图鉴 on the left (and the
+   new player's hint under it), 今日 on the right where the prototype has it, the street switch 「なんでも通り ⇄」 under 今日
+   (platform.js moves it out of the top bar into the street). 10 pt down in the ears, 20 pt in from the sides: the chips'
+   round ends stay ≥ 3.7 pt inside the screen's rounded corners and clear of the notch (iPhone 11 / XR, the widest notch,
+   measured on a screenshot: 10–12 pt at the chips' middle, about 4–4.5 pt at their nearest top corner in Chinese, 6 pt
+   for Japanese 設定); without a notch (SE) they sit at the top bar's own 16 pt. Each keeps its look; a 44 pt tall touch area (the
+   system's top-edge pull-down stays as it is: the owner, 2026-10-20). Mock-ups: 修复/按钮重新布局-第二版-大字.png */
+:root { --nd-ear-top: max(10px, calc(16px - var(--nd-top-shift))); }
+#gear { position: absolute; right: 20px; top: var(--nd-ear-top); }
+#st-paybtn { top: var(--nd-ear-top) !important; left: 20px; z-index: 4; }
+#gear::before, #st-paybtn::before, #street > #st-street::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; margin-top: -22px; }
+.device.is-street .topbar { justify-content: flex-start; }
+#street > #st-street { position: absolute; z-index: 3; right: 16px; top: calc(var(--wb, 170px) + 50px); margin: 0; }
+/* the hint: left-aligned (undoes the game's translateX(-50%), which its pop animation keeps), and no wider than the room
+   left of the street switch (16 + 117 + 8 pt; a longer hint wraps onto a second line, its lines balanced: text-wrap from
+   iOS 17.5, platform.js narrows the bubble before that, so no line is left with one character, as ja's 「う」 was) */
+.st-guide { top: calc(var(--wb, 170px) + 50px) !important; left: 16px; translate: 50% 0; max-width: calc(100% - 157px); text-wrap: balance; }
+/* a label too long for an ear (English "Settings", Japanese ショップ: they reached into the notch) leaves the icon alone
+   (the owner: 大小不够可以改 icons); platform.js decides, by the chip's width. The touch area stays 44 pt wide */
+.nd-icononly .nd-ear-label { display: none; }
+.nd-icononly::before { left: 50% !important; right: auto !important; width: 44px; margin-left: -22px; }
+
+/* the machine's name over the machine (2026-10-21, the owner: 咕噜咕噜 all thin, 托盘食堂 all bold but 盘). The prototype
+   sets it in --display-jp, Dela Gothic One for its Japanese names; translated into Chinese (全部翻译) a name has
+   simplified-only characters Dela lacks (盘 咕 噜 …), which fell back to Hiragino Sans at 400 mid-name. Then the
+   interface's Chinese display font, as the prototype sets all its other Chinese text (--display: ND QingKe first) */
+html[data-lang="zh"][data-names="local"] .fig b { font-family: var(--display); }
+
+/* the ✕ close buttons (2026-10-20, the owner on the phone: the X not centred). The glyph is not in the bundled fonts, so
+   iOS draws it from a system font whose box sits it off the button's middle. Drawn instead: two bars of the text's own
+   colour crossing at the button's centre, the size of the ✕ they replace (8.75 pt across at 12 px, 9.5 at 13) */
+.al-x, .upg-x, .sh-x { font-size: 0 !important; }
+.sh-x { position: relative; }
+.al-x::before, .al-x::after, .upg-x::before, .upg-x::after, .sh-x::before, .sh-x::after { content: ""; position: absolute;
+  left: 50%; top: 50%; width: 12px; height: 2.2px; margin: -1.1px 0 0 -6px; border-radius: 1px; background: currentColor; transform: rotate(45deg); }
+.al-x::after, .upg-x::after, .sh-x::after { transform: rotate(-45deg); }
+.sh-x::before, .sh-x::after { width: 13px; margin-left: -6.5px; }
+
+/* 设置: the ✕ and the title stay put while the settings scroll (2026-10-20, the owner: dragging the list pulled the ✕ up
+   out of reach). As the 图鉴 card does it: the card is a column that does not scroll, only its body (#set-body) does */
+.set-sheet .st-card.set-card { display: flex; flex-direction: column; overflow: hidden; }
+.set-card h3 { align-self: flex-start; flex: none; }
+#set-body { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; grid-auto-rows: max-content; align-content: start; }   /* (rows at their own height: the groups clip their corners, so they would shrink to fit instead) */
+
+/* 全部看过's ✓ (2026-10-21, with the ✕ and the album's + badges): drawn, as a tick of two borders, centred on the
+   label's capitals instead of on a fallback font's line box */
+.al-readall { display: inline-flex; align-items: center; gap: 5px; }
+.al-readall::before { content: ""; flex: none; width: 4.5px; height: 9px; margin: -2px 1px 0 1px; border: solid #ff4f8b; border-width: 0 2.2px 2.2px 0; transform: rotate(40deg); }
+
+/* The machine view's 「‹ 街」 badge (prototype: 17px border-box circle, 2px border, line-height 17px): the
+   text sat on a 17px line inside a 13px box, so the count and "+" read ~2 pt low. Line the text to the
+   13px inner box; "+" (cards to buy) is drawn, like the album's, so it doesn't hang on a font
+   (:not() repeated to match the prototype rule's weight). */
+#tostreet[data-n]:not([data-n=""])::after { line-height: 13px; }
+#tostreet[data-n="+"]:not([data-n=""])::after { font-size: 0;
+  background: linear-gradient(#fff, #fff) 50% 50% / 7px 2px no-repeat, linear-gradient(#fff, #fff) 50% 50% / 2px 7px no-repeat, #ff4f8b; }
+
+/* 今日 inside the wallet card, its last line on the right (2026-10-21, the owner's pick of 第一版; platform.js moves it).
+   Auto-placed across both columns after the goal line (order 9), so no empty row when the goal is hidden. The street
+   switch moves up into the 图鉴 row, its centre on 图鉴's */
+#st-wallet > #st-today { position: static !important; top: auto !important; grid-column: 1 / -1; order: 10; margin: 0; text-align: right; }
+#street > #st-street { top: calc(var(--wb, 170px) + 11.5px); }
+
+/* icons drawn, not typed (2026-10-21, the owner: the arrows off centre again, after the ✕ and the + before them). A
+   glyph sits on its font's baseline and side bearings, and which font WebKit takes for ‹ › ⇄ is not ours (they are not
+   in the bundled faces), so where it lands in a round button differs from Chromium's; nudging it with padding (as was
+   done here) fixes one font at one size. Instead each icon is a mask drawn centred in its own box, filled with the
+   text's colour, and the box is centred by the button's grid: the middle every time. Checked in the iOS simulator with
+   tools/check_centering.sh (the ink's centre against the button's) */
+:root { --nd-chev-l: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M7.75 2.5 4.25 6l3.5 3.5' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); --nd-chev-r: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4.25 2.5 7.75 6l-3.5 3.5' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); --nd-swap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.2 4.2h7.6M7.8 2.2l2 2-2 2M9.8 7.8H2.2M4.2 5.8l-2 2 2 2' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.arrow { font-size: 0 !important; padding: 0 !important; position: relative; }
+/* (the arrow's ::before at the exact middle, whatever box the glyph's text node still makes in the grid: in WebKit it
+   pushed the icon 4.5 pt up) */
+.arrow::before { position: absolute; left: 50%; top: 50%; margin: -7.5px 0 0 -7.5px; }
+.arrow::before, .set-btn > b::before, .st-street-chip b::before { content: ""; display: block; width: 15px; height: 15px; background: currentColor;
+  -webkit-mask: var(--nd-icon) center / contain no-repeat; mask: var(--nd-icon) center / contain no-repeat; }
+#prevM { --nd-icon: var(--nd-chev-l); }
+#nextM, .set-btn > b { --nd-icon: var(--nd-chev-r); }
+.set-btn > b { font-size: 0; display: grid; place-items: center; }
+.set-btn > b::before { width: 12px; height: 12px; }
+.st-street-chip b { --nd-icon: var(--nd-swap); font-size: 0; display: inline-grid; place-items: center; vertical-align: middle; }
+.st-street-chip b::before { width: 13px; height: 13px; }
+
+/* text that did not fit in English (user 2026-10-21, the 补货 dock during an animation; tools/check_i18n.mjs lists the
+   rest). Same in the unmodified prototype: its English is longer than the Chinese the layout was drawn for.
+   - the dock: its one-line label (grade · crate · items left · stock −¥…) is wider than the phone, and as the dock is a
+     grid with auto columns it grew with it, pushing 全部放入 and the hint past the right edge. The dock now keeps the
+     screen's width; the label may take a second line, centred, and drops the wide letter spacing outside Chinese */
+#dock > * { min-width: 0; }
+#dock { grid-template-columns: minmax(0, 1fr); }
+html:not([data-lang="zh"]) #dock-label { white-space: normal; letter-spacing: 0; line-height: 1.25; text-wrap: balance; }
+/* - the wholesale shop's header: tag, machine name, wallet and ✕ in one row: ✕ stays on screen, smaller type outside
+     Chinese, and a long name (Sushi Go-Round beside a ¥… billion wallet) takes a second line */
+.sh-head > * { flex: none; }
+.sh-head #sh-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+html:not([data-lang="zh"]) .sh-head #sh-name { letter-spacing: 0; font-size: 13px; line-height: 1.1; white-space: normal; }
+html:not([data-lang="zh"]) .sh-head .sh-tag { font-size: 12px; padding: 6px 9px; }
+html:not([data-lang="zh"]) .sh-head .sh-bank { font-size: 12.5px; }
+/* - the album's goods tabs: 「Capsule toys」 cut to 「Capsule …」 */
+html[data-lang="en"] .al-kinds button b { font-size: 9px; letter-spacing: -.02em; }
+
+/* English that still did not fit, as WebKit draws it (2026-10-21; Chromium measured them fine): WebKit's text runs a
+   little wider in these faces, so the room 0868af9 made held in Chromium only
+   - the album's goods tabs: 「Capsule toys」 still cut at 9 px; outside Chinese a name may take a second line instead
+   - the street wallet: 「¥139.1 quintillion」 ran under the jar, the longest (「¥999.9 quattuordecillion」) past the card:
+     in English platform/money.js scales the amount down until it ends left of the jar */
+html:not([data-lang="zh"]) .al-kinds button b { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.05; overflow-wrap: anywhere; }
+
+/* 涂装 (platform/skin.js, the owner 2026-10-21): the chip at the top right of a machine's page, opposite 「‹ 街」, in
+   the 「去别的街」 chip's look (pink ⇄ drawn as a mask); dimmed with a drawn lock until every 改造 is fitted. Not on
+   the street, not in 试运转 (its chips sit at the top centre) */
+#nd-skin { position: absolute; z-index: 3; top: 112px; right: 14px; margin: 0; min-height: 34px; font-weight: 700; translate: 0 var(--nd-top-shift); }
+#nd-skin b { color: #e23d78; --nd-icon: var(--nd-swap); font-size: 0; display: inline-grid; place-items: center; vertical-align: middle; }
+#nd-skin b::before { content: ""; display: block; width: 13px; height: 13px; background: currentColor;
+  -webkit-mask: var(--nd-icon) center / contain no-repeat; mask: var(--nd-icon) center / contain no-repeat; }
+#nd-skin .lk { display: inline-grid; place-items: center; opacity: .8; }
+#nd-skin .lk svg { display: block; }
+#nd-skin.locked { opacity: .72; cursor: default; }
+#nd-skin::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; margin-top: -22px; }
+.device.is-street #nd-skin, .device.trial #nd-skin { visibility: hidden; }
+/* 樱花款 under 霓虹 (the owner, 2026-10-21: a paid look must show in both): ミズイロ's blue light strips, its lit name, the
+   sign's frame and the side panel's lines turn cherry pink, as the body does in 漫画 (.skin-sakura's --mb); 「つめた〜い」 stays blue (it means cold) */
+.nd-neon.skin-sakura .lamp-light[fill="var(--blue)"] { fill: #ff7fb0; }
+.nd-neon.skin-sakura .lit-text[style*="--blue"] { --lc: #ff8fbf !important; }
+.nd-neon.skin-sakura .glass.on { stroke: #ff7fb0; }
+/* (the side panel's water drop, waves and 天然水 in faint blue lines) */
+.nd-neon.skin-sakura [stroke="rgba(90,169,255,.4)"] { stroke: rgba(255,127,176,.4); }
+.nd-neon.skin-sakura [stroke="rgba(90,169,255,.38)"] { stroke: rgba(255,127,176,.38); }
+.nd-neon.skin-sakura [fill="rgba(90,169,255,.07)"] { fill: rgba(255,127,176,.07); }
+.nd-neon.skin-sakura [fill="rgba(90,169,255,.16)"] { fill: rgba(255,127,176,.16); }
+.nd-neon.skin-sakura [fill="rgba(90,169,255,.6)"] { fill: rgba(255,127,176,.6); }
+
+/* the X-ray's name tags fade out after 2 s with nothing touched and come back when the view moves (platform/xtags.js,
+   the owner 2026-10-22: they covered the machine, worst on the oden machine). In quickly, out slowly */
+#tags { transition: opacity .25s ease-out; }
+#tags.nd-idle { opacity: 0; transition: opacity .8s ease-in; }
+
+/* the row at 112 under the machine's name (the owner 2026-10-22: the 改造 count 0/3 and a toast on top of each other):
+   ‹ 街 on the left and the 涂装 chip on the right fill it, so what the prototype put there comes down a row. 复位视角
+   (shown once zoomed or turned) goes under the chip, on the right; the toast under that row, and one row further while
+   复位视角 is there. In 试运转 the chip is hidden and the toast stays at 112 (above) */
+.device:not(.trial) #reset { top: 154px; }
+.device:not(.trial) .toast { top: 154px; }
+.device:not(.trial):has(#reset:not([hidden])) .toast { top: 196px; }
+
+/* the catalog's title in 全部翻译 Chinese (the owner 2026-10-22, the shop's header with strokes of two weights again):
+   since its name became 南丁猫目录 (b3bf3e1) it is Chinese in Dela Gothic One, the prototype's font for its Japanese
+   name, which lacks 录 (Hiragino Sans at 400 mid-word, as 盘 was in the machine's name, .fig b above). Then the
+   interface's Chinese display font */
+html[data-lang="zh"][data-names="local"] .pay-h { font-family: var(--display); }
+
+/* letters a display font lacks, filled from a font of another weight mid-line (the owner 2026-10-22, 「都改吧」;
+   tools/check_font_fallback.mjs lists them). The language sheet's title is the same three-language line in every
+   language: in Japanese and English it was in Dela Gothic One, which lacks 语 (a thin Hiragino Sans 语 in Japanese).
+   Now everywhere the font Chinese shows it in (ND QingKe, Dela for what QingKe lacks), so it looks the same in all three */
+.lang-card h3 { font-family: "ND QingKe", "ND Dela", sans-serif; }
+/* Japanese names in Chinese: a cat's name (ミケ) and the street's sign tags (ねこ缶) were in ND QingKe, which has no
+   kana, so the kana came from Dela and the kanji from QingKe. Japanese text takes the Japanese display font first, as the
+   prototype's .st-jp means to (its .st-pop-t rule wins over it); QingKe after it for a Chinese character Dela lacks */
+#street-svg .st-pop-t.st-jp, #street-bg .st-pop-t.st-jp { font-family: "ND Dela", "ND QingKe", sans-serif; }
+html[data-lang="zh"][data-names="jp"] #nk-name { font-family: "ND Dela", "ND QingKe", sans-serif; }
+
+/* a turn the game draws itself, before the machine's turning pictures are there (platform/turn.js; the owner's LOD,
+   2026-10-23): while it turns, the insides seen through the windows and the glows are left out, and come back with the
+   last frame (on an iPhone 13 Pro the insides and the glows were about a third of each step's ~160 ms). Never under
+   the X-ray (turn.js does not set it then): the insides are what it shows */
+.device.nd-lod #stage [filter] { filter: none !important; }
+.device.nd-lod #world .g-int { display: none; }
+
+/* a turn under the X-ray with its pictures (platform/turn.js, 2026-10-23): the live name tags and the scan line stand
+   where the machine was when the turn began, so they are out while it turns and come back with the machine */
+.device.nd-xturn #tags, .device.nd-xturn #scan { visibility: hidden !important; }
+
+/* (sample only: PR #2's 新货 badge fix, its ui.css is not in build 1) */
+.news-s b{display:inline-block;line-height:1.15;vertical-align:middle;margin:2px 0}

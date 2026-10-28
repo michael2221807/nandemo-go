@@ -1,12 +1,9 @@
-// the site's four languages: ?lang= first, then the one picked before, then the browser's.
+// the site's four languages: ?lang= first, then the one picked before, then English (the owner, 2026-10-28).
 // The page's table T fills [data-t] (text), [data-a] (an image's alt) and the title; after(lang) does the rest.
 window.SITE = (() => {
   const LANGS = [['zh-Hans', '简体'], ['zh-Hant', '繁體'], ['ja', '日本語'], ['en', 'EN']];
   const ok = l => LANGS.some(x => x[0] === l);
-  const guess = () => {
-    const n = (navigator.language || 'en').toLowerCase();
-    return /^zh-(hant|tw|hk|mo)/.test(n) ? 'zh-Hant' : n.startsWith('zh') ? 'zh-Hans' : n.startsWith('ja') ? 'ja' : 'en';
-  };
+  const guess = () => 'en';
   const saved = () => { try { return localStorage.getItem('nandemo-site-lang'); } catch (e) { return null; } };
   const keep = l => { try { localStorage.setItem('nandemo-site-lang', l); } catch (e) { /* private mode */ } };
   function page(T, after) {

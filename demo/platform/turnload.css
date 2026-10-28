@@ -1,0 +1,29 @@
+/* (its own sheet, 2026-10-23: platform.css is part of the hash the turning pictures baked into the app are checked
+   against, tools/build_www.py bake_hashes; this draws nothing of a machine) */
+/* the progress of a machine's own turning pictures (platform/turn.js; the owner 2026-10-23: not over the machine): a
+   cat in a ring at the bottom left, the ring filling with the share of the pictures of the machine as it is now that
+   are drawn, while a dot goes round it. It never stops a turn. The page's own colours: dark, or the 漫画 chips' cream with the ink outline and its offset shadow */
+#nd-turnload { position: absolute; z-index: 4; left: 14px; top: 600px; width: 48px; height: 48px; pointer-events: none;
+  border-radius: 50%; background: rgba(17, 20, 26, .92); border: 1px solid var(--edge); --ink-cat: #17121f; --ring: var(--yellow);
+  --trk: rgba(255, 255, 255, .14); opacity: 0; transform: scale(.7); transform-origin: 50% 50%; transition: opacity .25s, transform .3s cubic-bezier(.3, 1.5, .5, 1); }
+.device[data-art="zzz"] #nd-turnload { background: #fff8ec; border: 2px solid var(--zink); box-shadow: 2px 2px 0 var(--zink); --ring: var(--rose); --trk: rgba(23, 18, 31, .12); }
+#nd-turnload.on { opacity: 1; transform: none; }
+#nd-turnload svg { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); overflow: visible; }
+.device[data-art="zzz"] #nd-turnload svg { inset: -2px; width: calc(100% + 4px); height: calc(100% + 4px); }
+#nd-turnload .trk, #nd-turnload .arc { fill: none; stroke-width: 3.2; }
+#nd-turnload .trk { stroke: var(--trk); }
+#nd-turnload .arc { stroke: var(--ring); stroke-linecap: round; transform: rotate(-90deg); transform-origin: 24px 24px; transition: stroke-dasharray .3s; }
+#nd-turnload .orb { transform-origin: 24px 24px; animation: nd-orb 1.4s linear infinite; }
+#nd-turnload .orb circle { fill: var(--ring); stroke: var(--ink-cat); stroke-width: 1.2; }
+#nd-turnload .ear, #nd-turnload .head { fill: #fffdf8; stroke: var(--ink-cat); stroke-width: 1.6; stroke-linejoin: round; }
+#nd-turnload .ear.l { fill: #ffb547; }
+#nd-turnload .pink { fill: #ff9cb5; }
+#nd-turnload .patch { fill: #ffb547; }
+#nd-turnload .eyes { fill: var(--ink-cat); transform-origin: 24px 25.4px; animation: nd-blink 3.2s infinite; }
+#nd-turnload .cheek { fill: #ff9cb5; opacity: .75; }
+#nd-turnload .nose { fill: #ff7aa0; }
+#nd-turnload .line { fill: none; stroke: var(--ink-cat); stroke-width: 1; stroke-linecap: round; }
+#nd-turnload .ears { transform-origin: 24px 22px; animation: nd-ears 2.6s ease-in-out infinite; }
+@keyframes nd-orb { to { transform: rotate(360deg); } }
+@keyframes nd-blink { 0%, 90%, 100% { transform: none; } 94% { transform: scaleY(.15); } }
+@keyframes nd-ears { 0%, 70%, 100% { transform: none; } 78% { transform: rotate(-4deg); } 86% { transform: rotate(3deg); } }
