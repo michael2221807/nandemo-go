@@ -124,7 +124,19 @@ body.folded .stage{position:fixed;right:0;bottom:0;visibility:hidden;pointer-eve
 .seg{display:inline-flex;border:2px solid var(--muted);border-radius:999px;padding:2px}
 .seg button{font:500 13px var(--body);color:var(--paper);background:transparent;border:0;border-radius:999px;padding:4px 14px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--lemon);color:var(--ink)}
-.film.v{aspect-ratio:9/16;max-height:80dvh;width:auto;justify-self:center}
+/* the trailer lot. Vertical (the default): the film in a phone-shaped frame on the left, the four store screenshots
+   two by two beside it, the same height; wide: the film across, the screenshots in a strip under it */
+.film.v{aspect-ratio:9/16;width:100%;border-radius:22px}
+.trailer.vmode{grid-template-columns:minmax(0,1fr) minmax(0,.86fr);column-gap:22px;align-items:start}
+.trailer.vmode .th{grid-column:1/-1}
+.trailer.vmode .rail{display:grid;grid-template-columns:1fr 1fr;gap:14px;overflow:visible;padding:0;align-content:space-between;height:100%}
+.trailer.vmode .rail img{width:100%;border-radius:12px}
+@media (max-width:560px){
+  .trailer.vmode{grid-template-columns:minmax(0,1fr)}
+  .trailer.vmode .film.v{width:min(100%,340px);justify-self:center}
+  .trailer.vmode .rail{display:flex;overflow-x:auto;gap:12px;padding:4px 2px 12px;height:auto}
+  .trailer.vmode .rail img{width:min(42vw,180px);flex:0 0 auto}
+}
 @media (min-width:1240px){.machines{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:979px){
   .layout{grid-template-columns:minmax(0,1fr)}

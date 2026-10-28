@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="stylesheet" href="site.css?v=20261028-1820">
+<link rel="stylesheet" href="site.css?v=20261028-1930">
 </head>
 <body>
 <div class="wrap">
@@ -53,9 +53,9 @@
     <img src="assets/cats.jpg" alt="游戏画面：猫咪们围着碗吃饭" data-a="catsA" width="960" height="720" loading="lazy">
   </section>
 
-  <section class="lot" id="trailer">
-    <div class="th"><h2 data-t="h2t">预告片</h2><div class="seg" role="group" aria-label="Trailer"><button type="button" data-o="h" aria-pressed="true" data-t="tH">横版</button><button type="button" data-o="v" aria-pressed="false" data-t="tV">竖版</button></div></div>
-    <video class="film" controls playsinline preload="none" poster="assets/poster-h.jpg" src="assets/trailer-h.mp4"></video>
+  <section class="lot trailer vmode" id="trailer">
+    <div class="th"><h2 data-t="h2t">预告片</h2><div class="seg" role="group" aria-label="Trailer"><button type="button" data-o="v" aria-pressed="true" data-t="tV">竖版</button><button type="button" data-o="h" aria-pressed="false" data-t="tH">横版</button></div></div>
+    <video class="film v" controls playsinline preload="none" poster="assets/poster-v.jpg" src="assets/trailer-v.mp4"></video>
     <div class="rail" id="rail"></div>
   </section>
 
@@ -86,7 +86,7 @@
   </footer>
 </div>
 
-<script src="i18n.js?v=20261028-1820"></script>
+<script src="i18n.js?v=20261028-1930"></script>
 <script>
 const CUT = { 'zh-Hans': '', 'zh-Hant': '-hant', ja: '-ja', en: '-en' };
 const BADGE = { 'zh-Hans': 'zh-cn', 'zh-Hant': 'zh-tw', ja: 'ja-jp', en: 'en-us' };
@@ -147,7 +147,7 @@ SITE.page({
   document.getElementById('dl').classList.remove('off');
   document.getElementById('badge').src = `https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/${BADGE[lang]}`;
   // the trailer in this page's language (its bubbles, chips and end card)
-  const film = document.querySelector('.film'), src = `assets/trailer-${window.orient || 'h'}${CUT[lang]}.mp4`;
+  const film = document.querySelector('.film'), src = `assets/trailer-${window.orient || 'v'}${CUT[lang]}.mp4`;
   if (film.getAttribute('src') !== src) film.setAttribute('src', src);
   // the demo in this page's language (a playing one reloads in it; the player's own pick in the game holds until this changes)
   const demo = `demo/?lang=${lang}`;
@@ -170,13 +170,13 @@ if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelect
 // the trailers start at half volume (the owner, 2026-10-28: the music was too loud); the player's slider still goes up
 const film = document.querySelector('.film'); film.volume = .5;
 // 横版 / 竖版: one player, the vertical cut in a phone-shaped frame
-window.orient = 'h';
+window.orient = 'v';   // the vertical cut first (the owner, 2026-10-28: it is the main one)
 const filmSrc = () => `assets/trailer-${window.orient}${CUT[document.documentElement.lang]}.mp4`;
 document.querySelector('.seg').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || b.dataset.o === window.orient) return;
   window.orient = b.dataset.o;
   document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-  film.classList.toggle('v', window.orient === 'v'); film.poster = `assets/poster-${window.orient}.jpg`; film.src = filmSrc(); film.volume = .5;
+  film.classList.toggle('v', window.orient === 'v'); document.getElementById('trailer').classList.toggle('vmode', window.orient === 'v'); film.poster = `assets/poster-${window.orient}.jpg`; film.src = filmSrc(); film.volume = .5;
 });
 // the demo: the game's web trial in the page's one phone. On a wide screen the phone stays in view beside the page
 // (sticky) so the game idles while people read; on a narrow one it opens over the page, and 收起 puts it away
