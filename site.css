@@ -32,7 +32,7 @@ a{color:inherit}
 .langs button:lang(ja){font-family:"Zen Maru Gothic",var(--mono)}
 .langs button[aria-pressed="true"]{background:var(--lemon);color:var(--ink);border-color:var(--ink)}
 .langs button:focus-visible,.cta:focus-visible,.badge:focus-visible,.play:focus-visible,footer a:focus-visible,.logo:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
-.hero{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:center;gap:28px;background:linear-gradient(160deg,#2c2050,#171128)}
+.hero{gap:28px;background:linear-gradient(160deg,#2c2050,#171128)}
 .hero-copy{display:grid;gap:14px;min-width:0}
 .hero h1{font-size:clamp(30px,5.4vw,54px)}
 .hero h1 em{font-style:normal;color:var(--lemon);text-shadow:3px 3px 0 var(--neon)}
@@ -46,9 +46,10 @@ a{color:inherit}
 .badge.off .cta{display:inline-block}
 .cta{font:700 16px var(--body);color:var(--ink);background:var(--lemon);border:3px solid var(--ink);border-radius:12px;padding:10px 18px;box-shadow:4px 4px 0 var(--ink);text-decoration:none;cursor:pointer}
 .cta.ghost{background:transparent;color:var(--paper);border-color:var(--paper);box-shadow:none}
-/* the phone: a real iPhone screen (the simulator's 1320 × 2868), the whole screenshot, nothing cropped; it plays the vertical trailer */
-.phone{justify-self:center;width:min(280px,100%);aspect-ratio:1320/2868;border:7px solid var(--ink);border-radius:38px;overflow:hidden;position:relative;background:#000;box-shadow:0 0 0 2px var(--neon),0 0 40px rgba(255,79,138,.35)}
-.phone img,.phone video{width:100%;height:100%;display:block;object-fit:contain;background:#000}
+.phone{justify-self:center;width:100%;aspect-ratio:9/19.5;border:7px solid var(--ink);border-radius:38px;overflow:hidden;position:relative;background:#000;box-shadow:0 0 0 2px var(--neon),0 0 40px rgba(255,79,138,.35)}
+.phone img{width:100%;height:100%;display:block;object-fit:cover;background:#000}
+.phone iframe{width:100%;height:100%;border:0;display:block;background:#000}
+.stage.open .phone iframe{position:absolute;left:0;top:0}
 .play{position:absolute;inset:auto 0 0;display:flex;align-items:center;gap:10px;padding:16px 14px 18px;border:0;color:var(--paper);text-align:left;cursor:pointer;
   background:linear-gradient(transparent,rgba(14,10,24,.92) 45%);font:500 13px var(--body)}
 .play i{width:38px;height:38px;border-radius:50%;background:var(--lemon);border:3px solid var(--ink);position:relative;flex:none}
@@ -96,13 +97,59 @@ footer a{color:var(--paper)}
 .doc .qa{border-top:2px solid var(--muted);padding-top:10px;margin-top:8px;max-width:40em}
 .doc .qa b{display:block}
 .doc .qa p{color:var(--muted)}
-/* the demo: the game in a phone-shaped frame (the game fills a frame narrower than 520 px, as on a phone) */
-.demo{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:28px}
-.demo-copy{display:grid;gap:14px;min-width:0}
-.demo .note{color:var(--muted);font-size:14px}
-.demo-screen{position:relative;justify-self:center;width:min(390px,100%);aspect-ratio:9/19.5;max-height:calc(100dvh - 40px);border:7px solid var(--ink);border-radius:38px;overflow:hidden;background:#000;box-shadow:0 0 0 2px var(--lemon),0 0 40px rgba(255,225,77,.25)}
-.demo-screen img{width:100%;height:100%;object-fit:cover;display:block;opacity:.7}
-.demo-screen iframe{width:100%;height:100%;border:0;display:block}
-@media (max-width:720px){.demo{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:720px){.hero,.cats{grid-template-columns:minmax(0,1fr)}.machines{grid-template-columns:repeat(2,minmax(0,1fr))}.phone{width:min(240px,100%)}}
+/* the page and its one phone (2026-10-28, the owner: the game on the home page, to leave idling while reading).
+   Wide: the page on the left, the phone on the right staying in view (sticky). Narrow: the phone after the opening
+   lot; the game opens over the page, 收起 puts it away still running, a chip brings it back */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:start}
+.flow{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;min-width:0}
+.stage{position:sticky;top:20px;display:grid;gap:10px;width:calc((100dvh - 96px) * 9 / 19.5);max-width:400px;min-width:300px}
+.stage-note{font-size:13px;color:var(--muted);text-align:center}
+.stage-note a{color:var(--lemon)}
+.fold{font:inherit;color:var(--lemon);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+/* 收起 on a wide screen: the page takes the whole width, the phone goes out of sight but stays loaded (the game runs on) */
+body.folded .layout{grid-template-columns:minmax(0,1fr)}
+body.folded .stage{position:fixed;right:0;bottom:0;visibility:hidden;pointer-events:none}
+.play{inset:auto 0 0;padding:28px 16px 22px}
+.play span{display:grid;gap:2px}
+.play b{font:700 17px var(--body);color:var(--lemon)}
+.play small{font-size:13px;color:var(--paper)}
+.play i{width:48px;height:48px}
+.play i::after{left:17px;top:12px;border-left-width:15px;border-top-width:9px;border-bottom-width:9px}
+@media (prefers-reduced-motion:no-preference){.stage:not(.live) .play i{animation:nudge 2.4s ease-in-out infinite}@keyframes nudge{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}}
+.stage.live .phone{box-shadow:0 0 0 2px var(--lemon),0 0 46px rgba(255,225,77,.3)}
+.shut{position:absolute;left:12px;top:calc(12px + env(safe-area-inset-top,0px));z-index:2;font:700 14px var(--body);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.back{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5}
+.machines{grid-template-columns:repeat(2,minmax(0,1fr))}
+.th{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.seg{display:inline-flex;border:2px solid var(--muted);border-radius:999px;padding:2px}
+.seg button{font:500 13px var(--body);color:var(--paper);background:transparent;border:0;border-radius:999px;padding:4px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--lemon);color:var(--ink)}
+.film.v{aspect-ratio:9/16;max-height:80dvh;width:auto;justify-self:center}
+@media (min-width:1240px){.machines{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:979px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .stage{position:static;width:min(340px,100%);min-width:0;justify-self:center;order:-1}
+  .flow{display:contents}
+  .flow>.hero{order:-2}
+  .fold-w{display:none}
+  .stage.open{position:fixed;inset:0;z-index:10;width:100%;max-width:none;justify-self:stretch;margin:0;padding:calc(52px + env(safe-area-inset-top,0px)) 0 0;background:var(--night)}
+  .stage.open .phone{width:100%;height:100%;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}
+  .stage.open .stage-note{display:none}
+  .stage.open .shut{position:fixed;left:16px;top:calc(9px + env(safe-area-inset-top,0px))}
+  body.lock{overflow:hidden}
+}
+@media (max-width:720px){.cats{grid-template-columns:minmax(0,1fr)}}
+/* a phone: the opening lot's buttons in one tidy block, the same height: 在浏览器里试玩 across, the App Store badge
+   and 看预告片 side by side under it */
+@media (max-width:600px){
+  .ctas{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ctas>*{height:52px;margin:0}
+  .ctas .cta{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 6px;font-size:clamp(13px,3.9vw,16px);line-height:1.2;white-space:nowrap}
+  .ctas #try{grid-column:1/-1}
+  .ctas .badge:not(.off) .cta{display:none}
+  .badge{display:flex;align-items:center;justify-content:center;background:#000;border:3px solid var(--ink);border-radius:12px}
+  .badge img{height:40px}
+  .badge.off{background:none;border:0}
+  .badge.off .cta{width:100%;height:100%}
+}
 @media (prefers-reduced-motion:no-preference){.logo{animation:flick 6s infinite}@keyframes flick{0%,92%,100%{opacity:1}93%{opacity:.55}95%{opacity:1}96%{opacity:.7}}}
