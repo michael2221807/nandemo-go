@@ -1,0 +1,25 @@
+/* The web build (tools/build_www.py --web): loaded after platform.css. */
+
+/* no paid content on the web (platform/web.js): the shop's button and the settings' 恢复购买 go */
+#st-paybtn, #set-body [data-act="restore"] { display: none !important; }
+/* nor notifications (the app schedules them natively): the settings' 通知 group, the game's ask for them, and the
+   save group, whose two rows (云存档, 恢复购买) are both app-only */
+#set-body .set-g:first-of-type, #set-body .set-g:has([data-act="restore"]), #ask-notif { display: none !important; }
+
+/* a screen wider than a phone (a desktop browser): the stage stands in the prototype's phone frame again, centred, as
+   the design side's own page showed it; on a phone the page fills the screen as in the app */
+@media (min-width: 520px) {
+  html, body { overflow: hidden; }
+  .shell { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; }
+  .device { height: min(860px, calc(100dvh - 48px)); width: auto; aspect-ratio: 9 / 19.5; border: 1px solid var(--edge); border-radius: 46px;
+    box-shadow: 0 0 0 7px #0e1015, 0 0 0 8px var(--edge), 0 40px 90px rgba(0, 0, 0, .65); }
+}
+
+/* the trial's redeem code row (platform/web.js), in the settings sheet's own look */
+.nd-code .set-row { gap: 8px; }
+.nd-code input { flex: 1; min-width: 0; font: 600 15px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 8px 10px;
+  border: 2px solid var(--dink, #141018); border-radius: 10px; background: #fff; color: var(--dink, #141018); }
+.nd-code-go { font: 700 14px/1 var(--maru, sans-serif); padding: 9px 14px; border: 2px solid var(--dink, #141018); border-radius: 10px;
+  background: #ffd23f; color: var(--dink, #141018); box-shadow: 2px 2px 0 var(--dink, #141018); cursor: pointer; }
+.nd-code-msg { margin: 0; padding: 0 14px 10px; font-size: 12px; color: #e23d78; }
+.nd-code-msg:empty { display: none; }

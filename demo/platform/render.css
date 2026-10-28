@@ -1,0 +1,10 @@
+/* turn.html only (platform/renderer.js): the machine is drawn and nothing else — no backdrop, rain, vignette, bars,
+   sheets, street; the scan line, the name tags and the effects layer stay out too. What remains sits on a transparent
+   page, so a snapshot of it lays over the game's own backdrop exactly. */
+html, body, .shell, .device { background: transparent !important; box-shadow: none !important; }
+.device::before, .device::after { content: none !important; display: none !important; }
+.device > :not(#cam) { visibility: hidden !important; }
+#scan, #tags, #fx { display: none !important; }
+
+/* baking the turning pictures into the app (ios TurnBake): no cats, they come and go */
+.nd-bake .cat-n, .nd-bake .cat-x { display: none !important; }

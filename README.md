@@ -10,7 +10,13 @@
 | 隐私政策 | https://michael2221807.github.io/nandemo-go/privacy.html | 填到 App Store Connect 的「隐私政策网址」 |
 | 支持 | https://michael2221807.github.io/nandemo-go/support.html | 填到 App Store Connect 的「技术支持网址」 |
 
-语言：网址后加 `?lang=zh-Hans`、`?lang=zh-Hant`、`?lang=ja`、`?lang=en`；不加时用上次选的，或按浏览器语言。
+语言：网址后加 `?lang=zh-Hans`、`?lang=zh-Hant`、`?lang=ja`、`?lang=en`；不加时用上次选的，没选过就是英文。
+
+## 试玩版
+
+- `demo/`：游戏的网页试玩版（nandemo-app 的 `python3 tools/build_www.py --release --web --trial` 生成，去掉 `turn.html`、`turnbake-hash.json`、`VERSION`），首页「在浏览器里先玩一会儿」那一节点了才加载（约 24 MB）。
+- 试玩版只开放第一条街的四台机器，其他机器和猫在图鉴里能看到，标着「完整版」。游戏设置里输入兑换码可以解锁完整网页版（没有内购内容）。兑换码只在页面里核对。
+- 游戏跟着网站的语言：首页把 `?lang=` 传给 `demo/`；玩家在游戏里自己换了语言，会保持到网站语言再变。
 
 ## 发布
 

@@ -1,0 +1,9 @@
+/* 繁體中文's faces (tools/mkfonts_hant.py, generated): loaded only when a page in 繁體中文 uses them. */
+@font-face{font-family:"ND Hant Display";font-weight:900;font-display:block;src:url(fonts/hant-display-900.woff2) format("woff2")}
+@font-face{font-family:"ND Hant Round";font-weight:400;font-display:block;src:url(fonts/hant-round-400.woff2) format("woff2")}
+@font-face{font-family:"ND Hant Sans";font-weight:500;font-display:block;src:url(fonts/hant-sans-500.woff2) format("woff2")}
+@font-face{font-family:"ND Hant Sans";font-weight:700;font-display:block;src:url(fonts/hant-sans-700.woff2) format("woff2")}
+html[data-script="hant"]{--display:"ND Hant Display","ND Dela","PingFang TC",sans-serif;--ui:"PingFang TC","ND Hant Sans","ND Sans",system-ui,sans-serif;--maru:"ND Hant Sans","PingFang TC","ND Sans","ND ZenMaru",system-ui,sans-serif;--yusei:"ND Hant Round","ND Yusei","ND Hant Sans",sans-serif;--num:"ND DelaNum","ND Hant Display",sans-serif}
+html[data-script="hant"] .lang-card h3{font-family:"ND Hant Display","ND Dela",sans-serif}
+html[data-script="hant"] #street-svg .st-pop-t.st-jp,html[data-script="hant"] #street-bg .st-pop-t.st-jp,html[data-script="hant"][data-names="jp"] #nk-name{font-family:"ND Dela","ND Hant Display",sans-serif}
+html[data-script="hant"] .sys-box,html[data-script="hant"] .sys-btns button,html[data-script="hant"] .phone,html[data-script="hant"] .store-box{font-family:-apple-system,"SF Pro Text","PingFang TC","ND Hant Sans",system-ui,sans-serif}
