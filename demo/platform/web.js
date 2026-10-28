@@ -14,6 +14,10 @@
   window.__ndCloud = false;
   window.__ndTurnPictures = false;   // (the machines turn in the game's own drawing: the pictures are made by the shell)
   window.__ndWeb = true;
+  // (turning, 2026-10-28: platform/nss.js, the thin-line stand-in, is for Apple's WebKit, whose old SVG engine it was
+  // written for; Chromium and Firefox draw vector-effect themselves, and there its restyle of every shape cost a third
+  // of each camera step. Chrome on an iPhone is WebKit too: its name says CriOS, not Chrome/)
+  { const ua = navigator.userAgent; if (!/AppleWebKit/.test(ua) || /(Chrome|Chromium|Edg)\//.test(ua)) { window.__ndFlags = window.__ndFlags || {}; __ndFlags.keepNSS = true; } }
 
   // ---------- paid content out (pay.js ids on machines, cats and goods)
   // (a paid machine's goods go with it: the album counts every kind no machine claims)

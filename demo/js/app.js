@@ -37,7 +37,7 @@
   defs.insertAdjacentHTML('beforeend', ZZDECO.defs());
   const gdefs = UTIL.el('g', { id: 'glyph-defs' }, defs);
   const glyphDefs = () => { gdefs.innerHTML = GLY.defs() + GLY2.defs() + CUB.defs() + RAB.defs() + JUB.defs() + ARB.defs() + PKB.defs() + FZB.defs() + LKB.defs() + OBB.defs() + SUB.defs() + ODB.defs() + TYB.defs() + KGB.defs() + GCB.defs() + KSB.defs() + PBB.defs() + TPB.defs(); };
-  let glyphBucket = 0;
+  let glyphBucket = 0, glyphLate = 0;
   glyphDefs();
   /* (v0.44) four layers, the camera on each (index.html): the stage (the backdrop and the insides), the shell, the X-ray
      wireframe, and the top (the front, the scan line, the name tags, the effects). A machine has a group in each */
@@ -283,7 +283,9 @@
     // zoomed in, the camera orbits the point on the machine at the centre of the view; at home it re-frames the machine
     const atHome = cam.w > home.w * .99, focus = atHome ? null : ISO.unproject(cam.x + cam.w / 2, cam.y + cam.h / 2, MBOX);
     // the can / bottle / cup glyphs are re-projected every 4 degrees, not every degree (a 2-degree error is invisible)
-    yaw = y; ISO.setYaw(y); const gb = Math.round(y / 4); if (gb !== glyphBucket) { glyphBucket = gb; glyphDefs(); }
+    yaw = y; ISO.setYaw(y); const gb = Math.round(y / 4) * 4; if (gb !== glyphBucket && !turning && !yawTweens) { glyphBucket = gb; glyphDefs(); }
+    clearTimeout(glyphLate); glyphLate = setTimeout(() => { const g4 = Math.round(yaw / 4) * 4;
+      if (g4 !== glyphBucket && view === 'machine' && Math.abs(ISO.yaw - yaw) < .01) { glyphBucket = g4; glyphDefs(); } }, 150);
     rebuild(cur, true); layoutScan(); computeHome();
     if (atHome) apply(home);
     else { const [nx, ny] = ISO.P(...focus); apply(clamp({ ...cam, x: nx - cam.w / 2, y: ny - cam.h / 2 })); }
