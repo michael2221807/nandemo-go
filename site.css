@@ -16,7 +16,7 @@ html{background:var(--night)}
 body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   background-image:repeating-linear-gradient(105deg,transparent 0 22px,rgba(255,255,255,.025) 22px 23px)}
-.wrap{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:28px;padding-block:20px calc(48px + env(safe-area-inset-bottom,0px))}
+.wrap{zoom:var(--z,1);max-width:1080px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:28px;padding-block:20px calc(48px + env(safe-area-inset-bottom,0px))}
 h1,h2{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;line-height:1.2}
 html:lang(zh-Hans) h1,html:lang(zh-Hans) h2,html:lang(zh-Hans) .logo{font-family:"ZCOOL QingKe HuangYou","PingFang SC",sans-serif;letter-spacing:.02em}
 html:lang(zh-Hant) h1,html:lang(zh-Hant) h2,html:lang(zh-Hant) .logo{font-weight:900}
@@ -102,7 +102,7 @@ footer a{color:var(--paper)}
    lot; the game opens over the page, 收起 puts it away still running, a chip brings it back */
 .layout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:start}
 .flow{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;min-width:0}
-.stage{position:sticky;top:20px;display:grid;gap:10px;width:calc((100dvh - 96px) * 9 / 19.5);max-width:400px;min-width:300px}
+.stage{position:sticky;top:20px;display:grid;gap:10px;width:calc((100dvh / var(--z,1) - 116px) * 9 / 19.5);max-width:400px;min-width:300px}
 .stage-note{font-size:13px;color:var(--muted);text-align:center}
 .stage-note a{color:var(--lemon)}
 .fold{font:inherit;color:var(--lemon);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
