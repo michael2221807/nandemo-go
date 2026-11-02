@@ -63,12 +63,13 @@
     if (o !== order) { order = o; depth.forEach(([, i]) => I.mouldsG.appendChild(els[i].g)); }
   }
   const paintRack = () => { if (I) I.rackG.innerHTML = TYB.rack(rackOff, MENU.map((m, k) => (S.hop[k][0] || m).fill)); };
+  const LCD = s => { if (X.lcd.__t !== s) { X.lcd.__t = s; X.lcd.textContent = s; } };   // (app build: written only when it changes)
   function paintDoor() {
     if (!X) return;
     X.tiles.forEach(t => { const k = +t.dataset.k; t.querySelector('.soldout').classList.toggle('on', !canMake(k)); });
-    X.gauge.setAttribute('width', f(13.2 * Math.max(0, Math.min(1, S.batter)))); X.gauge.setAttribute('fill', S.batter < .25 ? '#ff6a3a' : '#f2dc98');
+    { const w = f(13.2 * Math.max(0, Math.min(1, S.batter))), c = S.batter < .25 ? '#ff6a3a' : '#f2dc98'; if (X.gauge.getAttribute('width') !== String(w)) X.gauge.setAttribute('width', w); if (X.gauge.getAttribute('fill') !== c) X.gauge.setAttribute('fill', c); }   // (app build)
     X.scorchLamp.classList.toggle('on', dirty(at(1)));
-    if (!busy && !ready) X.lcd.textContent = S.batter <= .02 ? '生地切れ' : 'いらっしゃいませ';
+    if (!busy && !ready) LCD(S.batter <= .02 ? '生地切れ' : 'いらっしゃいませ');
   }
   const tile = k => X.tiles.find(t => +t.dataset.k === k);
   // the take-out window: the fish in its paper bag, head up out of it
@@ -157,15 +158,15 @@
     const t = tile(kk), no = (S.no = S.no % 99 + 1);
     if (t) { t.querySelector('.led').classList.add('on'); CORE.glow(t.querySelector('.ty-tglow'), 1600, .4); if (who === 'player') CORE.press(t); }
     if (who === 'player') SND.click();
-    CORE.glow(X.slotGlow, 1000); X.lcd.textContent = `ご注文 · ${no}番`;
+    CORE.glow(X.slotGlow, 1000); LCD(`ご注文 · ${no}番`);
     await I.cm.coinIn(MENU[kk].price, TY.SLOTW);
-    X.lcd.textContent = `${no}番 · 焼いています`;
+    LCD(`${no}番 · 焼いています`);
     const r = await make(kk);
     if (t) t.querySelector('.led').classList.remove('on');
     if (!r) return false;
     await UTIL.tween(220, e => X.flap.setAttribute('transform', `translate(0 ${f(7 * e)})`), UTIL.ease.out);
     const price = Math.round(r.p.price * (r.o.burnt ? BURNT : 1));
-    const done = { p: r.p, o: r.o, no, who }; ready = done; windowFish(done); X.ready.classList.add('on'); X.lcd.textContent = r.o.burnt ? `${no}番 · 焦げあり 値引き` : `${no}番 · お待たせしました`; SND.ding(); UTIL.haptic(14);
+    const done = { p: r.p, o: r.o, no, who }; ready = done; windowFish(done); X.ready.classList.add('on'); LCD(r.o.burnt ? `${no}番 · 焦げあり 値引き` : `${no}番 · お待たせしました`); SND.ding(); UTIL.haptic(14);
     saleFn({ name: r.p.name, price, pid: r.p.pid, tier: r.p.tier || 1 }, who);
     if (who === 'customer') setTimeout(() => take(false), 900); else setTimeout(() => { if (ready === done) take(true); }, 7000);
     paintDoor(); return true;

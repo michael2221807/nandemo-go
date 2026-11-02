@@ -11,16 +11,24 @@
      --nss   1 / the camera's zoom, on each layer (from its viewBox and its size, no layout read)
      --ndk   1 / the line-thickness scale of the transforms between the layer and the element (set on transformed
              groups and <use>s as they are added; independent of the camera)
+     --ndn   1 where --ndz is that non-scaling scale, else 0 (declared beside it; for full 3D's pictures, turn.js t3dInk)
    and every element in the layers draws stroke-width: calc(var(--ndw) × var(--ndz)). So the art style switch, the
    keyframes and the cascade work exactly as before. `-pageFlags keepNSS` (debug) leaves everything as the prototype
-   draws it. */
+   draws it.
+   Full 3D (platform/turn.js, the shell drawing the machine, the page's own see-through): __ndNSS.hold(true) leaves the
+   machines (and the defs) at the zoom they had when the camera zooms; the new --nss goes on the other groups beside
+   them (the scan line, the name tags, the effects), not on the layer. A new --nss on a layer restyled every element
+   under it, whatever its children said: 1.4 s at Chromium's 4× slowdown, 0.6–1.2 s on the owner's phone, the page
+   stopped after every pinch, 2026-10-30. The machine's lines are not seen then; turn.js t3dInk scales their widths
+   in its pictures. hold(false) gives the layers their own again, once the page draws the machine. */
 (() => {
   if (window.__ndFlags && __ndFlags.keepNSS) return;
   const LAYERS = ['stage', 'stage-ext', 'stage-ghost', 'stage-top'].map(id => document.getElementById(id)).filter(Boolean);
   if (!LAYERS.length || !(window.CSS && CSS.registerProperty)) return;
-  const NSS = 'non-scaling-stroke', P = `:is(${LAYERS.map(l => '#' + l.id).join(',')})`;
+  const NSS = 'non-scaling-stroke', P = `:is(${LAYERS.map(l => '#' + l.id).join(',')})`, IN = LAYERS.map(l => `#${l.id},#${l.id} *`).join(',');
   const reg = (name, syntax, inherits, initialValue) => { try { CSS.registerProperty({ name, syntax, inherits, initialValue }); } catch (e) { /* already */ } };
   reg('--ndw', '<length-percentage>', true, '1px'); reg('--nss', '<number>', true, '1'); reg('--ndk', '<number>', true, '1'); reg('--ndz', '<number>', false, '1');
+  reg('--ndn', '<number>', false, '0');
   const ZON = 'calc(var(--nss) * var(--ndk))';
   const width = v => { v = String(v).trim(); return /^[-+]?(\d+\.?\d*|\.\d+)$/.test(v) ? v + 'px' : v; };
 
@@ -49,8 +57,12 @@
         if (!sw && !ve) continue;
         let body = '';
         if (sw) body += `--ndw:${width(sw)}${r.style.getPropertyPriority('stroke-width') ? '!important' : ''};`;
-        if (ve) body += `--ndz:${ve.trim() === NSS ? ZON : '1'}${r.style.getPropertyPriority('vector-effect') ? '!important' : ''};`;
-        for (const sel of parts(r.selectorText)) out.push(`${P} :is(${sel}),${P}:is(${sel}){${body}}`);
+        if (ve) { const imp = r.style.getPropertyPriority('vector-effect') ? '!important' : '', on = ve.trim() === NSS; body += `--ndz:${on ? ZON : '1'}${imp};--ndn:${on ? 1 : 0}${imp};`; }
+        // (as the selector itself, the layers in a :where() after it: the browser files the rule under the selector's own
+        // last class, id or tag, and tries it only on those elements. Wrapped whole, :is(#stage…) :is(sel), every rule was
+        // tried on every element: half the time of restyling the machine, 2026-10-30. The same elements; the layers'
+        // own specificity, which they all shared, left out)
+        for (const sel of parts(r.selectorText)) out.push(sel.includes('::') ? `${P} :is(${sel}),${P}:is(${sel}){${body}}` : `${sel}:where(${IN}){${body}}`);
       } else if (r.type === CSSRule.KEYFRAMES_RULE) {
         // the same keyframes under the same name (the later one wins), widths as --ndw (registered: it interpolates)
         let has = false; const frames = [...r.cssRules].map(k => { const decl = [...k.style].map(p => {
@@ -78,7 +90,7 @@
     const one = el => { const s = el.style; if (!s) return;
       const sw = s.getPropertyValue('stroke-width'), ve = s.getPropertyValue('vector-effect');
       if (sw) s.setProperty('--ndw', width(sw), s.getPropertyPriority('stroke-width'));
-      if (ve) s.setProperty('--ndz', ve.trim() === NSS ? ZON : '1', s.getPropertyPriority('vector-effect')); };
+      if (ve) { const on = ve.trim() === NSS, imp = s.getPropertyPriority('vector-effect'); s.setProperty('--ndz', on ? ZON : '1', imp); s.setProperty('--ndn', on ? '1' : '0', imp); } };
     if (root.nodeType === 1 && root.hasAttribute('style')) one(root);
     for (const el of root.querySelectorAll('[style*="stroke-width"],[style*="vector-effect"]')) one(el);
   };
@@ -136,20 +148,40 @@
   }
 
   // each layer's zoom: its size (kept by a ResizeObserver, read once here) against its viewBox
-  const size = new Map(LAYERS.map(l => [l, { w: l.clientWidth, h: l.clientHeight }])), zoom = new Map();
+  // (held, full 3D: a zoom on #cam's transform, the viewBox as it was (app.js apply, build_www): its scale as well)
+  const size = new Map(LAYERS.map(l => [l, { w: l.clientWidth, h: l.clientHeight }])), zoom = new Map(), camEl = document.getElementById('cam');
+  const camK = () => { const m = held && camEl && /scale\(([^)]+)\)/.exec(camEl.style.transform || ''); return m && +m[1] > 0 ? +m[1] : 1; };
   function fit(l) {
     const vb = (l.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number), s = size.get(l);
-    const z = vb.length === 4 && vb[2] > 0 && vb[3] > 0 && s.w ? Math.min(s.w / vb[2], s.h / vb[3]) : 1;
+    const z = (vb.length === 4 && vb[2] > 0 && vb[3] > 0 && s.w ? Math.min(s.w / vb[2], s.h / vb[3]) : 1) * camK();
     if (Math.abs((zoom.get(l) || 0) - z) <= z * 1e-6) return;
-    zoom.set(l, z); l.style.setProperty('--nss', String(1 / z));
+    zoom.set(l, z);
+    if (held) { for (const e of beside(l)) { e.style.setProperty('--nss', String(1 / z)); besides.add(e); } return; }
+    l.style.setProperty('--nss', String(1 / z));
   }
+  // (held: the groups with no machine in them, below the layer and beside the machines' roots; not the defs)
+  const beside = e => [...e.children].flatMap(c => c.localName === 'defs' || c.classList.contains('mroot') ? [] : c.querySelector('.mroot') ? beside(c) : [c]);
+  let held = false; const besides = new Set();
+  const hold = on => { if (held === !!on) return; held = !!on; if (held) return;
+    for (const e of besides) e.style.removeProperty('--nss'); besides.clear();
+    LAYERS.forEach(l => { const v = String(1 / (zoom.get(l) || 1)); if (l.style.getPropertyValue('--nss') !== v) l.style.setProperty('--nss', v); }); };
   const ro = window.ResizeObserver && new ResizeObserver(es => { for (const e of es) { size.set(e.target, { w: e.contentRect.width, h: e.contentRect.height }); zoom.delete(e.target); fit(e.target); } });
   if (ro) LAYERS.forEach(l => ro.observe(l));
 
   const style = document.createElement('style'); style.id = 'nd-nss'; document.head.appendChild(style);
   let written = -1;
-  const flush = () => { if (attrRules.length === written) return; written = attrRules.length;
-    style.textContent = [`:where([vector-effect="${NSS}"]){--ndz:${ZON}}`, ...attrRules, ...sheetRules, `${P} ${draw}{stroke-width:calc(var(--ndw) * var(--ndz))!important;vector-effect:none!important}`].join('\n'); };
+  // (a width first seen later — a pop's, its width by the zoom of the moment, env.js FX.pop — in a small sheet of its own
+  // after the others: the whole sheet written again was a sheet changed, every element of the street restyled, 0.7–0.9 s
+  // on the phone after a tap on the machine or a sale, 1.3 s at Chromium's 4× slowdown, 2026-10-30. A sheet added at the
+  // end restyles only what its rules match. Below the page's own rules still: these are :where(), no specificity, and no
+  // rule of the page that sets a width has none)
+  const flush = () => { if (attrRules.length === written) return;
+    if (written >= 0) { const more = document.createElement('style'); more.className = 'nd-nss-more'; more.textContent = attrRules.slice(written).join('\n'); document.head.appendChild(more);
+      // (?t3dtick=1: which widths came late, in the phone's diag log)
+      if (/[?&]t3dtick=1/.test(location.search) && window.NATIVE) NATIVE.post('diag', `NSS late widths ${[...attrWidths].slice(written).join(' ')} (sheet ${document.querySelectorAll('style.nd-nss-more').length})`);
+      written = attrRules.length; return; }
+    written = attrRules.length;
+    style.textContent = [`:where([vector-effect="${NSS}"]){--ndz:${ZON};--ndn:1}`, ...attrRules, ...sheetRules, `${P} ${draw}{stroke-width:calc(var(--ndw) * var(--ndz))!important;vector-effect:none!important}`].join('\n'); };
   // dashed lines keep the prototype's own drawing: with the effect their dashes are measured on the screen too, and
   // their dash patterns and offsets (some animated, some set from script) cannot be rescaled the same way
   const draw = `:not(:is([data-ndq],[stroke-dasharray]:not([stroke-dasharray="none"]),[style*="stroke-dasharray"]${[...dashed].map(sel => ',' + sel).join('')}))`;
@@ -170,5 +202,7 @@
     const dt = performance.now() - t0; stat.ms += dt; stat.max = Math.max(stat.max, dt);
   });
   LAYERS.forEach(l => mo.observe(l, { subtree: true, childList: true, attributes: true, attributeFilter: ['viewBox', 'stroke-width'] }));
-  window.__ndNSS = { rules: () => attrRules.length + sheetRules.length, stat };
+  if (camEl) new MutationObserver(() => { if (held) LAYERS.forEach(fit); }).observe(camEl, { attributes: true, attributeFilter: ['style'] });
+  // (nss: a layer's 1 / zoom now, held or not)
+  window.__ndNSS = { rules: () => attrRules.length + sheetRules.length, stat, hold, nss: l => zoom.has(l) ? 1 / zoom.get(l) : null };
 })();

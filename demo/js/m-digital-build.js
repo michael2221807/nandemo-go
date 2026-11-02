@@ -112,7 +112,7 @@ const PKB = (() => {
     return `<rect x="6" y="6" width="12" height="12" fill="${c}" ${k}/>`;
   }
   const use = (id, p, x, y, z, extra = '') => { const [sx, sy] = P(x, y, z); return `<use href="#${id}" x="${f(sx)}" y="${f(sy)}" style="${vars(p)}" ${extra}/>`; };
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   const post = (x, y, z, h) => box(x - .8, y - .8, z, 1.6, 1.6, h);
 
   /* ---------- the inside. lv: fitted parts { ctrl, arm2, charger } ---------- */

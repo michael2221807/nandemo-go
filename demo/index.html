@@ -552,6 +552,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .st-more.left{right:auto;left:10px;background:#fff8ec}
 #street-bg .st-neon,#street-bg .st-jp{font-family:var(--display-jp)} #street-bg .st-pop-t{font-family:var(--display)} #street-bg .st-sign{font-family:var(--yusei-jp)} #street-bg .st-num{font-family:var(--maru);font-weight:700}
 #street-svg .st-sign{font-family:var(--yusei-jp)}
+#street-bg [data-loc],#street-svg [data-loc]{font-family:"ND Sans","ND QingKe",sans-serif!important;font-weight:700!important}
+html[data-script="hant"] #street-bg [data-loc],html[data-script="hant"] #street-svg [data-loc]{font-family:"ND Hant Sans","ND Sans",sans-serif!important}   
 #street-svg .st-num{font-family:var(--maru);font-weight:700}
 .st-m{cursor:pointer;outline:none}
 .st-bob{transform-box:fill-box;transform-origin:50% 100%;transition:transform .18s ease}
@@ -1277,11 +1279,15 @@ html[data-lang="en"]{--display:"ND Dela","ND QingKe",sans-serif;--num:"ND Dela",
 .nd-neon{--catink:#2a2030;--line:#3a404a;--night:#0a0c11}
 </style>
 <link rel="stylesheet" href="platform/platform.css">
+<link rel="stylesheet" href="platform/mtext.css">
 <link rel="stylesheet" href="platform/turnload.css">
+<link rel="stylesheet" href="platform/ui.css">
 <link rel="stylesheet" href="platform/hant.css">
 <link rel="stylesheet" href="platform/web.css">
+<link rel="stylesheet" href="platform/tutorial.css">
 </head>
 <body>
+<script>(() => { const f = window.__ndFlags || {}, q = /[?&]flags=([^&]*)/.exec(location.search), has = k => f[k] || (q && decodeURIComponent(q[1]).split(',').includes(k)); if (f.renderer || has('noBgEarly') || has('noBgCache') || has('noBgBitmap') || /[?&]opt=[^&]*-bgBitmap/.test(location.search) || !window.indexedDB) return; const s = document.createElement('style'); s.id = 'nd-bg-hold'; s.textContent = '#street-bg > g[filter="url(#doodle)"] { filter: none !important; visibility: hidden }'; document.head.appendChild(s); setTimeout(() => s.remove(), 4000); })();</script>
 <script src="js/fonts.js"></script>
 
 <main class="shell">
@@ -1476,7 +1482,7 @@ html[data-lang="en"]{--display:"ND Dela","ND QingKe",sans-serif;--num:"ND Dela",
 <script src="js/settings.js"></script>
 <script src="js/phone.js"></script>
 <script src="js/pay.js"></script>
-<script>window.__ndWebTracks = ["bgm-1-bubbly-shti9s.m4a", "bgm-2-bubbly-add9s.m4a", "bgm-3-bubbly-tea9s.m4a", "bgm-4-lazy-cat.m4a", "bgm-5-lazy-groove.m4a", "bgm-6-warm-FM-pad.m4a"]; window.__ndWebTrial = true;</script>
+<script>window.__ndWebTracks = ["bgm-1-bubbly-add9s.m4a", "bgm-2-bubbly-tea9s.m4a", "bgm-3-lazy-cat.m4a", "bgm-4-lazy-groove.m4a", "bgm-5-warm-FM-pad.m4a", "bgm-6-bubble-juice.m4a"]; window.__ndWebTrial = true;</script>
 <script src="platform/web.js"></script>
 <script src="js/app.js"></script>
 <script src="platform/platform.js"></script>
@@ -1489,6 +1495,8 @@ html[data-lang="en"]{--display:"ND Dela","ND QingKe",sans-serif;--num:"ND Dela",
 <script src="platform/music.js"></script>
 <script src="platform/skin.js"></script>
 <script src="platform/xtags.js"></script>
+<script src="platform/mtext.js"></script>
+<script src="platform/tutorial.js"></script>
 
 </body>
 </html>

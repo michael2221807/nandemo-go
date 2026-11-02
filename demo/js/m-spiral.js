@@ -200,8 +200,8 @@
   function step(now, dt) {
     if (now > fanNext) { fanOn = !fanOn; fanNext = now + (fanOn ? 5000 : UTIL.rand(12000, 18000)); }
     if (busy || liftMoving || fanOn || now < fanFast) { fanA += dt * (now < fanFast ? 1300 : 380);
-      if (now - fanDrawn > 32) { fanDrawn = now; I.fan.setAttribute('transform', `translate(13 15) rotate(${(fanA % 360).toFixed(1)})`); } }
-    if (liftMoving) { pulleyA += dt * 600; I.pulleys.forEach(p => p.setAttribute('transform', `rotate(${(pulleyA % 360).toFixed(1)})`)); }
+      if (now - fanDrawn > 32 && !(window.TURN && TURN.holds && TURN.holds())) { fanDrawn = now; I.fan.setAttribute('transform', `translate(13 15) rotate(${(fanA % 360).toFixed(1)})`); } }   // (app build)
+    if (liftMoving) { pulleyA += dt * 600; if (!(window.TURN && TURN.holds && TURN.holds())) I.pulleys.forEach(p => p.setAttribute('transform', `rotate(${(pulleyA % 360).toFixed(1)})`)); }
   }
   function tap(hit) {
     const t = hit.dataset.hit;

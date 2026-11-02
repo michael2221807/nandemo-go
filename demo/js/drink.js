@@ -245,7 +245,7 @@ const DRINK = (() => {
     }
     if (dirty.size) { sortAll(); dirty.clear(); }
     // the insides are not drawn (solid door shut, no X-ray): skip their ambient motion
-    if (G.interior.style.display === 'none') return;
+    if (G.interior.style.display === 'none' || G.interior.style.visibility === 'hidden' || (window.TURN && TURN.holds && TURN.holds())) return;   // (app build)
     if (now < beltUntil) { beltDash -= dt * 26; rollA += dt * 520; I.belt.setAttribute('stroke-dashoffset', f(beltDash)); I.rollers.forEach(r => r.setAttribute('transform', `translate(0 2) rotate(${f(rollA % 360)})`)); }
     fanA += dt * (now < fanFast ? 1300 : 420); I.fan.setAttribute('transform', `translate(15 16) rotate(${f(fanA % 360)})`);
     if (now > ledT) { I.leds[1].classList.toggle('on'); ledT = now + 900; }

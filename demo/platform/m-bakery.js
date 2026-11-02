@@ -75,12 +75,13 @@
   let headX = FILL;
   const paintHead = o => { if (I) I.nozzleG.innerHTML = PBB.head({ x: headX, ...o }); };
   const paintBelt = () => { if (I) I.beltG.innerHTML = PBB.belt(beltOff); };
+  const LCD = s => { if (X.lcd.__t !== s) { X.lcd.__t = s; X.lcd.textContent = s; } };   // (app build: written only when it changes)
   function paintDoor() {
     if (!X) return;
     X.tiles.forEach(t => { const k = +t.dataset.k; t.querySelector('.soldout').classList.toggle('on', !canMake(k)); });
-    X.gauge.setAttribute('width', f(13.2 * Math.max(0, Math.min(1, S.dough)))); X.gauge.setAttribute('fill', S.dough < .25 ? '#ff6a3a' : '#f2e2c0');
+    { const w = f(13.2 * Math.max(0, Math.min(1, S.dough))), c = S.dough < .25 ? '#ff6a3a' : '#f2e2c0'; if (X.gauge.getAttribute('width') !== String(w)) X.gauge.setAttribute('width', w); if (X.gauge.getAttribute('fill') !== c) X.gauge.setAttribute('fill', c); }
     X.proofLamp.classList.toggle('on', !risen(S.proof[0]));
-    if (!busy && !ready) X.lcd.textContent = S.dough <= .02 ? '生地切れ' : 'いらっしゃいませ';
+    if (!busy && !ready) LCD(S.dough <= .02 ? '生地切れ' : 'いらっしゃいませ');
   }
   const tile = k => X.tiles.find(t => +t.dataset.k === k);
   function windowBread(r) {
@@ -253,14 +254,14 @@
     // the fryer, a sandwich is cut on the table
     const lam = lv.lam && p.dough === 'cro', fried = lv.fryer && p.dough === 'fried', sand = lv.sando && p.how === 'sando';
     // the front piece has to have risen
-    while (!lam && !risen(S.proof[0])) { if (!live()) return null; if (X) { X.proofLamp.classList.add('on'); X.lcd.textContent = `発酵中 · あと${Math.ceil((PROOF - (Date.now() - (S.proof[0] ?? Date.now()))) / 1000)}秒`; } paintQueue(); await UTIL.wait(250); }
+    while (!lam && !risen(S.proof[0])) { if (!live()) return null; if (X) { X.proofLamp.classList.add('on'); LCD(`発酵中 · あと${Math.ceil((PROOF - (Date.now() - (S.proof[0] ?? Date.now()))) / 1000)}秒`); } paintQueue(); await UTIL.wait(250); }
     if (!live()) return null;
-    if (X) X.lcd.textContent = `${S.no}番 · 焼いています`;
+    if (X) LCD(`${S.no}番 · 焼いています`);
     S.hop[k].shift(); paintRack(); S.dough = Math.max(0, S.dough - LADLE);
     const o = { shape: p.shape, dough: p.dough, how: p.how, fill: p.fill, g: p.g, bake: 0, cut: false, filled: false, k: 1.3 };   // (risen and baked: bigger than the dough ball)
     if (fried) o.cap = .3;
     const ms = d => 2800 * d / (Q[0] - 6 - FILL);   // (the belt's pace)
-    if (lam) { if (X) X.lcd.textContent = `${S.no}番 · 生地をのばしています`; if (!await roll(o, live)) return null; }
+    if (lam) { if (X) LCD(`${S.no}番 · 生地をのばしています`); if (!await roll(o, live)) return null; }
     else {
     // the pusher sets it on the belt at the oven's mouth; the queue moves up and a new piece comes in at the back
     const front = S.proof[0]; S.proof = [...S.proof.slice(1), null];
@@ -272,11 +273,11 @@
     void front;
     }
     // through the oven (and the fryer) on to the filling station
-    if (X) { X.bakeLamp.classList.add('on'); X.lcd.textContent = `${S.no}番 · 焼いています`; }
+    if (X) { X.bakeLamp.classList.add('on'); LCD(`${S.no}番 · 焼いています`); }
     const x0 = lam ? LAM.slot : Q[0] - 6, xf = fried ? FRY.x : FILL;
     if (!await carry(o, x0, xf, ms(x0 - xf))) return null;
     if (X) X.bakeLamp.classList.remove('on');
-    if (fried) { if (X) X.lcd.textContent = `${S.no}番 · 揚げています`; if (!await fry(o, live) || !await carry(o, FRY.x, FILL, ms(FRY.x - FILL))) return null; }
+    if (fried) { if (X) LCD(`${S.no}番 · 揚げています`); if (!await fry(o, live) || !await carry(o, FRY.x, FILL, ms(FRY.x - FILL))) return null; }
     o.bake = 1; paintPiece(FILL, o);
     const t = top(o);
     if (o.how === 'split' || o.how === 'sando') {
@@ -310,13 +311,13 @@
     const t = tile(kk), no = (S.no = S.no % 99 + 1);
     if (t) { t.querySelector('.led').classList.add('on'); CORE.glow(t.querySelector('.pb-tglow'), 1600, .4); if (who === 'player') CORE.press(t); }
     if (who === 'player') SND.click();
-    CORE.glow(X.slotGlow, 1000); X.lcd.textContent = `ご注文 · ${no}番`;
+    CORE.glow(X.slotGlow, 1000); LCD(`ご注文 · ${no}番`);
     await I.cm.coinIn((S.hop[kk][0] || MENU[kk]).price, PB.SLOTW);
     const r = await make(kk);
     if (t) t.querySelector('.led').classList.remove('on');
     if (!r) return false;
     await UTIL.tween(220, e => X.flap.setAttribute('transform', `translate(0 ${f(7 * e)})`), UTIL.ease.out);
-    const done = { p: r.p, o: r.o, no, who }; ready = done; windowBread(done); X.ready.classList.add('on'); X.lcd.textContent = `${no}番 · 焼きあがりました`; SND.ding(); UTIL.haptic(14);
+    const done = { p: r.p, o: r.o, no, who }; ready = done; windowBread(done); X.ready.classList.add('on'); LCD(`${no}番 · 焼きあがりました`); SND.ding(); UTIL.haptic(14);
     saleFn({ name: r.p.name, price: r.p.price, pid: r.p.pid, tier: r.p.tier || 1 }, who);
     if (who === 'customer') setTimeout(() => take(false), 900); else setTimeout(() => { if (ready === done) take(true); }, 7000);
     paintDoor(); return true;

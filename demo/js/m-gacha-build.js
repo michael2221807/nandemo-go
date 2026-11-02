@@ -106,7 +106,7 @@ const GCB = (() => {
   function defs() {
     return `<g id="g-gc-cap"><circle cy="-3" r="3" fill="#eef7ff" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><path d="M-3-3A3 3 0 0 0 3-3Z" style="fill:var(--c)"/><ellipse cx="-1" cy="-4.6" rx=".9" ry=".5" fill="#fff" opacity=".8"/></g>`;
   }
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 
   /* ---------- a globe: the glass, the capsules in it, its lid; its base with the star wheel and the spout ---------- */
   // the capsules piled in a globe (up to 12, back to front); list: [{ cap, fig, v, s, big }]

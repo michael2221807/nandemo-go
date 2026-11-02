@@ -151,7 +151,7 @@ const KSB = (() => {
     const filter = `<g id="g-ks-filter"><path d="M-4.6-8h9.2l-2.4 7.4h-4.4z" fill="#f4ecd8" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><ellipse cx="0" cy="-8" rx="4.6" ry="1.2" fill="#e8dcc0" stroke="rgba(0,0,0,.45)" stroke-width=".5" vector-effect="non-scaling-stroke"/><path d="M-3-5.6h6M-2.4-3.2h4.8" stroke="#c8b890" stroke-width=".5"/></g>`;
     return beans + filter;
   }
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 
   /* ---------- the three upgrade kits ---------- */
   // ネル自動洗浄: a spray head over the bowl and its hose (drawn by the siphon with o.rinse), a drip tray by the stand

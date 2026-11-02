@@ -70,6 +70,31 @@ const STREET = (() => {
   // neon tube lettering: a blurred glow under a crisp core
   const neon = (x, y, size, txt, col, opt = '') => `<text x="${x}" y="${y}" class="st-neon" font-size="${size}" text-anchor="middle" fill="${col}" stroke="${col}" stroke-width="2" filter="url(#st-glow-f)" ${opt}>${txt}</text>`
     + `<text x="${x}" y="${y}" class="st-neon" font-size="${size}" text-anchor="middle" fill="#fff6fb" stroke="${col}" stroke-width=".8" ${opt}>${txt}</text>`;
+  /* painted signs in the player's language (players asked; the owner 2026-11-02): in 全部翻译 the street's signs, posters,
+     neons and the machines' miniatures show local words (a T`…` key, Chinese; i18n-ja.js gives back the Japanese), the
+     brands their local names; 原汁原味 and 日本語 keep the Japanese. sg(): a word in a tspan the [data-loc] style sets in
+     the player's script, made smaller when it would be wider than w at size fs (an estimate: no fonts needed, so the
+     backdrop's picture (platform/opt.js) and its kept copy are drawn from the same markup) */
+  const LOC = I18N.lang !== 'ja' && I18N.full;
+  const nm = jp => I18N.name(jp);
+  const wOf = (t, fs) => [...t].reduce((a, c) => a + (/[⺀-鿿豈-﫿　-ヿ]/.test(c) ? 1 : /[A-Z0-9&]/.test(c) ? .74 : c === ' ' ? .3 : .6), 0) * fs;
+  const sg = (ja, loc, fs, w) => { if (!LOC) return ja; const k = w ? Math.min(1, w / wOf(loc, fs)) : 1;
+    return `<tspan data-loc="1"${k < 1 ? ` font-size="${(fs * k).toFixed(2)}"` : ''}>${loc}</tspan>`; };
+  // a vertical column (a neon tube, a banner) in 全部翻译: the local word's letters spread over the n Japanese ones' span,
+  // smaller when there are more of them; a Latin word much longer than the column is set turned on its side.
+  // draw(x, y, size, text, attrs) draws one letter as the Japanese ones are drawn
+  const vcol = (x, y0, step, size, n, loc, draw) => {
+    const span = step * (n - 1), ch = [...loc], k = ch.length;
+    if (k > n * 2 && !/[⺀-鿿]/.test(loc)) {
+      const yc = y0 - size * .35 + span / 2, sz = Math.min(size * 1.1, (span + size) / wOf(loc, 1));
+      return draw(x, yc + sz * .35, sz, loc, `data-loc="1" transform="rotate(90 ${x} ${yc})"`);
+    }
+    const st = k > 1 ? Math.min(step, span / (k - 1)) : 0, sz = Math.min(size, st ? st * 1.05 : size), top = y0 + (span - st * (k - 1)) / 2;
+    return ch.map((c, i) => c === ' ' ? '' : draw(x, top + i * st - (size - sz) / 2, sz, c, 'data-loc="1"')).join('');
+  };
+  // the same for a row of noren / awning tiles: the local word's parts (split at spaces, else one letter a tile) or, when it
+  // has more parts than tiles, the whole word across them
+  const tiles = (n, loc) => { const p = loc.includes(' ') ? loc.split(' ') : [...loc]; return p.length <= n ? p : null; };
   const tag = (d, col) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>`;
   function backdrop() {   // なんでも通り
     let s = `<rect x="-20" y="-20" width="${WW + 40}" height="900" fill="url(#st-sky)"/><ellipse cx="${WW / 2}" cy="420" rx="${WW * .82}" ry="150" fill="url(#st-city)"/>`;
@@ -81,7 +106,7 @@ const STREET = (() => {
     s += `<rect x="146" y="300" width="100" height="90" fill="#251d4a" ${ink(2.2)}/>${[0, 1].map(r => [0, 1, 2, 3].map(c => `<rect x="${156 + c * 22}" y="${318 + r * 30}" width="12" height="14" rx="2" fill="${(r + c) % 3 ? '#3a3170' : '#ffd86b'}" ${ink(1.4)}/>`).join('')).join('')}
       <path d="M160 300v-14M232 300v-14" ${ink(2.2)}/><rect x="150" y="238" width="92" height="50" rx="4" fill="#fff1c9" ${ink()}/><rect x="150" y="238" width="92" height="50" rx="4" fill="url(#st-dots)"/>
       <path d="M164 278v-22q0-3 8-3t8 3v22q0 3-8 3t-8-3z" fill="#ffd27a" ${ink(2)}/><ellipse cx="172" cy="256" rx="8" ry="2.6" fill="#ffeab8" ${ink(1.6)}/><path d="M167 268q5-4 10 0l3-2v4l-3-2q-5 4-10 0z" fill="#fff" ${ink(1.2)}/>
-      <text x="215" y="260" class="st-pop-t st-jp" font-size="13" text-anchor="middle" fill="#ff4f8b" stroke="${INK}" stroke-width="2.2" paint-order="stroke">ねこ缶</text><text x="215" y="278" class="st-pop-t st-jp" font-size="9" text-anchor="middle" fill="${INK}">NEW!</text>`;
+      <text x="215" y="260" class="st-pop-t st-jp" font-size="13" text-anchor="middle" fill="#ff4f8b" stroke="${INK}" stroke-width="2.2" paint-order="stroke">${sg('ねこ缶', T`猫罐头`, 13, 42)}</text><text x="215" y="278" class="st-pop-t st-jp" font-size="9" text-anchor="middle" fill="${INK}">NEW!</text>`;
     // wires with bunting and a pair of sneakers
     s += `<path d="M10 284Q200 336 400 300M10 298Q210 352 400 320M40 252Q230 300 400 262M24 240Q120 270 160 236M400 300Q460 286 ${WW + 10} 294M400 320Q462 306 ${WW + 10} 316M400 262Q456 248 ${WW + 10} 254" fill="none" stroke="${INK}" stroke-width="1.8"/>
       ${[[70, 300, '#ff4f8b'], [100, 307, '#ffd23f'], [130, 312, '#3ff4ff'], [160, 316, '#ff4f8b'], [190, 318, '#ffd23f'], [220, 318, '#3ff4ff'], [250, 316, '#ff4f8b']].map(([x, y, c]) => `<path d="M${x - 7} ${y - 2}L${x + 7} ${y + 1}L${x} ${y + 14}z" fill="${c}" ${ink(1.6)}/>`).join('')}
@@ -92,30 +117,30 @@ const STREET = (() => {
       + `<path d="M44 312h40" ${ink(2)}/><rect x="44" y="318" width="40" height="2" fill="${INK}"/>${[48, 56, 64, 72, 80].map(x => `<path d="M${x} 312v8" ${ink(1.4)}/>`).join('')}
         <path d="M46 300h36" ${ink(1.4)}/><path d="M52 300l-4 8h10l-3-8z" fill="#9ce1c8" ${ink(1.4)}/><path d="M70 300v7q0 3 4 3h2v-3h-2v-7" fill="#ffb3c8" ${ink(1.4)}/>
         <rect x="122" y="246" width="24" height="122" rx="4" fill="${INK}"/>`
-      + ['カ', 'ラ', 'オ', 'ケ'].map((ch, i) => neon(134, 270 + i * 27, 17, ch, '#ff4f8b')).join('');
+      + (LOC ? vcol(134, 270, 27, 17, 4, T`卡拉OK`, (x, y, z, c, a) => neon(x, y, z, c, '#ff4f8b', a)) : ['カ', 'ラ', 'オ', 'ケ'].map((ch, i) => neon(134, 270 + i * 27, 17, ch, '#ff4f8b')).join(''));
     // right: a raspberry building, fire-escape stairs and a café neon
     s += `<rect x="238" y="214" width="170" height="172" fill="#b73a6a" ${ink()}/><rect x="238" y="214" width="170" height="172" fill="url(#st-dots)"/><rect x="236" y="206" width="174" height="12" rx="3" fill="#8f2a52" ${ink(2.2)}/>`
       + win(266, 236, 'lit') + win(306, 236, 'dark') + win(266, 304, 'dark') + win(306, 304, 'lit')
       + `<path d="M242 232h18M242 268h18M242 304h18M242 340h18M244 232l14 36M244 268l14 36M244 304l14 36" fill="none" ${ink(1.8)}/>
         <rect x="348" y="232" width="28" height="140" rx="5" fill="${INK}"/>`
-      + ['喫', '茶', 'ね', 'こ'].map((ch, i) => neon(362, 258 + i * 30, 17, ch, '#3ff4ff')).join('');
+      + (LOC ? vcol(362, 258, 30, 17, 4, T`猫咪茶馆`, (x, y, z, c, a) => neon(x, y, z, c, '#3ff4ff', a)) : ['喫', '茶', 'ね', 'こ'].map((ch, i) => neon(362, 258 + i * 30, 17, ch, '#3ff4ff')).join(''));
     // further right (seen by panning): a little noodle shop with a vertical neon and red lanterns
     s += `<rect x="406" y="222" width="114" height="164" fill="#3b2a52" ${ink()}/><rect x="406" y="222" width="114" height="164" fill="url(#st-dots)"/><rect x="402" y="214" width="122" height="12" rx="3" fill="#2a1d40" ${ink(2.2)}/>`
       + win(426, 244, 'lit') + win(426, 312, 'dark') + `<rect x="466" y="236" width="28" height="140" rx="5" fill="${INK}"/>`
-      + ['ら', 'ー', 'め', 'ん'].map((ch, i) => neon(480, 262 + i * 30, 17, ch, '#ffb347')).join('')
+      + (LOC ? vcol(480, 262, 30, 17, 4, T`拉面`, (x, y, z, c, a) => neon(x, y, z, c, '#ffb347', a)) : ['ら', 'ー', 'め', 'ん'].map((ch, i) => neon(480, 262 + i * 30, 17, ch, '#ffb347')).join(''))
       + [432, 506].map(x => `<path d="M${x} 352v6" ${ink(1.6)}/><ellipse cx="${x}" cy="370" rx="9" ry="12" fill="#ff4f3a" ${ink(2)}/><path d="M${x - 9} 370h18M${x - 7} 362h14M${x - 7} 378h14" stroke="${INK}" stroke-width="1" opacity=".5"/><rect x="${x - 4}" y="356" width="8" height="3" fill="${INK}"/><rect x="${x - 4}" y="381" width="8" height="3" fill="${INK}"/>`).join('');
     // and past it: a fruit shop with a vertical neon, a striped awning and crates of oranges
     s += `<rect x="520" y="232" width="110" height="154" fill="#2f5a3c" ${ink()}/><rect x="520" y="232" width="110" height="154" fill="url(#st-dots)"/><rect x="516" y="224" width="118" height="12" rx="3" fill="#234530" ${ink(2.2)}/>`
       + win(574, 250, 'lit') + `<rect x="534" y="244" width="26" height="116" rx="5" fill="${INK}"/>`
-      + ['く', 'だ', 'も', 'の'].map((ch, i) => neon(547, 268 + i * 26, 15, ch, '#b8f05a')).join('')
+      + (LOC ? vcol(547, 268, 26, 15, 4, T`水果`, (x, y, z, c, a) => neon(x, y, z, c, '#b8f05a', a)) : ['く', 'だ', 'も', 'の'].map((ch, i) => neon(547, 268 + i * 26, 15, ch, '#b8f05a')).join(''))
       + `<path d="M566 322H630V336H566Z" fill="#fff" ${ink(2)}/>${Array.from({ length: 6 }, (_, i) => `<path d="M${569 + i * 10} 322h5v14h-5z" fill="#3aa04a"/>`).join('')}
         <path d="M566 336${Array.from({ length: 7 }, () => 'q4.5 6 9 0').join('')}" fill="#3aa04a" ${ink(1.6)}/>`
       + [574, 602].map(x => `<rect x="${x}" y="366" width="24" height="16" fill="#c8894a" ${ink(1.8)}/>` + [0, 1, 2].map(j => `<circle cx="${x + 5 + j * 7}" cy="363" r="4" fill="${j === 1 ? '#ffe14a' : '#ff9a2e'}" ${ink(1.4)}/>`).join('')).join('');
     // the shop fascia between the buildings and the machines: graffiti, a neon street sign, stickers, a lost-cat poster
     s += `<rect x="-10" y="384" width="${WW + 20}" height="280" fill="#5d577e" ${ink()}/><rect x="-10" y="384" width="${WW + 20}" height="280" fill="url(#st-dots)"/>
       ${tag('M10 428q4-22 16-8q8 10 2 18M34 410q2 26 6 28q4-24 14-26q-2 20 4 24M64 432q8-20 18-10q-6 12-16 10M92 410v28q10-2 14-14', '#ffd23f')}
-      <rect x="128" y="392" width="134" height="40" rx="6" fill="${INK}"/><g class="st-mainsign">${neon(195, 419, 19, 'なんでも通り', '#ff4f8b')}</g>
-      <rect x="276" y="394" width="40" height="44" fill="#fff8ec" ${ink(2)} transform="rotate(4 296 416)"/><g transform="rotate(4 296 416)"><text x="296" y="404" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">さがしてます</text>
+      <rect x="128" y="392" width="134" height="40" rx="6" fill="${INK}"/><g class="st-mainsign">${neon(195, 419, 19, sg('なんでも通り', nm('なんでも通り'), 19, 122), '#ff4f8b')}</g>
+      <rect x="276" y="394" width="40" height="44" fill="#fff8ec" ${ink(2)} transform="rotate(4 296 416)"/><g transform="rotate(4 296 416)"><text x="296" y="404" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">${sg('さがしてます', T`寻猫启事`, 7, 36)}</text>
         <circle cx="296" cy="418" r="8" fill="#fff" ${ink(1.6)}/><path d="M290 412l1-5 4 3zM302 412l-1-5-4 3z" fill="#fff" ${ink(1.4)}/><path d="M293 418q1 1 2 0M297 418q1 1 2 0" fill="none" ${ink(1)}/><path d="M282 430h28M282 434h20" ${ink(1)} opacity=".5"/></g>
       <circle cx="330" cy="404" r="8" fill="#3ff4ff" ${ink(2)}/><path d="M326 404l3 3 5-6" fill="none" ${ink(1.8)}/>
       <rect x="342" y="398" width="22" height="13" rx="3" fill="#ffd23f" ${ink(2)} transform="rotate(-8 353 404)"/><text x="353" y="408" class="st-pop-t st-jp" font-size="7" text-anchor="middle" fill="${INK}" transform="rotate(-8 353 404)">24H</text>
@@ -124,11 +149,11 @@ const STREET = (() => {
     s += `<path d="M58 392L-8 652H168Z" fill="url(#st-glow)"/>
       <rect x="18" y="226" width="11" height="434" rx="3" fill="#8e86a8" ${ink()}/><rect x="4" y="260" width="40" height="7" rx="2" fill="#6e6690" ${ink(2)}/><rect x="9" y="282" width="30" height="6" rx="2" fill="#6e6690" ${ink(2)}/>
       <rect x="28" y="312" width="20" height="28" rx="4" fill="#a39cbd" ${ink(2)}/><path d="M29 368h20q9 0 9 9" fill="none" ${ink()}/><path d="M48 377h20l-3 8H51z" fill="#fff3b0" ${ink(2)}/>
-      <rect x="2" y="440" width="42" height="22" rx="4" fill="#3c7cff" ${ink(2)}/><text x="23" y="455.5" class="st-sign" font-size="10" text-anchor="middle" fill="#fff">3丁目</text>`;
+      <rect x="2" y="440" width="42" height="22" rx="4" fill="#3c7cff" ${ink(2)}/><text x="23" y="455.5" class="st-sign" font-size="10" text-anchor="middle" fill="#fff">${sg('3丁目', T`3号街`, 10, 30)}</text>`;
     // pavement, a hazard-striped kerb, the road with a 止まれ marking
     s += `<rect x="-10" y="650" width="${WW + 20}" height="58" fill="#4a4270" ${ink(2.2)}/><path d="M-10 679H${WW + 10}${Array.from({ length: Math.ceil(WW / 26) + 1 }, (_, i) => `M${13 + i * 26} 652V706`).join('')}" stroke="#625a8c" stroke-width="1.6"/>
       <rect x="-10" y="704" width="${WW + 20}" height="12" fill="url(#st-haz)" ${ink(2.2)}/><rect x="-10" y="716" width="${WW + 20}" height="150" fill="#221c3c"/>
-      <path d="M-10 758H${WW + 10}" stroke="#efe8f8" stroke-width="5" opacity=".85"/><text x="195" y="812" class="st-pop-t st-jp" font-size="38" text-anchor="middle" fill="#efe8f8" opacity=".75" transform="translate(0 812) scale(1 .62) translate(0 -812)">止まれ</text>`;
+      <path d="M-10 758H${WW + 10}" stroke="#efe8f8" stroke-width="5" opacity=".85"/><text x="195" y="812" class="st-pop-t st-jp" font-size="38" text-anchor="middle" fill="#efe8f8" opacity=".75" transform="translate(0 812) scale(1 .62) translate(0 -812)">${sg('止まれ', T`停`, 38, 200)}</text>`;
     // a potted plant at the pole's foot, a traffic cone, a can bin
     s += `<path d="M7 620h30l-4 33H11z" fill="#f2a07b" ${ink(2)}/><rect x="5" y="614" width="34" height="8" rx="3" fill="#f6b693" ${ink(2)}/>
       <path d="M22 614q-16-18-6-34q8 14 6 34zM22 614q10-22 20-24q-2 16-20 24zM22 614q-4-26 2-40q6 22-2 40z" fill="#7fd99a" ${ink(2)}/>
@@ -148,7 +173,7 @@ const STREET = (() => {
     // left: a convenience store, its striped fascia and the bright shop window
     s += `<rect x="-10" y="262" width="152" height="124" fill="#2f5f86" ${ink()}/><rect x="-10" y="262" width="152" height="124" fill="url(#st-dots)"/>
       <rect x="-12" y="268" width="156" height="28" fill="#fff8ec" ${ink(2.2)}/><path d="M-12 288H144" stroke="#3aa04a" stroke-width="4"/><path d="M-12 293H144" stroke="#ff9a2e" stroke-width="3"/>
-      <text x="62" y="284" class="st-pop-t st-jp" font-size="13" text-anchor="middle" fill="#2f5f86">コンビニ</text>
+      <text x="62" y="284" class="st-pop-t st-jp" font-size="13" text-anchor="middle" fill="#2f5f86">${sg('コンビニ', T`便利店`, 13, 140)}</text>
       <rect x="2" y="306" width="128" height="72" rx="2" fill="#c8f4ff" ${ink(2.2)}/>${[34, 66, 98].map(x => `<path d="M${x} 306v72" ${ink(1.6)}/>`).join('')}
       <path d="M8 324h20M40 330h20M72 322h20M104 328h20" stroke="#5ab8d8" stroke-width="3" stroke-linecap="round" opacity=".7"/>`
       + neon(118, 256, 11, '24H', '#3ff4ff');
@@ -157,7 +182,7 @@ const STREET = (() => {
       <path d="M142 242L300 176L458 242Z" fill="#7a3a3a" ${ink()}/>${[204, 218, 231].map(y => { const h = (y - 176) / 66 * 158 - 5; return `<path d="M${(300 - h).toFixed(1)} ${y}H${(300 + h).toFixed(1)}" stroke="#5e2a2a" stroke-width="2"/>`; }).join('')}
       <circle cx="300" cy="214" r="17" fill="#fff8ec" ${ink(2.4)}/><path d="M300 214V203M300 214l7 4" ${ink(2)}/><circle cx="300" cy="214" r="1.6" fill="${INK}"/>
       ${[0, 90, 180, 270].map(a => { const r = a * Math.PI / 180; return `<path d="M${(300 + 13 * Math.sin(r)).toFixed(1)} ${(214 - 13 * Math.cos(r)).toFixed(1)}l${(1.6 * Math.sin(r)).toFixed(1)} ${(-1.6 * Math.cos(r)).toFixed(1)}" ${ink(1.6)}/>`; }).join('')}
-      <rect x="226" y="246" width="148" height="28" rx="4" fill="#1e2a5a" ${ink(2.2)}/><text x="300" y="266" class="st-pop-t st-jp" font-size="16" text-anchor="middle" fill="#fff8ec">ねこまち駅</text>`
+      <rect x="226" y="246" width="148" height="28" rx="4" fill="#1e2a5a" ${ink(2.2)}/><text x="300" y="266" class="st-pop-t st-jp" font-size="16" text-anchor="middle" fill="#fff8ec">${sg('ねこまち駅', T`猫町站`, 16, 140)}</text>`
       + [0, 1, 2].map(i => { const x = 178 + i * 84;
         return `<path d="M${x} 386V312q0-22 31-22t31 22V386z" fill="#ffe7a0" ${ink(2.4)}/><path d="M${x} 386V312q0-22 31-22t31 22V386z" fill="url(#st-glow)" opacity=".5"/>`
           + [8, 26, 44].map(dx => `<rect x="${x + dx}" y="350" width="10" height="34" rx="2" fill="#3a3550" ${ink(1.6)}/><circle cx="${x + dx + 5}" cy="356" r="2.2" fill="${(i + dx) % 3 ? '#6bff9a' : '#ff6a6a'}"/>`).join(''); }).join('')
@@ -165,25 +190,25 @@ const STREET = (() => {
     // right: a game centre with a vertical neon, and a little yakitori bar with red lanterns
     s += `<rect x="452" y="222" width="104" height="164" fill="#4a2a6a" ${ink()}/><rect x="452" y="222" width="104" height="164" fill="url(#st-dots)"/><rect x="448" y="214" width="112" height="12" rx="3" fill="#331d4a" ${ink(2.2)}/>`
       + win(500, 244, 'tv') + win(500, 312, 'lit') + `<rect x="462" y="236" width="28" height="140" rx="5" fill="${INK}"/>`
-      + ['ゲ', 'ー', 'セ', 'ン'].map((ch, i) => neon(476, 262 + i * 30, 17, ch, '#ff4fd8')).join('');
+      + (LOC ? vcol(476, 262, 30, 17, 4, T`电玩中心`, (x, y, z, c, a) => neon(x, y, z, c, '#ff4fd8', a)) : ['ゲ', 'ー', 'セ', 'ン'].map((ch, i) => neon(476, 262 + i * 30, 17, ch, '#ff4fd8')).join(''));
     s += `<rect x="556" y="252" width="96" height="134" fill="#5a2a24" ${ink()}/><rect x="556" y="252" width="96" height="134" fill="url(#st-dots)"/><rect x="552" y="244" width="104" height="12" rx="3" fill="#401c18" ${ink(2.2)}/>`
-      + `<rect x="566" y="264" width="62" height="22" rx="3" fill="#f6ead0" ${ink(2)}/><text x="597" y="280" class="st-pop-t st-jp" font-size="12" text-anchor="middle" fill="#8a2a1a">やきとり</text>`
+      + `<rect x="566" y="264" width="62" height="22" rx="3" fill="#f6ead0" ${ink(2)}/><text x="597" y="280" class="st-pop-t st-jp" font-size="12" text-anchor="middle" fill="#8a2a1a">${sg('やきとり', T`烤鸡串`, 12, 58)}</text>`
       + win(574, 300, 'lit', 32, 30)
       + [572, 624].map(x => `<path d="M${x} 340v6" ${ink(1.6)}/><ellipse cx="${x}" cy="360" rx="9" ry="12" fill="#ff4f3a" ${ink(2)}/><path d="M${x - 9} 360h18M${x - 7} 352h14M${x - 7} 368h14" stroke="${INK}" stroke-width="1" opacity=".5"/><rect x="${x - 4}" y="346" width="8" height="3" fill="${INK}"/><rect x="${x - 4}" y="371" width="8" height="3" fill="${INK}"/>`).join('');
     // the station-front wall behind the machines: tiles, the street's neon, the timetable, a festival poster, a taxi sign
     s += `<rect x="-10" y="384" width="${WW + 20}" height="280" fill="#4f5578" ${ink()}/><rect x="-10" y="384" width="${WW + 20}" height="280" fill="url(#st-dots)"/>
       <path d="${[412, 440, 468, 496, 524, 552, 580, 608, 636].map(y => `M-10 ${y}H${WW + 10}`).join('')}" stroke="#5f6690" stroke-width="1.4"/>
-      <rect x="128" y="392" width="134" height="40" rx="6" fill="${INK}"/><g class="st-mainsign">${neon(195, 419, 19, '駅前通り', '#3ff4ff')}</g>
-      <rect x="276" y="392" width="58" height="46" rx="3" fill="#1e2a5a" ${ink(2)}/><text x="305" y="403" class="st-sign" font-size="7.5" text-anchor="middle" fill="#fff8ec">時刻表</text>
+      <rect x="128" y="392" width="134" height="40" rx="6" fill="${INK}"/><g class="st-mainsign">${neon(195, 419, 19, sg('駅前通り', nm('駅前通り'), 19, 122), '#3ff4ff')}</g>
+      <rect x="276" y="392" width="58" height="46" rx="3" fill="#1e2a5a" ${ink(2)}/><text x="305" y="403" class="st-sign" font-size="7.5" text-anchor="middle" fill="#fff8ec">${sg('時刻表', T`时刻表`, 7.5, 54)}</text>
       ${[0, 1, 2].map(r => `<path d="M282 ${412 + r * 8}h12M300 ${412 + r * 8}h8M314 ${412 + r * 8}h14" stroke="#ffd23f" stroke-width="2.2" stroke-linecap="round"/>`).join('')}
-      <g transform="rotate(-5 370 416)"><rect x="346" y="394" width="48" height="44" fill="#ffe14a" ${ink(2)}/><text x="370" y="405" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">ねこまつり</text>
+      <g transform="rotate(-5 370 416)"><rect x="346" y="394" width="48" height="44" fill="#ffe14a" ${ink(2)}/><text x="370" y="405" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">${sg('ねこまつり', T`猫咪祭`, 7, 44)}</text>
         <circle cx="370" cy="420" r="8" fill="#fff" ${ink(1.6)}/><path d="M364 414l1-5 4 3zM376 414l-1-5-4 3z" fill="#fff" ${ink(1.4)}/><path d="M367 420q1 1 2 0M371 420q1 1 2 0" fill="none" ${ink(1)}/><path d="M352 433h36" ${ink(1)} opacity=".5"/></g>
-      <rect x="410" y="398" width="46" height="30" rx="4" fill="#ffd23f" ${ink(2)}/><text x="433" y="411" class="st-pop-t" font-size="9" text-anchor="middle" fill="${INK}">TAXI</text><text x="433" y="423" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">のりば</text>`;
+      <rect x="410" y="398" width="46" height="30" rx="4" fill="#ffd23f" ${ink(2)}/><text x="433" y="411" class="st-pop-t" font-size="9" text-anchor="middle" fill="${INK}">TAXI</text><text x="433" y="423" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">${sg('のりば', T`乘车处`, 7, 42)}</text>`;
     // the lamp post with a bus-stop sign on top, its pool of light
     s += `<path d="M58 392L-8 652H168Z" fill="url(#st-glow)"/>
-      <rect x="18" y="246" width="11" height="414" rx="3" fill="#8e86a8" ${ink()}/><circle cx="23.5" cy="236" r="15" fill="#ffd23f" ${ink(2.4)}/><text x="23.5" y="240.5" class="st-sign" font-size="10" text-anchor="middle" fill="${INK}">バス</text>
+      <rect x="18" y="246" width="11" height="414" rx="3" fill="#8e86a8" ${ink()}/><circle cx="23.5" cy="236" r="15" fill="#ffd23f" ${ink(2.4)}/><text x="23.5" y="240.5" class="st-sign" font-size="10" text-anchor="middle" fill="${INK}">${sg('バス', T`公交`, 10, 26)}</text>
       <rect x="28" y="312" width="20" height="28" rx="4" fill="#a39cbd" ${ink(2)}/><path d="M29 368h20q9 0 9 9" fill="none" ${ink()}/><path d="M48 377h20l-3 8H51z" fill="#fff3b0" ${ink(2)}/>
-      <rect x="2" y="440" width="42" height="22" rx="4" fill="#3c7cff" ${ink(2)}/><text x="23" y="455.5" class="st-sign" font-size="10" text-anchor="middle" fill="#fff">駅前</text>`;
+      <rect x="2" y="440" width="42" height="22" rx="4" fill="#3c7cff" ${ink(2)}/><text x="23" y="455.5" class="st-sign" font-size="10" text-anchor="middle" fill="#fff">${sg('駅前', T`站前`, 10, 30)}</text>`;
     // pavement, the kerb, the road with a zebra crossing
     s += `<rect x="-10" y="650" width="${WW + 20}" height="58" fill="#4a4270" ${ink(2.2)}/><path d="M-10 679H${WW + 10}${Array.from({ length: Math.ceil(WW / 26) + 1 }, (_, i) => `M${13 + i * 26} 652V706`).join('')}" stroke="#625a8c" stroke-width="1.6"/>
       <rect x="-10" y="704" width="${WW + 20}" height="12" fill="url(#st-haz)" ${ink(2.2)}/><rect x="-10" y="716" width="${WW + 20}" height="150" fill="#221c3c"/>
@@ -206,7 +231,7 @@ const STREET = (() => {
     + `<rect x="${x - 3}" y="450" width="100" height="14" rx="5" fill="${c.lid}" ${ink()}/>`
     + `<path d="M${x + 5.5} 470V518" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".6"/>`
     + `<rect x="${x + 8}" y="651" width="13" height="6" rx="2" fill="${INK}"/><rect x="${x + 70}" y="651" width="13" height="6" rx="2" fill="${INK}"/>`;
-  const header = (x, txt, fg) => `<rect x="${x + 7}" y="469" width="76" height="19" rx="5" fill="#fff6c8" ${ink(2.2)}/><text x="${x + 45}" y="483" class="st-sign" font-size="11" text-anchor="middle" fill="${fg}">${txt}</text>`;
+  const header = (x, txt, fg, loc = nm(txt)) => `<rect x="${x + 7}" y="469" width="76" height="19" rx="5" fill="#fff6c8" ${ink(2.2)}/><text x="${x + 45}" y="483" class="st-sign" font-size="11" text-anchor="middle" fill="${fg}">${sg(txt, loc, 11, 70)}</text>`;
   const kick = x => `<path d="M${x + 10} 639h70M${x + 10} 644h70" stroke="${INK}" stroke-width="1.4" opacity=".35"/>`;
   // the mini machines show what they really sell: L = the lineup's products (colour, can or bottle, hot or iced)
   // (v0.39) a look from the catalog: ミズイロ in cherry-blossom pink, here and up close
@@ -252,7 +277,7 @@ const STREET = (() => {
       <rect x="${x + 26}" y="550" width="38" height="45" rx="4" fill="#4a3346" ${ink(2)}/><path d="M${x + 39} 573h12l-1.4 14h-9.2z" fill="#fff" ${ink(1.3)}/>
       <path d="M${x + 42} 569q-1.5-3 0-6M${x + 47} 569q-1.5-3 0-6" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>
       <path class="tk-puff" d="M${x + 40} 563q-2.4-4 0-8M${x + 45} 562q-2.4-4 0-9M${x + 50} 563q-2.4-4 0-8" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
-      <rect x="${x + 7}" y="603" width="76" height="29" rx="4" fill="#5a3322" ${ink(2)}/><text x="${x + 45}" y="622" class="st-sign" font-size="10" text-anchor="middle" fill="#ffc08a">一杯ずつ</text>`;
+      <rect x="${x + 7}" y="603" width="76" height="29" rx="4" fill="#5a3322" ${ink(2)}/><text x="${x + 45}" y="622" class="st-sign" font-size="10" text-anchor="middle" fill="#ffc08a">${sg('一杯ずつ', T`现冲一杯`, 10, 70)}</text>`;
     return s + kick(x);
   }
   function ramen(x, L) {
@@ -264,7 +289,7 @@ const STREET = (() => {
       <rect x="${x + 70}" y="519" width="12" height="18" rx="3" fill="#ffe9e0" ${ink(1.8)}/><path d="M${x + 76} 523v10" ${ink(1.6)}/>
       <rect x="${x + 7}" y="531" width="58" height="34" rx="4" fill="#2a1a14" ${ink(2)}/><path d="M${x + 20} 551h32q-2 9-16 9t-16-9z" fill="none" stroke="#ffb347" stroke-width="1.8"/><path d="M${x + 30} 545q-2-4 0-7M${x + 36} 545q-2-4 0-7M${x + 42} 545q-2-4 0-7" fill="none" stroke="#fff6d6" stroke-width="1.4" stroke-linecap="round"/>
       <path class="tk-puff" d="M${x + 26} 543q-3-5 0-10M${x + 36} 542q-3-5 0-11M${x + 46} 543q-3-5 0-10" fill="none" stroke="#fff6d6" stroke-width="1.9" stroke-linecap="round"/>
-      <rect x="${x + 16}" y="575" width="58" height="28" rx="5" fill="${INK}"/><path d="M${x + 20} 581h50" stroke="#8a7d9a" stroke-width="1.6" stroke-linecap="round"/><text x="${x + 45}" y="597" font-size="7" text-anchor="middle" fill="#ffb59a" class="st-num">できあがり</text>`;
+      <rect x="${x + 16}" y="575" width="58" height="28" rx="5" fill="${INK}"/><path d="M${x + 20} 581h50" stroke="#8a7d9a" stroke-width="1.6" stroke-linecap="round"/><text x="${x + 45}" y="597" font-size="7" text-anchor="middle" fill="#ffb59a" class="st-num">${sg('できあがり', T`出餐口`, 7, 54)}</text>`;
     return s + kick(x);
   }
   function juice(x, L) {
@@ -275,14 +300,14 @@ const STREET = (() => {
     s += `<path d="M${x + 9} 524h56" stroke="${INK}" stroke-width="1.4" opacity=".4"/><rect class="tk-pl" x="${x + 22}" y="530" width="9" height="8" rx="2" fill="#c9d0da" ${ink(1.4)}/><rect class="tk-pr" x="${x + 43}" y="530" width="9" height="8" rx="2" fill="#c9d0da" ${ink(1.4)}/>
       <path d="M${x + 33} 539h8l-1.2 12h-5.6z" fill="#fff" ${ink(1.4)}/><path d="M${x + 33.5} 544h7l-.8 7h-5.4z" fill="${fruits[0].fill}"/><circle class="tk-drop" cx="${x + 37}" cy="537.5" r="1.5" fill="${fruits[0].fill}" ${ink(.8)}/><path d="M${x + 12} 497l-4 20" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>
       <rect x="${x + 70}" y="494" width="12" height="18" rx="3" fill="#fff4dc" ${ink(1.8)}/><path d="M${x + 76} 498v10" ${ink(1.6)}/>
-      <circle cx="${x + 76}" cy="527" r="7.4" fill="#ffd23f" ${ink(1.8)}/><text x="${x + 76}" y="530" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">4個</text>
+      <circle cx="${x + 76}" cy="527" r="7.4" fill="#ffd23f" ${ink(1.8)}/><text x="${x + 76}" y="530" class="st-sign" font-size="7" text-anchor="middle" fill="${INK}">${sg('4個', T`4个`, 7, 13)}</text>
       <rect x="${x + 7}" y="561" width="60" height="18" rx="3" fill="#2a2014" ${ink(2)}/>${fruits.map((p, k) => `<circle cx="${x + 7 + (k + .5) * 60 / n}" cy="570" r="4.4" fill="${p.fill}" ${ink(1.3)}/>`).join('')}
       <rect x="${x + 16}" y="589" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 20} 595h50" stroke="#8a7d9a" stroke-width="1.6" stroke-linecap="round"/><text x="${x + 45}" y="615" font-size="7" text-anchor="middle" fill="#ffd27a" class="st-num">FRESH 100%</text>`;
     return s + kick(x);
   }
   function auto(x, L) {
     const items = L || [{ fill: '#ff9aa8', row: 0 }, { fill: '#ffd23f', row: 0 }], toast = items.filter(p => p.row === 0), burger = items.find(p => p.row === 1), curry = items.find(p => p.row === 2);
-    let s = shell(x, SKIN.auto) + header(x, 'オート', '#1f7a6c');
+    let s = shell(x, SKIN.auto) + header(x, 'オート', '#1f7a6c', T`自动`);
     // three panels: toast; burger and curry (blank SOON plates until their modules are fitted)
     s += `<rect x="${x + 7}" y="493" width="60" height="30" rx="3" fill="#fff8ee" ${ink(2)}/>` + toast.slice(0, 2).map((p, k) => { const cx = x + 22 + k * 30;
       return `<path d="M${cx - 9} 515L${cx} 500L${cx + 9} 515Z" fill="#dfe5ec" ${ink(1.5)}/><path d="M${cx - 5} 512.6h10" stroke="${p.fill}" stroke-width="2.6"/>`; }).join('');
@@ -313,7 +338,7 @@ const STREET = (() => {
     s += items.map((p, i) => { const y = 493 + i * (items.length > 4 ? 12 : 14.6); return `<rect x="${x + 7}" y="${y}" width="60" height="${items.length > 4 ? 10.4 : 12.6}" rx="2" fill="#f4fbff" ${ink(1.6)}/><rect x="${x + 9}" y="${y + 2}" width="9" height="6.6" rx="1" fill="${p.fill}" ${ink(1.2)}/><path d="M${x + 22} ${y + 4}h26M${x + 22} ${y + 7.4}h16" stroke="#9aa6b8" stroke-width="1.4"/><circle cx="${x + 61}" cy="${y + 5.4}" r="2.6" fill="#2a6ad9" ${ink(1.2)}/>`; }).join('');
     s += `<rect x="${x + 70}" y="494" width="12" height="18" rx="3" fill="#e6f6ff" ${ink(1.8)}/><path d="M${x + 76} 498v10" ${ink(1.6)}/><rect x="${x + 68}" y="520" width="15" height="10" rx="2" fill="${INK}"/><text x="${x + 75.5}" y="527.6" class="st-num tk-nix" font-size="6" text-anchor="middle" fill="#9ae8ff">-25</text>
       <path class="tk-spark" d="${sparkD(x + 58, 501, 2.6)}" fill="#fff" ${ink(.8)}/><path class="tk-spark" style="animation-delay:.25s" d="${sparkD(x + 16, 530, 2.2)}" fill="#fff" ${ink(.8)}/>
-      <rect x="${x + 7}" y="562" width="60" height="22" rx="3" fill="#0e1620" ${ink(2)}/><text x="${x + 37}" y="577.4" class="st-sign" font-size="9" text-anchor="middle" fill="#9ae8ff">れいとう</text>
+      <rect x="${x + 7}" y="562" width="60" height="22" rx="3" fill="#0e1620" ${ink(2)}/><text x="${x + 37}" y="577.4" class="st-sign" font-size="9" text-anchor="middle" fill="#9ae8ff">${sg('れいとう', T`冷冻`, 9, 56)}</text>
       <rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 20} 596h50" stroke="#8a7d9a" stroke-width="1.6" stroke-linecap="round"/><text x="${x + 45}" y="616" font-size="7" text-anchor="middle" fill="#bfe8f5" class="st-num">-25℃</text>`;
     return s + kick(x);
   }
@@ -323,14 +348,14 @@ const STREET = (() => {
     // a grid of little glass doors, each with a coloured bag behind it and a knob
     rows.forEach((p, r) => { for (let c = 0; c < 4; c++) { const tx = x + 7 + c * 15.4, ty = 493 + r * 18.6;
       s += `<g${r === 2 && c === 1 ? ' class="tk-door"' : r === 0 && c === 3 ? ' class="tk-door" style="animation-delay:.45s"' : ''}><rect x="${tx}" y="${ty}" width="14" height="17" rx="1.6" fill="#fff8ec" ${ink(1.4)}/><rect x="${tx + 2}" y="${ty + 2}" width="10" height="9" rx="1" fill="#e6f2fa"/><circle cx="${tx + 7}" cy="${ty + 8}" r="2.8" fill="${p.fill}" ${ink(1)}/><circle cx="${tx + 10.6}" cy="${ty + 14}" r="1.4" fill="#8a6a42"/></g>`; } });
-    s += `<rect x="${x + 70}" y="494" width="12" height="40" rx="3" fill="#f6dcb0" ${ink(1.8)}/><text x="${x + 76}" y="508" class="st-sign" font-size="5" text-anchor="middle" fill="#8a4a1a">100</text><text x="${x + 76}" y="515" class="st-sign" font-size="4" text-anchor="middle" fill="#8a4a1a">円</text>
-      <rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="#6a4a2e" ${ink(2)}/><text x="${x + 45}" y="611" font-size="7" text-anchor="middle" fill="#f6dcb0" class="st-sign">朝どれ</text>`;
+    s += `<rect x="${x + 70}" y="494" width="12" height="40" rx="3" fill="#f6dcb0" ${ink(1.8)}/><text x="${x + 76}" y="508" class="st-sign" font-size="5" text-anchor="middle" fill="#8a4a1a">100</text><text x="${x + 76}" y="515" class="st-sign" font-size="4" text-anchor="middle" fill="#8a4a1a">${sg('円', T`日元`, 4, 11)}</text>
+      <rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="#6a4a2e" ${ink(2)}/><text x="${x + 45}" y="611" font-size="7" text-anchor="middle" fill="#f6dcb0" class="st-sign">${sg('朝どれ', T`今早新鲜`, 7, 54)}</text>`;
     return s + kick(x);
   }
   function teishoku(x, L) {
     const items = (L || ['#a8742a', '#f6f2e6', '#ffd23f', '#a8642a', '#8a6a4a', '#d8964a'].map(fill => ({ fill }))).slice(0, 6);
     let s = shell(x, SKIN.teishoku) + [0, 1, 2].map(i => `<g class="tk-noren" style="animation-delay:${(i * .14).toFixed(2)}s"><path d="M${x + 4 + i * 28} 464h27v14q-7 2-13.5 0t-13.5 0z" fill="#24346a" ${ink(1.6)}/>`
-      + (i < 2 ? `<text x="${x + 17 + i * 28}" y="474" class="st-sign" font-size="8" text-anchor="middle" fill="#fff">${['定', '食'][i]}</text>` : '') + '</g>').join('');
+      + (i < 2 ? `<text x="${x + 17 + i * 28}" y="474" class="st-sign" font-size="8" text-anchor="middle" fill="#fff">${LOC ? sg('', [...(tiles(2, T`套餐`) || [T`套餐`, ''])][i], 8, 24) : ['定', '食'][i]}</text>` : '') + '</g>').join('');
     // the ticket buttons (a dish colour each), what comes in a set, the window on the rice stop, how to buy a ticket, the serving window
     s += `<rect x="${x + 7}" y="484" width="60" height="30" rx="2" fill="#1e1a18" ${ink(1.8)}/>` + items.map((p, k) => `<rect x="${x + 9 + (k % 3) * 19.4}" y="${487 + Math.floor(k / 3) * 13.4}" width="17" height="11" rx="1.6" fill="#fff8ec" ${ink(1.2)}/><circle cx="${x + 17.5 + (k % 3) * 19.4}" cy="${492.5 + Math.floor(k / 3) * 13.4}" r="3" fill="${p.fill}" ${ink(1)}/>`).join('');
     s += `<rect x="${x + 7}" y="518" width="60" height="12" rx="2" fill="#2a1410" ${ink(1.6)}/>` + ['#fbfaf4', '#a8742a', '#a8642a', '#6aaa4a', '#ffd23f'].map((c, i) => `<circle cx="${x + 14 + i * 11.5}" cy="524" r="3" fill="${c}" ${ink(1)}/>`).join('')
@@ -339,13 +364,13 @@ const STREET = (() => {
       + `<rect x="${x + 20}" y="555" width="20" height="6" rx="1.5" fill="#7a2a1a" ${ink(1.2)}/><circle cx="${x + 26}" cy="557.4" r="2" fill="#fff" ${ink(.8)}/><circle cx="${x + 34}" cy="557.4" r="2" fill="#c8964a" ${ink(.8)}/>`
       + `<rect x="${x + 45}" y="533" width="22" height="30" rx="3" fill="#2a1410" ${ink(1.6)}/>` + [0, 1, 2].map(i => `<circle cx="${x + 51}" cy="${541 + i * 8}" r="2.8" fill="#ffd27a" ${ink(.9)}/><text x="${x + 51}" y="${543 + i * 8}" font-size="4.4" text-anchor="middle" fill="${INK}" class="st-num">${i + 1}</text><path d="M${x + 56} ${541 + i * 8}h8" stroke="#ffd27a" stroke-width="1.6" stroke-linecap="round"/>`).join('') + `
       <rect x="${x + 70}" y="486" width="12" height="18" rx="3" fill="#eef2ff" ${ink(1.8)}/><path d="M${x + 76} 490v10" ${ink(1.6)}/>
-      <rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#24346a"/><text x="${x + 45}" y="617" font-size="7" text-anchor="middle" fill="#ffd27a" class="st-num">23番</text>`;
+      <rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#24346a"/><text x="${x + 45}" y="617" font-size="7" text-anchor="middle" fill="#ffd27a" class="st-num">${sg('23番', T`23号`, 7, 54)}</text>`;
     return s + kick(x);
   }
   function sushi(x, L) {
     const items = (L || ['#ffd23f', '#4aaa4a', '#b8742a', '#e8e4d8', '#ff8a4a'].map(fill => ({ fill }))).slice(0, 5), plates = ['#f4f2ec', '#3a7ad9', '#ffd23f', '#e8453a', '#1c1c22'];
     let s = shell(x, SKIN.sushi) + [0, 1, 2].map(i => `<g class="tk-noren" style="animation-delay:${(i * .14).toFixed(2)}s"><path d="M${x + 4 + i * 28} 464h27v14q-7 2-13.5 0t-13.5 0z" fill="#d8453a" ${ink(1.6)}/>`
-      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i < 2 ? 7 : 6}" text-anchor="middle" fill="#fff">${['回転', '寿司', 'すし丸'][i]}</text></g>`).join('');
+      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i < 2 ? 7 : 6}" text-anchor="middle" fill="#fff">${LOC ? sg('', [T`回转`, T`寿司`, nm('すし丸')][i], i < 2 ? 7 : 6, 25) : ['回転', '寿司', 'すし丸'][i]}</text></g>`).join('');
     // the touch menu (a plate each), the plate board, the crest, the square window on the loop's turn, the take-out window
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#1e1a18" ${ink(1.6)}/>` + items.map((p, k) => `<ellipse cx="${x + 14 + k * 13}" cy="${494}" rx="5" ry="2.6" fill="${plates[k]}" ${ink(1)}/><ellipse cx="${x + 14 + k * 13}" cy="${491.6}" rx="3" ry="1.6" fill="${p.fill || '#ff8a4a'}" ${ink(.9)}/>`).join('');
     s += `<rect x="${x + 7}" y="504" width="30" height="58" rx="3" fill="#2a1410" ${ink(1.8)}/>` + plates.map((c, i) => `<ellipse cx="${x + 16}" cy="${513 + i * 10.4}" rx="5" ry="2.4" fill="${c}" ${ink(1)}/>` + Array.from({ length: i + 1 }, (_, j) => `<circle cx="${x + 24 + j * 2.6}" cy="${513 + i * 10.4}" r="1" fill="#ffd23f"/>`).join('')).join('')
@@ -353,23 +378,23 @@ const STREET = (() => {
       + `<rect x="${x + 41}" y="528" width="32" height="30" rx="3" fill="#eef4ff" ${ink(2)}/><path d="M${x + 44} 550h16a8 8 0 0 0 0-16h-16" fill="none" stroke="#3a3f48" stroke-width="7"/><path d="M${x + 44} 550h16a8 8 0 0 0 0-16h-16" fill="none" stroke="#c9d0da" stroke-width="2"/>`
       + `<g class="tk-belt">${[[50, 548, 1], [65, 538, 3]].map(([u, v, k]) => `<g transform="translate(${x + u} ${v})"><ellipse rx="4.4" ry="2.2" fill="${plates[k]}" ${ink(1)}/><ellipse cy="-1.6" rx="2.6" ry="1.3" fill="${(items[k] || items[0]).fill || '#ff8a4a'}" ${ink(.8)}/></g>`).join('')}</g>`
       + `<rect x="${x + 76}" y="486" width="8" height="14" rx="2" fill="#fff2e4" ${ink(1.6)}/>`
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#d8453a"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">お持ち帰り</text>`;
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#d8453a"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">${sg('お持ち帰り', T`外带`, 6, 54)}</text>`;
     return s + kick(x);
   }
   function oden(x, L) {
     const items = (L || ['#f6e6b0', '#c8955a', '#8a8478', '#e8c890', '#fbfaf4', '#2a4a32'].map(fill => ({ fill }))).slice(0, 6), cx = x + 51.5, cy = 537;
     let s = shell(x, SKIN.oden) + [0, 1, 2].map(i => `<g class="tk-noren" style="animation-delay:${(i * .14).toFixed(2)}s"><path d="M${x + 4 + i * 28} 464h27v14q-7 2-13.5 0t-13.5 0z" fill="#2a3a6a" ${ink(1.6)}/>`
-      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i === 1 ? 7 : 5.2}" text-anchor="middle" fill="#fff">${['あつあつ', 'おでん', 'ぐつぐつ'][i]}</text></g>`).join('');
+      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i === 1 ? 7 : 5.2}" text-anchor="middle" fill="#fff">${LOC ? sg('', [T`热乎乎`, T`关东煮`, nm('ぐつぐつ')][i], i === 1 ? 7 : 5.2, 25) : ['あつあつ', 'おでん', 'ぐつぐつ'][i]}</text></g>`).join('');
     // the menu (a bowl each), the banner, the board, the round sight glass on the pot, the take-out window
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#1e1a18" ${ink(1.6)}/>` + items.map((p, k) => `<ellipse cx="${x + 12.5 + k * 11}" cy="494" rx="4.2" ry="2.4" fill="#fbfaf4" ${ink(1)}/><circle cx="${x + 12.5 + k * 11}" cy="492" r="2" fill="${p.fill || '#e8c890'}" ${ink(.9)}/>`).join('');
-    s += `<path d="M${x + 9} 505h16v54l-8-4.4-8 4.4z" fill="#c8402a" ${ink(1.6)}/>` + ['お', 'で', 'ん'].map((c, i) => `<text x="${x + 17}" y="${518 + i * 11}" font-size="8" text-anchor="middle" fill="#fff" class="st-sign">${c}</text>`).join('')
-      + `<rect x="${x + 30}" y="504" width="43" height="10" rx="2" fill="#2a1410" ${ink(1.4)}/><text x="${x + 51.5}" y="511.8" font-size="5.2" text-anchor="middle" fill="#ffd27a" class="st-sign">だし自慢</text>`
+    s += `<path d="M${x + 9} 505h16v54l-8-4.4-8 4.4z" fill="#c8402a" ${ink(1.6)}/>` + (LOC ? vcol(x + 17, 518, 11, 8, 3, T`关东煮`, (x, y, z, c, a) => `<text x="${x}" y="${y}" font-size="${z}" text-anchor="middle" fill="#fff" class="st-sign" ${a}>${c}</text>`) : ['お', 'で', 'ん'].map((c, i) => `<text x="${x + 17}" y="${518 + i * 11}" font-size="8" text-anchor="middle" fill="#fff" class="st-sign">${c}</text>`).join(''))
+      + `<rect x="${x + 30}" y="504" width="43" height="10" rx="2" fill="#2a1410" ${ink(1.4)}/><text x="${x + 51.5}" y="511.8" font-size="5.2" text-anchor="middle" fill="#ffd27a" class="st-sign">${sg('だし自慢', T`招牌高汤`, 5.2, 41)}</text>`
       + `<circle cx="${cx}" cy="${cy}" r="18" fill="#fff4e4" stroke="#8a93a4" stroke-width="4"/><circle cx="${cx}" cy="${cy}" r="20" fill="none" ${ink(1.6)}/><ellipse cx="${cx}" cy="${cy + 5}" rx="15" ry="7" fill="#9aa3b0" ${ink(1.4)}/><ellipse cx="${cx}" cy="${cy + 2}" rx="13.6" ry="5.6" fill="#d8a040" ${ink(1.2)}/>`
       + [0, 1, 2].map(i => { const a = (i + .5) * Math.PI / 3; return `<path d="M${(cx - 13.6 * Math.cos(a)).toFixed(1)} ${(cy + 2 - 5.6 * Math.sin(a)).toFixed(1)}L${(cx + 13.6 * Math.cos(a)).toFixed(1)} ${(cy + 2 + 5.6 * Math.sin(a)).toFixed(1)}" stroke="${INK}" stroke-width=".9" opacity=".55"/>`; }).join('')
       + items.map((p, k) => { const a = k * Math.PI / 3; return `<circle cx="${(cx + 8.6 * Math.cos(a)).toFixed(1)}" cy="${(cy + 2 + 3.5 * Math.sin(a)).toFixed(1)}" r="2" fill="${p.fill || '#e8c890'}" ${ink(.8)}/>`; }).join('')
       + `<g class="tk-steam"><path d="M${cx - 6} ${cy - 4}q-2.4-4 0-7M${cx + 1} ${cy - 6}q-2.4-4 0-7M${cx + 8} ${cy - 4}q-2.4-4 0-7" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></g>`
-      + `<rect x="${x + 86}" y="486" width="8" height="4" rx="1" fill="${INK}"/><ellipse cx="${x + 90}" cy="500" rx="7" ry="10" fill="#e8453a" ${ink(1.6)}/><text x="${x + 90}" y="503" font-size="6" text-anchor="middle" fill="#fff" class="st-sign">お</text><rect x="${x + 86}" y="510" width="8" height="3" rx="1" fill="${INK}"/>`
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#2a3a6a"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">お持ち帰り</text>`;
+      + `<rect x="${x + 86}" y="486" width="8" height="4" rx="1" fill="${INK}"/><ellipse cx="${x + 90}" cy="500" rx="7" ry="10" fill="#e8453a" ${ink(1.6)}/><text x="${x + 90}" y="503" font-size="6" text-anchor="middle" fill="#fff" class="st-sign">${sg('お', T`煮`, 6, 12)}</text><rect x="${x + 86}" y="510" width="8" height="3" rx="1" fill="${INK}"/>`
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#2a3a6a"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">${sg('お持ち帰り', T`外带`, 6, 54)}</text>`;
     return s + kick(x);
   }
   // the fish, flat, facing left (the menu, the board)
@@ -377,14 +402,14 @@ const STREET = (() => {
   function taiyaki(x, L) {
     const items = (L || ['#6a2a2a', '#4a1a1a', '#f6d860', '#5a3018'].map(fill => ({ fill }))).slice(0, 4);
     let s = shell(x, SKIN.taiyaki) + [0, 1, 2].map(i => `<g class="tk-noren" style="animation-delay:${(i * .14).toFixed(2)}s"><path d="M${x + 4 + i * 28} 464h27v14q-7 2-13.5 0t-13.5 0z" fill="#a8302a" ${ink(1.6)}/>`
-      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i < 2 ? 7 : 4.6}" text-anchor="middle" fill="#fff">${['たい', '焼き', 'しっぽまで'][i]}</text></g>`).join('');
+      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i < 2 ? 7 : 4.6}" text-anchor="middle" fill="#fff">${LOC ? sg('', [T`鲷鱼`, T`烧`, nm('しっぽまで')][i], i < 2 ? 7 : 4.6, 25) : ['たい', '焼き', 'しっぽまで'][i]}</text></g>`).join('');
     // the menu (a fish each), the sign, the window on the eject station (a mould open, a fish lifted out), the crest, the board
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#1e1a18" ${ink(1.6)}/>` + items.map((p, k) => tFish(x + 15 + k * 16.4, 492, .42, '#d8902a') + `<circle cx="${x + 10.6 + k * 16.4}" cy="492" r="1.6" fill="${p.fill || '#6a2a2a'}"/>`).join('');
-    s += `<rect x="${x + 7}" y="504" width="12" height="28" rx="2" fill="#2a1410" ${ink(1.4)}/>` + ['た', 'い', '焼'].map((c, i) => `<text x="${x + 13}" y="${512 + i * 8}" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-sign">${c}</text>`).join('')
+    s += `<rect x="${x + 7}" y="504" width="12" height="28" rx="2" fill="#2a1410" ${ink(1.4)}/>` + (LOC ? vcol(x + 13, 512, 8, 6, 3, T`鲷鱼烧`, (x, y, z, c, a) => `<text x="${x}" y="${y}" font-size="${z}" text-anchor="middle" fill="#ffd27a" class="st-sign" ${a}>${c}</text>`) : ['た', 'い', '焼'].map((c, i) => `<text x="${x + 13}" y="${512 + i * 8}" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-sign">${c}</text>`).join(''))
       + `<rect x="${x + 22}" y="504" width="30" height="28" rx="3" fill="#fff4e4" ${ink(2)}/><path d="M${x + 26} 520h22l-3 6h-16z" fill="#3a3a42" ${ink(1.2)}/><path d="M${x + 27} 520v-12h20v12z" fill="#2a2a30" ${ink(1.2)}/>` + tFish(x + 37, 518, .62, '#d8902a')
       + `<circle cx="${x + 62}" cy="511" r="6.4" fill="#a8302a" ${ink(1.4)}/>` + tFish(x + 62, 511, .3, '#fff4dc') + `<rect x="${x + 55}" y="520" width="14" height="4.4" rx="1.2" fill="#ff8a3a" ${ink(1)}/><rect x="${x + 55}" y="526" width="14" height="4.4" rx="1.2" fill="#3a2a2a" ${ink(1)}/>`
       + `<rect x="${x + 7}" y="536" width="66" height="26" rx="3" fill="#2a1410" ${ink(1.6)}/>` + tFish(x + 40, 549, .95, '#d8902a') + `<path d="M${x + 29} 548q10-4 22-2l4-3q.6 3 0 4l-4-.6q-12 2-22 1.6z" fill="#6a2a2a"/>`
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#a8302a"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">お持ち帰り</text>`;
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="#a8302a"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">${sg('お持ち帰り', T`外带`, 6, 54)}</text>`;
     return s + kick(x);
   }
   // a cup of shaved ice, flat: the paper cup, the dome, its syrup (the menu, the window)
@@ -393,37 +418,37 @@ const STREET = (() => {
   function kakigori(x, L) {
     const items = (L || ['#e83a4a', '#5ac83a', '#ffe04a', '#3a8aff'].map(fill => ({ fill }))).slice(0, 4), bl = '#2a6ad9', rd = '#e83a4a', cx = x + 41;
     let s = shell(x, SKIN.kakigori) + [0, 1, 2].map(i => `<g class="tk-noren" style="animation-delay:${(i * .14).toFixed(2)}s"><path d="M${x + 4 + i * 28} 464h27v14q-7 2-13.5 0t-13.5 0z" fill="${bl}" ${ink(1.6)}/>`
-      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i === 2 ? 5.2 : 7}" text-anchor="middle" fill="#fff">${['かき', '氷', 'ふわゆき'][i]}</text></g>`).join('');
+      + `<text x="${x + 17.5 + i * 28}" y="474" class="st-sign" font-size="${i === 2 ? 5.2 : 7}" text-anchor="middle" fill="#fff">${LOC ? sg('', [T`刨`, T`冰`, nm('ふわゆき')][i], i === 2 ? 5.2 : 7, 25) : ['かき', '氷', 'ふわゆき'][i]}</text></g>`).join('');
     // the menu (a cup each), the 氷 flag, the arched window on the shaving column, the crest and its lamps, the board
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#10182a" ${ink(1.6)}/>` + items.map((p, k) => kCup(x + 15 + k * 16.4, 494, .62, p.fill || rd)).join('');
     s += `<path d="M${x + 7} 504h21" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/><path d="M${x + 8} 505h19v41l-3.2-1.6-3.2 1.6-3.2-1.6-3.2 1.6-3.2-1.6-3.2 1.6z" fill="#fffdf6" ${ink(1.4)}/>`
-      + `<text x="${x + 17.5}" y="524" font-size="13" text-anchor="middle" fill="${rd}" class="st-sign">氷</text><path d="M${x + 8} 534q3.2-3 6.4 0t6.4 0t6.4 0v10.4l-3.2 1.6-3.2-1.6-3.2 1.6-3.2-1.6-3.2 1.6-3.2-1.6z" fill="${bl}"/>`;
+      + `<text x="${x + 17.5}" y="524" font-size="13" text-anchor="middle" fill="${rd}" class="st-sign">${sg('氷', T`冰`, 13, 18)}</text><path d="M${x + 8} 534q3.2-3 6.4 0t6.4 0t6.4 0v10.4l-3.2 1.6-3.2-1.6-3.2 1.6-3.2-1.6-3.2 1.6-3.2-1.6z" fill="${bl}"/>`;
     s += `<path d="M${x + 31} 548V514a10 10 0 0 1 20 0V548z" fill="#e8f4ff" ${ink(2)}/><path d="M${cx} 505v5" stroke="#8a93a4" stroke-width="1.4"/><rect x="${cx - 4}" y="509.6" width="8" height="2" rx=".6" fill="#8a93a4" ${ink(1)}/>`
       + `<path d="M${cx - 4.6} 511.6h9.2v11h-9.2z" fill="#cfefff" ${ink(1.2)}/><ellipse cx="${cx}" cy="523.4" rx="7" ry="2.2" fill="#aab3bf" ${ink(1.2)}/>`
       + `<g class="tk-snow"><circle cx="${cx - 1}" cy="527.6" r=".9" fill="#fff" ${ink(.6)}/><circle cx="${cx + 1.4}" cy="529.4" r=".8" fill="#fff" ${ink(.6)}/></g>` + kCup(cx, 539, .8, (items[0] || {}).fill || rd)
       + `<path d="M${x + 34} 546.4h14" stroke="#8a93a4" stroke-width="2.4" stroke-linecap="round"/>`;
     s += `<circle cx="${x + 62}" cy="511" r="6.4" fill="${bl}" ${ink(1.4)}/><path d="M${x + 62} 507v8M${x + 58.5} 509l7 4M${x + 58.5} 513l7-4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>`
       + `<rect x="${x + 55}" y="520" width="14" height="4.4" rx="1.2" fill="#7ad8ff" ${ink(1)}/><rect x="${x + 55}" y="526" width="14" height="4.4" rx="1.2" fill="#3a2a2a" ${ink(1)}/>`
-      + `<rect x="${x + 7}" y="551" width="66" height="14" rx="2.4" fill="#10203a" ${ink(1.4)}/><text x="${x + 40}" y="560.6" font-size="6" text-anchor="middle" fill="#bfe6ff" class="st-sign">ふわふわ 削りたて</text>`
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="${bl}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#9ad8ff" class="st-num">お持ち帰り</text>`;
+      + `<rect x="${x + 7}" y="551" width="66" height="14" rx="2.4" fill="#10203a" ${ink(1.4)}/><text x="${x + 40}" y="560.6" font-size="6" text-anchor="middle" fill="#bfe6ff" class="st-sign">${sg('ふわふわ 削りたて', T`松软现刨`, 6, 62)}</text>`
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="${bl}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#9ad8ff" class="st-num">${sg('お持ち帰り', T`外带`, 6, 54)}</text>`;
     return s + kick(x);
   }
   // a capsule, flat: the clear half above, the coloured half below
   const gCap = (cx, cy, r, c) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#eef7ff" ${ink(1.2)}/><path d="M${cx - r} ${cy}a${r} ${r} 0 0 0 ${2 * r} 0z" fill="${c}" ${ink(1.2)}/><circle cx="${cx - r * .35}" cy="${cy - r * .45}" r="${(r * .2).toFixed(2)}" fill="#fff"/>`;
   function gacha(x, L) {
     const items = (L || ['#ff8fb8', '#e8453a', '#3a8aff', '#5ac83a'].map(fill => ({ fill }))).slice(0, 4), pk = '#ff5fa2';
-    let s = shell(x, SKIN.gacha) + [[4, pk, 'カプセル', 5.2], [32, '#3fd9ee', 'ころころ', 6.2], [60, '#ffd23f', '¥200〜', 6]].map(([dx, c, t, fs], i) => `<g class="tk-noren" style="animation-delay:${(i * .14).toFixed(2)}s"><rect x="${x + dx}" y="464" width="27" height="14" rx="5" fill="${c}" ${ink(1.6)}/>`
+    let s = shell(x, SKIN.gacha) + [[4, pk, sg('カプセル', T`胶囊`, 5.2, 24), 5.2], [32, '#3fd9ee', sg('ころころ', nm('ころころ'), 6.2, 24), 6.2], [60, '#ffd23f', '¥200〜', 6]].map(([dx, c, t, fs], i) => `<g class="tk-noren" style="animation-delay:${(i * .14).toFixed(2)}s"><rect x="${x + dx}" y="464" width="27" height="14" rx="5" fill="${c}" ${ink(1.6)}/>`
       + `<text x="${x + dx + 13.5}" y="473.6" class="st-sign" font-size="${fs}" text-anchor="middle" fill="#fff">${t}</text></g>`).join('');
     // the menu (a capsule each), the sign, the capsule window on the run (pegboard, ramps, a capsule), the knob, the board
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#2a1030" ${ink(1.6)}/>` + items.map((p, k) => gCap(x + 15 + k * 16.4, 492, 5, p.fill || pk)).join('');
-    s += `<rect x="${x + 7}" y="504" width="12" height="44" rx="2" fill="#e8453a" ${ink(1.4)}/>` + ['ガ', 'チ', 'ャ'].map((c, i) => `<text x="${x + 13}" y="${516 + i * 11}" font-size="${c === 'ャ' ? 5.4 : 7}" text-anchor="middle" fill="#fff" class="st-sign">${c}</text>`).join('')
+    s += `<rect x="${x + 7}" y="504" width="12" height="44" rx="2" fill="#e8453a" ${ink(1.4)}/>` + (LOC ? vcol(x + 13, 516, 11, 7, 3, T`扭蛋`, (x, y, z, c, a) => `<text x="${x}" y="${y}" font-size="${z}" text-anchor="middle" fill="#fff" class="st-sign" ${a}>${c}</text>`) : ['ガ', 'チ', 'ャ'].map((c, i) => `<text x="${x + 13}" y="${516 + i * 11}" font-size="${c === 'ャ' ? 5.4 : 7}" text-anchor="middle" fill="#fff" class="st-sign">${c}</text>`).join(''))
       + `<path d="M${x + 22} 513a9 9 0 0 1 18 0v26a9 9 0 0 1-18 0z" fill="#24307a" ${ink(2)}/>`
       + [[24, 517, 37, 520], [37, 526, 24, 529], [24, 535, 37, 538]].map(([a, b, c, d]) => `<path d="M${x + a} ${b}L${x + c} ${d}" stroke="#ffd23f" stroke-width="2.2" stroke-linecap="round"/>`).join('')
       + gCap(x + 33, 523, 2.6, items[0].fill || pk) + `<circle cx="${x + 31}" cy="508" r="2.6" fill="#ffd23f" ${ink(1)}/>`;
     s += `<circle cx="${x + 57}" cy="515" r="9" fill="#c9d0da" ${ink(1.6)}/><rect x="${x + 50}" y="513" width="14" height="4" rx="2" fill="${pk}" ${ink(1.2)}/><circle cx="${x + 57}" cy="515" r="2" fill="#fff" ${ink(1)}/>`
       + `<rect x="${x + 50}" y="529" width="14" height="4.4" rx="1.2" fill="#ffd23f" ${ink(1)}/>`
       + `<rect x="${x + 7}" y="552" width="66" height="14" rx="2.4" fill="#2a1030" ${ink(1.4)}/>` + [0, 1, 2, 3, 4].map(i => gCap(x + 15 + i * 9, 559, 3, ['#ff8fb8', '#3a8aff', '#5ac83a', '#ff9a2a', '#a07ae0'][i])).join('') + gCap(x + 64, 559, 3.6, '#ffd23f')
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v7H${x + 18}z" fill="${pk}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffb8d8" class="st-num">とりだし口</text>`;
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v7H${x + 18}z" fill="${pk}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffb8d8" class="st-num">${sg('とりだし口', T`取物口`, 6, 54)}</text>`;
     return s + kick(x);
   }
   // a cup and saucer, flat (the menu, the window)
@@ -431,16 +456,16 @@ const STREET = (() => {
   function kissa(x, L) {
     const items = (L || ['#4a2814', '#7a4a24', '#3a1e0e', '#b8875a'].map(fill => ({ fill }))).slice(0, 4), rd = '#b8283a';
     let s = shell(x, SKIN.kissa) + `<g class="tk-noren">` + Array.from({ length: 8 }, (_, i) => `<path d="M${x + 4 + i * 10.5} 464h10.5v12q-2.6 2.4-5.25 0t-5.25 0z" fill="${i % 2 ? '#fbfaf4' : rd}" ${ink(1.2)}/>`).join('')
-      + `<rect x="${x + 22}" y="465" width="46" height="9" rx="4.5" fill="#5a3418" ${ink(1.2)}/><text x="${x + 45}" y="471.8" class="st-sign" font-size="5.6" text-anchor="middle" fill="#f4e6c8">珈琲 しずく</text></g>`;
+      + `<rect x="${x + 22}" y="465" width="46" height="9" rx="4.5" fill="#5a3418" ${ink(1.2)}/><text x="${x + 45}" y="471.8" class="st-sign" font-size="5.6" text-anchor="middle" fill="#f4e6c8">${sg('珈琲 しずく', `${T`咖啡`} ${nm('しずく')}`, 5.6, 44)}</text></g>`;
     // the menu (a cup each), the neon sign, the lamps, the window on the siphon (the flask, the bowl, the cup under it), the menu card
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#2a1410" ${ink(1.6)}/>` + items.map((p, k) => kCupS(x + 15 + k * 16.4, 491.6, 1, p.fill || '#4a2814', ['#3a6ab0', '#a8302a', '#3a7a4a', '#c8a050'][k])).join('');
-    s += `<rect x="${x + 7}" y="504" width="13" height="44" rx="2" fill="#160c10" ${ink(1.4)}/>` + ['純', '喫', '茶'].map((c, i) => `<text x="${x + 13.5}" y="${516 + i * 12}" font-size="8" text-anchor="middle" fill="#ff8ab8" stroke="#ff4f8b" stroke-width=".6" class="st-sign">${c}</text>`).join('')
-      + `<rect x="${x + 23}" y="506" width="14" height="4" rx="1.2" fill="#ffb43a" ${ink(1)}/><rect x="${x + 23}" y="512" width="14" height="4" rx="1.2" fill="#3a2a2a" ${ink(1)}/><circle cx="${x + 30}" cy="537" r="6" fill="#5a3418" ${ink(1.2)}/><text x="${x + 30}" y="539.4" font-size="5" text-anchor="middle" fill="#f4e6c8" class="st-sign">珈琲</text>`
+    s += `<rect x="${x + 7}" y="504" width="13" height="44" rx="2" fill="#160c10" ${ink(1.4)}/>` + (LOC ? vcol(x + 13.5, 516, 12, 8, 3, T`咖啡馆`, (x, y, z, c, a) => `<text x="${x}" y="${y}" font-size="${z}" text-anchor="middle" fill="#ff8ab8" stroke="#ff4f8b" stroke-width=".6" class="st-sign" ${a}>${c}</text>`) : ['純', '喫', '茶'].map((c, i) => `<text x="${x + 13.5}" y="${516 + i * 12}" font-size="8" text-anchor="middle" fill="#ff8ab8" stroke="#ff4f8b" stroke-width=".6" class="st-sign">${c}</text>`).join(''))
+      + `<rect x="${x + 23}" y="506" width="14" height="4" rx="1.2" fill="#ffb43a" ${ink(1)}/><rect x="${x + 23}" y="512" width="14" height="4" rx="1.2" fill="#3a2a2a" ${ink(1)}/><circle cx="${x + 30}" cy="537" r="6" fill="#5a3418" ${ink(1.2)}/><text x="${x + 30}" y="539.4" font-size="5" text-anchor="middle" fill="#f4e6c8" class="st-sign">${sg('珈琲', T`咖啡`, 5, 11)}</text>`
       + `<path d="M${x + 40} 548V508q0-4 4-4h16q4 0 4 4v40z" fill="#2a1e1a" ${ink(2)}/>` + ['#c8283a', '#e8b030', '#3a7a4a', '#3a6ab0'].map((c, i) => `<rect x="${x + 42 + i * 5}" y="506" width="4" height="2.4" fill="${c}"/>`).join('')
       + `<path d="M${x + 49} 514h6v6h-6z" fill="none" stroke="#c8e0f4" stroke-width="1.2"/><circle cx="${x + 52}" cy="528" r="6" fill="#dfeef8" ${ink(1.2)}/><path d="M${x + 46.4} 529a5.6 5.6 0 0 0 11.2 0z" fill="#3a1e0e"/><path d="M${x + 52} 520v2" stroke="#c8e0f4" stroke-width="1.6"/>`
       + `<path d="M${x + 45} 534.6a7 2 0 0 0 14 0" fill="none" stroke="#ffb43a" stroke-width="1.6"/>` + kCupS(x + 52, 541, .6, '#3a1e0e', '#3a6ab0')
       + `<rect x="${x + 7}" y="552" width="66" height="14" rx="1.6" fill="#f4e6c8" ${ink(1.4)}/><text x="${x + 40}" y="561.4" font-size="5.6" text-anchor="middle" fill="#5a3418" class="st-sign">M E N U</text>`
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v5${Array.from({ length: 9 }, () => 'q-3 2.4-6 0').join('')}z" fill="#fbfaf4"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#f4e6c8" class="st-num">お待たせしました</text>`;
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v5${Array.from({ length: 9 }, () => 'q-3 2.4-6 0').join('')}z" fill="#fbfaf4"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#f4e6c8" class="st-num">${sg('お待たせしました', T`久等了`, 6, 54)}</text>`;
     return s + kick(x);
   }
   // (the app's own) こむぎ堂: a bun, flat, side on (the menu, the window, the board)
@@ -448,29 +473,30 @@ const STREET = (() => {
   function bakery(x, L) {
     const items = (L || ['#5a2a22', '#f6d860', '#a8642a', '#fff8e0'].map(fill => ({ fill }))).slice(0, 4), rd = '#8a3a1a', cr = '#fff1d6';
     let s = shell(x, SKIN.bakery) + Array.from({ length: 6 }, (_, i) => `<path d="M${x + 4 + i * 14} 464h14v12q-3.5 3-7 0t-7 0z" fill="${i % 2 ? cr : rd}" ${ink(1.4)}/>`).join('')
-      + `<rect x="${x + 22}" y="466" width="46" height="9" rx="2" fill="${rd}" ${ink(1.2)}/><text x="${x + 45}" y="473" font-size="6" text-anchor="middle" fill="#fff" class="st-sign">こむぎ堂</text>`;
+      + `<rect x="${x + 22}" y="466" width="46" height="9" rx="2" fill="${rd}" ${ink(1.2)}/><text x="${x + 45}" y="473" font-size="6" text-anchor="middle" fill="#fff" class="st-sign">${sg('こむぎ堂', nm('こむぎ堂'), 6, 44)}</text>`;
     // the menu (a bun each), the sign, the window on the oven's mouth (the belt, a golden bun out of the tunnel), the lamps, the board
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#1e1a18" ${ink(1.6)}/>` + items.map((p, k) => pBun(x + 15 + k * 16.4, 493, .62, '#c97c2c', p.fill)).join('');
-    s += `<rect x="${x + 7}" y="504" width="13" height="28" rx="2" fill="#2a1410" ${ink(1.4)}/>` + ['こ', 'む', 'ぎ'].map((c, i) => `<text x="${x + 13.5}" y="${512 + i * 8}" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-sign">${c}</text>`).join('')
+    s += `<rect x="${x + 7}" y="504" width="13" height="28" rx="2" fill="#2a1410" ${ink(1.4)}/>` + (LOC ? vcol(x + 13.5, 512, 8, 6, 3, T`面包`, (x, y, z, c, a) => `<text x="${x}" y="${y}" font-size="${z}" text-anchor="middle" fill="#ffd27a" class="st-sign" ${a}>${c}</text>`) : ['こ', 'む', 'ぎ'].map((c, i) => `<text x="${x + 13.5}" y="${512 + i * 8}" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-sign">${c}</text>`).join(''))
       + `<rect x="${x + 23}" y="504" width="34" height="28" rx="3" fill="#fff4e4" ${ink(2)}/><rect x="${x + 25}" y="522" width="30" height="4" fill="#3a3a42" ${ink(1)}/><path d="M${x + 39} 508h16v14h-16z" fill="#5a5e68" ${ink(1.2)}/><rect x="${x + 41}" y="512" width="12" height="3" rx="1" fill="#ff8a2a"/>`
       + pBun(x + 33, 519, .5, '#c97c2c') + `<rect x="${x + 60}" y="506" width="13" height="4.4" rx="1.2" fill="#ff8a3a" ${ink(1)}/><rect x="${x + 60}" y="512" width="13" height="4.4" rx="1.2" fill="#ffd23f" ${ink(1)}/>`
       + `<rect x="${x + 7}" y="536" width="66" height="26" rx="3" fill="#2a1410" ${ink(1.6)}/>` + pBun(x + 40, 550, 1.3, '#c97c2c', '#5a2a22')
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="${rd}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">お持ち帰り</text>`;
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="${rd}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">${sg('お持ち帰り', T`外带`, 6, 54)}</text>`;
     return s + kick(x);
   }
   // (the app's own) てっぱん丸: a boat of three balls, flat, side on (the menu, the board)
   const tBoat = (cx, cy, k, c) => `<g transform="translate(${cx} ${cy}) scale(${k})">${[-5, 0, 5].map(u => `<circle cx="${u}" cy="-1" r="3.2" fill="#d8903a" ${ink(1.2 / k)}/>`).join('')}<path d="M-8-1.6Q-5-4.4-2.2-2Q0-4.4 2.4-2Q5-4.4 8-1.6" fill="none" stroke="${c || '#4a2210'}" stroke-width="${(1.6 / k).toFixed(2)}" stroke-linecap="round"/><path d="M-9.4 1H9.4L7.6 5H-7.6Z" fill="#e2c890" ${ink(1.2 / k)}/></g>`;
   function teppan(x, L) {
     const items = (L || ['#4a2210', '#c89a3a', '#a8501c', '#ffa898'].map(fill => ({ fill }))).slice(0, 4), nv = '#1f2a4a', rd = '#d8352a';
-    let s = shell(x, SKIN.teppan) + Array.from({ length: 5 }, (_, i) => `<path d="M${x + 4 + i * 16.4} 464h15.6v14q-1 1.4-2 0h-11.6q-1 1.4-2 0z" fill="${nv}" ${ink(1.4)}/><text x="${x + 11.8 + i * 16.4}" y="474" font-size="7" text-anchor="middle" fill="#fff" class="st-sign">${'てっぱん丸'[i]}</text>`).join('');
+    let s = shell(x, SKIN.teppan) + Array.from({ length: 5 }, (_, i) => `<path d="M${x + 4 + i * 16.4} 464h15.6v14q-1 1.4-2 0h-11.6q-1 1.4-2 0z" fill="${nv}" ${ink(1.4)}/><text x="${x + 11.8 + i * 16.4}" y="474" font-size="7" text-anchor="middle" fill="#fff" class="st-sign">${LOC ? '' : 'てっぱん丸'[i]}</text>`).join('')
+      + (LOC ? `<text x="${x + 45}" y="474" font-size="7" text-anchor="middle" fill="#fff" class="st-sign">${sg('', nm('てっぱん丸'), 7, 78)}</text>` : '');
     // the menu (a boat each), the lantern, the window on the griddle (dimples, balls), the lamps, the board
     s += `<rect x="${x + 7}" y="484" width="66" height="16" rx="2" fill="#1e1a18" ${ink(1.6)}/>` + items.map((p, k) => tBoat(x + 15 + k * 16.4, 493, .52, p.fill)).join('');
-    s += `<path d="M${x + 9} 506Q${x + 7} 518 ${x + 9} 530H${x + 19}Q${x + 21} 518 ${x + 19} 506Z" fill="${rd}" ${ink(1.4)}/>` + ['た', 'こ'].map((c, i) => `<text x="${x + 14}" y="${515 + i * 8}" font-size="6" text-anchor="middle" fill="#fff" class="st-sign">${c}</text>`).join('')
+    s += `<path d="M${x + 9} 506Q${x + 7} 518 ${x + 9} 530H${x + 19}Q${x + 21} 518 ${x + 19} 506Z" fill="${rd}" ${ink(1.4)}/>` + (LOC ? vcol(x + 14, 515, 8, 6, 2, T`章鱼`, (x, y, z, c, a) => `<text x="${x}" y="${y}" font-size="${z}" text-anchor="middle" fill="#fff" class="st-sign" ${a}>${c}</text>`) : ['た', 'こ'].map((c, i) => `<text x="${x + 14}" y="${515 + i * 8}" font-size="6" text-anchor="middle" fill="#fff" class="st-sign">${c}</text>`).join(''))
       + `<rect x="${x + 23}" y="504" width="34" height="28" rx="3" fill="#fff4e4" ${ink(2)}/><rect x="${x + 26}" y="512" width="28" height="12" rx="1" fill="#2a2624" ${ink(1.2)}/>`
       + [0, 1].map(j => [0, 1, 2, 3, 4].map(i => `<circle cx="${x + 29 + i * 5.5}" cy="${515.5 + j * 5}" r="2" fill="#d8903a" ${ink(.8)}/>`).join('')).join('')
       + `<rect x="${x + 60}" y="506" width="13" height="4.4" rx="1.2" fill="#ff8a3a" ${ink(1)}/><rect x="${x + 60}" y="512" width="13" height="4.4" rx="1.2" fill="#ffd23f" ${ink(1)}/>`
       + `<rect x="${x + 7}" y="536" width="66" height="26" rx="3" fill="${nv}" ${ink(1.6)}/>` + tBoat(x + 40, 550, 1.3, '#4a2210')
-      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="${nv}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">お持ち帰り</text>`;
+      + `<rect x="${x + 16}" y="590" width="58" height="34" rx="5" fill="${INK}"/><path d="M${x + 18} 594h54v8q-6 2-13.5 0t-13.5 0t-13.5 0t-13.5 0z" fill="${nv}"/><text x="${x + 45}" y="617" font-size="6" text-anchor="middle" fill="#ffd27a" class="st-num">${sg('お持ち帰り', T`外带`, 6, 54)}</text>`;
     return s + kick(x);
   }
   const ART = { drink, spiral, cup, ramen, juice, auto, digital, frozen, locker, teishoku, sushi, oden, taiyaki, kakigori, gacha, kissa, bakery, teppan };
@@ -735,7 +761,7 @@ const STREET = (() => {
     return `<g class="st-post${open ? '' : ' locked'}" role="button" tabindex="0" aria-label="${open ? T`去 ${g.name}` : T`${g.name}：资产到 ${g.at} 开张`}">
       <rect x="574" y="440" width="66" height="226" fill="transparent"/>
       <g filter="url(#doodle)"><rect x="${x - 3}" y="482" width="7" height="170" rx="2" fill="#8e86a8" ${ink(2.2)}/>
-        <path d="M576 486h54l9 11-9 11h-54z" fill="${open ? '#3ff4ff' : '#fff8ec'}" ${ink(2.2)}/><text x="603" y="501" class="st-pop-t st-jp" font-size="${g.name.length > 4 ? 8.4 : 10.5}" text-anchor="middle" fill="${INK}">${g.name}</text>
+        <path d="M576 486h54l9 11-9 11h-54z" fill="${open ? '#3ff4ff' : '#fff8ec'}" ${ink(2.2)}/><text x="603" y="501" class="st-pop-t st-jp" font-size="${g.name.length > 4 ? 8.4 : 10.5}" text-anchor="middle" fill="${INK}">${sg(g.name, nm(g.name), g.name.length > 4 ? 8.4 : 10.5, 52)}</text>
         ${open ? '' : `<path d="M${x - 14} 516v6M${x + 14} 516v6" ${ink(1.4)}/><g transform="rotate(4 ${x} 538)"><rect x="575" y="521" width="62" height="34" rx="4" fill="#fff8ec" ${ink(2.2)}/>
           <text x="606" y="535" class="st-zh" font-size="10" text-anchor="middle" fill="${INK}">${T`准备中`}</text><text x="606" y="548" class="st-zh" font-size="7.4" text-anchor="middle" fill="#e23d78">${T`资产 ${g.at}`}</text></g>`}
         <ellipse cx="${x}" cy="652" rx="13" ry="3.4" fill="#000" opacity=".25"/></g></g>`;
@@ -795,7 +821,7 @@ const STREET = (() => {
     const g = svg.querySelector(`.st-m[data-i="${i}"]`); if (!g) return;
     SND.pop(); UTIL.haptic(8);
     UTIL.restart(g, 'boing');
-    setTimeout(() => onOpen(i), 160);
+    setTimeout(() => onOpen(i), window.__ndFlags && __ndFlags.tapWait ? 400 : 160);
   }
   // a sale: the little machine bobs and its takings pop up in a comic bubble — cream for everyday goods,
   // yellow for ★3, gold with sparks for ★4 and up; a first-ever sale (初売り) gets a pink double-decker bubble

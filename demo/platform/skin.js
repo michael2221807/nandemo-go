@@ -72,8 +72,16 @@
   chip.addEventListener('click', () => {
     const m = MACHINES[__ND.cur]; if (__ND.view !== 'machine' || !m || !unlocked(m)) return;
     if (look(m) === 'iso') delete pick[m.id]; else pick[m.id] = 'iso';
-    sync(m); try { SND.switchOn(); } catch (e) { /* no sound */ } UTIL.haptic(8);
+    // (?t3dtick=1, a measurement only: the switch's own cost on the page's thread, NEONTAP in the diag log — the groups'
+    // restyle forced here to be told apart from the 3D's work on the frames after (T3DGAP); the phone stood 1.1–1.3 s
+    // on one frame switching back to 漫画, Chromium at 4× slower 0.2 s, 2026-11-01)
+    const tm = /[?&]t3dtick=1/.test(location.search) && window.NATIVE, t0 = tm && performance.now();
+    sync(m);
+    const t1 = tm && performance.now(); if (tm) { const g = document.querySelector(`.mroot[data-m="${m.id}"]`); if (g) void getComputedStyle(g).color; void document.body.offsetHeight; }
+    const t2 = tm && performance.now();
+    try { SND.switchOn(); } catch (e) { /* no sound */ } UTIL.haptic(8);
     __ND.save();
+    if (tm) NATIVE.post('diag', `NEONTAP ${m.id} to ${look(m) === 'iso' ? 'neon' : 'comic'}: sync ${(t1 - t0).toFixed(0)} restyle+layout ${(t2 - t1).toFixed(0)} save ${(performance.now() - t2).toFixed(0)} ms, ${document.querySelectorAll(`.mroot[data-m="${m.id}"] *`).length} elements`);
   });
 
   // save: the choices; shown: the machines in 霓虹 now (the turning pictures, platform/renderer.js)

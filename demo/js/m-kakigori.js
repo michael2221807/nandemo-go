@@ -45,13 +45,14 @@
   const paintTurret = (o = {}) => { if (I) I.turretG.innerHTML = KGB.turret(topA, o); };
   const paintCart = () => { if (!I) return; I.cartG.innerHTML = KGB.carriage(C.zp, C.turn, C.cup); I.cartG.setAttribute('transform', move(C.x, 0, 0)); };
   const domeTop = () => C.zp + CUP.h + CUP.dome * (C.cup ? C.cup.d : 0);
+  const LCD = s => { if (X.lcd.__t !== s) { X.lcd.__t = s; X.lcd.textContent = s; } };   // (app build: written only when it changes)
   function paintDoor() {
     if (!X) return;
     X.tiles.forEach(t => { const k = +t.dataset.k; t.querySelector('.soldout').classList.toggle('on', !canMake(k)); });
-    X.gauge.setAttribute('width', f(13.2 * Math.max(0, Math.min(1, S.ice)))); X.gauge.setAttribute('fill', S.ice < LOW ? '#ff6a3a' : '#9ad8ff');
+    { const w = f(13.2 * Math.max(0, Math.min(1, S.ice))), c = S.ice < LOW ? '#ff6a3a' : '#9ad8ff'; if (X.gauge.getAttribute('width') !== String(w)) X.gauge.setAttribute('width', w); if (X.gauge.getAttribute('fill') !== c) X.gauge.setAttribute('fill', c); }   // (app build)
     X.spares.forEach((el, i) => el.classList.toggle('on', i < S.spares));
     X.outLamp.classList.toggle('on', !iceOk());
-    if (!busy && !ready) X.lcd.textContent = iceOk() ? 'いらっしゃいませ' : '氷切れ';
+    if (!busy && !ready) LCD(iceOk() ? 'いらっしゃいませ' : '氷切れ');
   }
   const tile = k => X.tiles.find(t => +t.dataset.k === k);
   // the take-out window: the cup with its dome, under the window's little noren
@@ -185,14 +186,14 @@
     const t = tile(kk), no = (S.no = S.no % 99 + 1);
     if (t) { t.querySelector('.led').classList.add('on'); CORE.glow(t.querySelector('.kg-tglow'), 1600, .4); if (who === 'player') CORE.press(t); }
     if (who === 'player') SND.click();
-    CORE.glow(X.slotGlow, 1000); X.lcd.textContent = `ご注文 · ${no}番`;
+    CORE.glow(X.slotGlow, 1000); LCD(`ご注文 · ${no}番`);
     await I.cm.coinIn(MENU[kk].price, KG.SLOTW);
-    X.lcd.textContent = `${no}番 · 削っています`;
+    LCD(`${no}番 · 削っています`);
     const r = await make(kk);
     if (t) t.querySelector('.led').classList.remove('on');
     if (!r) return false;
     await UTIL.tween(220, e => X.flap.setAttribute('transform', `translate(0 ${f(7 * e)})`), UTIL.ease.out);
-    const done = { p: r.p, o: r.o, no, who }; ready = done; windowCup(done); X.ready.classList.add('on'); X.lcd.textContent = `${no}番 · お待たせしました`; SND.ding(); UTIL.haptic(14);
+    const done = { p: r.p, o: r.o, no, who }; ready = done; windowCup(done); X.ready.classList.add('on'); LCD(`${no}番 · お待たせしました`); SND.ding(); UTIL.haptic(14);
     saleFn({ name: r.p.name, price: r.p.price, pid: r.p.pid, tier: r.p.tier || 1 }, who);
     if (who === 'customer') setTimeout(() => take(false), 900); else setTimeout(() => { if (ready === done) take(true); }, 7000);
     paintDoor(); return true;

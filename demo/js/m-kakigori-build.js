@@ -137,7 +137,7 @@ const KGB = (() => {
     const ice = `<g id="g-kg-ice">${box(-6, -6, 0, 12, 12, 10, 0, 'kg-iceb2')}<g transform="${TOPP(-6, -6, 10.03)}"><path d="M2 3l4 1.4M7 8l3-2" stroke="#fff" stroke-width=".8" opacity=".7"/></g></g>`;
     return pouch + ice;
   }
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 
   /* ---------- the carriage on the rail, its scissor lift, the cup on it (drawn at x = 0; the machine moves it) ---------- */
   // zp: the platform's top; turn: the turntable's angle (its three bolts show it turning); c: the cup ({ d, ...o }) or null

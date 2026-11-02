@@ -76,12 +76,13 @@
     if (full || !cartEl || cartEl.parentNode !== I.cartG) { I.cartG.innerHTML = ''; cartEl = UTIL.g(I.cartG, ODB.carriage() + (cart.cup ? ODB.cup(0, RAIL.y, cart.cup.z == null ? CUPZ : cart.cup.z, cart.cup) : ''), {}); }
     cartEl.setAttribute('transform', move(cart.x, 0, 0));
   }
+  const LCD = s => { if (X.lcd.__t !== s) { X.lcd.__t = s; X.lcd.textContent = s; } };   // (app build: written only when it changes)
   function paintDoor() {
     if (!X) return; const l = level();
     X.tiles.forEach(t => { const k = +t.dataset.k; t.querySelector('.soldout').classList.toggle('on', !canMake(k)); });
-    X.gauge.setAttribute('width', f(13.2 * l)); X.gauge.setAttribute('fill', l < .25 ? '#ff6a3a' : '#d8a040');
+    { const w = f(13.2 * l), c = l < .25 ? '#ff6a3a' : '#d8a040'; if (X.gauge.getAttribute('width') !== String(w)) X.gauge.setAttribute('width', w); if (X.gauge.getAttribute('fill') !== c) X.gauge.setAttribute('fill', c); }   // (app build)
     X.lowLamp.classList.toggle('on', l < .25);
-    if (!busy && !ready) X.lcd.textContent = dry() ? 'だし切れ' : 'いらっしゃいませ';
+    if (!busy && !ready) LCD(dry() ? 'だし切れ' : 'いらっしゃいませ');
   }
   const tile = k => X.tiles.find(t => +t.dataset.k === k);
   function windowCup(r) {
@@ -165,14 +166,14 @@
     const t = tile(kk), no = (S.no = S.no % 99 + 1);
     if (t) { t.querySelector('.led').classList.add('on'); CORE.glow(t.querySelector('.od-tglow'), 1600, .4); if (who === 'player') CORE.press(t); }
     if (who === 'player') SND.click();
-    CORE.glow(X.slotGlow, 1000); X.lcd.textContent = `ご注文 · ${no}番`;
+    CORE.glow(X.slotGlow, 1000); LCD(`ご注文 · ${no}番`);
     await I.cm.coinIn(MENU[kk].price, OD.SLOTW);
-    X.lcd.textContent = `${no}番 · 盛り付け中`;
+    LCD(`${no}番 · 盛り付け中`);
     const r = await make(kk);
     if (t) t.querySelector('.led').classList.remove('on');
     if (!r) return false;
     await UTIL.tween(220, e => X.flap.setAttribute('transform', `translate(0 ${f(7 * e)})`), UTIL.ease.out);
-    const done = { p: r.p, cup: r.cup, no, who }; ready = done; windowCup(done); X.ready.classList.add('on'); X.lcd.textContent = `${no}番 · お待たせしました`; SND.ding(); UTIL.haptic(14);
+    const done = { p: r.p, cup: r.cup, no, who }; ready = done; windowCup(done); X.ready.classList.add('on'); LCD(`${no}番 · お待たせしました`); SND.ding(); UTIL.haptic(14);
     saleFn({ name: r.p.name, price: r.p.price, pid: r.p.pid, tier: r.p.tier || 1 }, who);
     if (who === 'customer') setTimeout(() => take(false), 900); else setTimeout(() => { if (ready === done) take(true); }, 7000);
     paintDoor(); return true;

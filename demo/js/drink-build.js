@@ -145,7 +145,7 @@ const DKB = (() => {
     const coinPulse = g.lastElementChild;
     g.insertAdjacentHTML('beforeend', `<path class="tubelight" d="${path([[6, 81, 223], [88, 81, 223]])}"/>`);
     // upgrade pins (only seen in X-ray): tap one to see the part
-    const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+    const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
     g.insertAdjacentHTML('beforeend', (DK.rack < DK.RACKS.length - 1 ? pin('rack', colX(2), 78, 226) : '') + (DK.hp ? '' : pin('heatpump', 45, 50, 100)));
     return { lanesG, cansAll, pedals, movers, trayIn, tubes, coinG, pulses, coinPulse, parts, fan: g.querySelector('#dk-fan'),
       rollers: [g.querySelector('#dk-roll0'), g.querySelector('#dk-roll1')], belt: g.querySelector('#dk-belt'), leds: [0, 1, 2].map(i => g.querySelector('#dk-led' + i)) };

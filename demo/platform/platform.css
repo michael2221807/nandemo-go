@@ -278,5 +278,9 @@ html[data-lang="zh"][data-names="jp"] #nk-name { font-family: "ND Dela", "ND Qin
    where the machine was when the turn began, so they are out while it turns and come back with the machine */
 .device.nd-xturn #tags, .device.nd-xturn #scan { visibility: hidden !important; }
 
-/* (sample only: PR #2's 新货 badge fix, its ui.css is not in build 1) */
-.news-s b{display:inline-block;line-height:1.15;vertical-align:middle;margin:2px 0}
+/* 漫画 art: the recycling bins stay green from every side (the owner, 2026-10-30). With the camera on the left they are
+   drawn behind the machine, in .env-back, whose faces take the plinth's grey (index.html); the same green as in front.
+   (In the turning pictures' hash: the baked sets were drawn with the grey, tools/bake_turn.py again) */
+.device[data-art="zzz"] .env-back [data-hit="bins"] .face{fill:#2fbf74}
+.device[data-art="zzz"] .env-back [data-hit="bins"] .face.top{fill:#7be0a8}
+.device[data-art="zzz"] .env-back [data-hit="bins"] .face.side{fill:#1e8a52}

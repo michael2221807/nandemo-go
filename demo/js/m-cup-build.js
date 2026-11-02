@@ -23,7 +23,7 @@ const CUB = (() => {
   const { FRONT, SIDE, TOP, box, rounded, rect, path, P, f, slits } = ISO;
   const { W, D, H, TT, CANS, CAN_X, BOWL, NOZZLE_Z, TUBE } = CU;
   const { hull, ringZ, toD } = GLY;
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   /* ---------- the three upgrade kits (lv: { turret, turbo, mill }), 2026-10-18 ---------- */
   // カップターレット: three cup tubes round a shaft; the one over the turntable (where the single tube stood) is in use.
   // Counts by position (0 = in use, 1 and 2 the next ones round); phi turns the whole turret

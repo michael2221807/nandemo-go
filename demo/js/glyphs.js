@@ -4,8 +4,8 @@ const GLY = (() => {
   const { P, f } = ISO;
   const TAU = Math.PI * 2;
   const vz = () => ISO.visZ(), sx = () => ISO.visX()[0] + Math.PI / 4;   // visible side of standing / shift for lying cylinders
-  const toD = (pts, close = true) => 'M' + pts.map(p => f(p[0]) + ' ' + f(p[1])).join('L') + (close ? 'Z' : '');
-  function hull(pts) {
+  const toD0 = (pts, close = true) => 'M' + pts.map(p => f(p[0]) + ' ' + f(p[1])).join('L') + (close ? 'Z' : '');
+  function hull0(pts) {
     const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
     const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
     const lo = [], up = [];
@@ -13,6 +13,9 @@ const GLY = (() => {
     for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
     return lo.slice(0, -1).concat(up.slice(0, -1));
   }
+  // (the hull's points' 3D places, iso.js P's by their screen points: kept with the outline's string as toD draws it)
+  function hull(pts) { const h = hull0(pts), R = window.__REC; if (R && R.on && R.hulls) { const p3 = pts.map(q => R.pts.get(f(q[0]) + ' ' + f(q[1]))); if (p3.every(Boolean)) h.p3 = p3; } return h; }
+  const toD = (pts, close = true) => { const s = toD0(pts, close), R = window.__REC; if (pts.p3 && R && R.on && R.hulls) { if (R.cap && R.hulls.size > R.cap / 10) R.hulls.clear(); R.hulls.set(s, pts.p3); } return s; };
   // rings: axis along x (lying) or z (standing)
   const ringX = (x, r, n = 30, a = 0, b = TAU, cy = 0, cz = 0) => Array.from({ length: n + 1 }, (_, i) => { const t = a + (b - a) * i / n; return P(x, cy + r * Math.cos(t), cz + r * Math.sin(t)); });
   const ringZ = (z, r, n = 30, a = 0, b = TAU, cx = 0, cy = 0) => Array.from({ length: n + 1 }, (_, i) => { const t = a + (b - a) * i / n; return P(cx + r * Math.cos(t), cy + r * Math.sin(t), z); });

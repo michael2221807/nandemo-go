@@ -3,7 +3,8 @@
      原汁原味 (authentic): the interface in your language; the goods, machine brands and cats keep their Japanese names.
      全部翻译 (full): those in your language too — cats and brands get local names (as Neko Atsume names its cats).
    Japanese has the one way only. Text painted into the world — machine prints and buttons, packaging, neon, signs,
-   the road's 止まれ, sounds like ゴトン — is always Japanese in every mode: it is the street itself.
+   the road's 止まれ, sounds like ゴトン — is Japanese, except the street's signs and its miniature machines, which
+   全部翻译 shows in the player's language (street.js sg(), 2026-11-02).
    Strings: every interface string in the code is its Chinese text tagged T`…`; the Chinese is the key and each ${}
    becomes {0} {1}… in the dictionaries (i18n-en.js, i18n-ja.js), so a translation may reorder them. Static markup is
    translated once at start by walking the page's text. Changing language or mode reloads the page (the game saves
@@ -15,8 +16,8 @@ const I18N = (() => {
   { const q = ({ en: 'en', ja: 'ja', zh: 'zh', 'zh-hans': 'zh', 'zh-cn': 'zh', 'zh-hant': 'zh-Hant', 'zh-tw': 'zh-Hant' })[(new URLSearchParams(location.search).get('lang') || '').toLowerCase()];
     if (q && STORE.get(KEY + '-q') !== q) { STORE.set(KEY + '-q', q); saved = { lang: q }; STORE.set(KEY, JSON.stringify(saved)); } }
   const code = saved && (LANGS.includes(saved.lang) || saved.lang === 'zh-Hant') ? saved.lang : guess(), hant = code === 'zh-Hant', lang = hant ? 'zh' : code;
-  // English starts on full names (Japanese script would be unreadable to most), Chinese on the authentic ones
-  const full = lang === 'ja' ? false : saved && typeof saved.full === 'boolean' ? saved.full : lang === 'en';
+  // every language starts on full names and signs (the owner 2026-11-02; Chinese started on the authentic ones before)
+  const full = lang === 'ja' ? false : saved && typeof saved.full === 'boolean' ? saved.full : true;
   const DICT = { zh: {}, en: {}, ja: {}, 'zh-Hant': {} }, CJK = /[぀-ヿ一-鿿]/, H = DICT['zh-Hant'];
   const hz = s => hant && typeof s === 'string' && H[s] !== undefined ? H[s] : s;
   // local names for full mode: { zh: { 'ミケ': '咪可', … }, en: {…} } (brands and cats), goods by kind:id

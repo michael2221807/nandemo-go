@@ -116,7 +116,7 @@ const OBB = (() => {
     const miso = `<g id="g-ob-miso">${cyl(0, 0, 0, 10, 4, 4, '#c8964a')}${cyl(0, 0, 10, 12, 4.2, 4.2, '#6a1a14')}<text x="0" y="${f(P(0, 4, 5)[1])}" font-size="3" text-anchor="middle" fill="#fff" font-family="sans-serif">味噌</text></g>`;
     return pan + rice + miso;
   }
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   const post = (x, y, z, h) => box(x - .8, y - .8, z, 1.6, 1.6, h);
   const edgesOnly = (x, y, z, w, d, h, cls) => CORE.edges(x, y, z, w, d, h, cls);
 
@@ -126,7 +126,7 @@ const OBB = (() => {
     let s = CORE.shell(W, D, H);
     // the base: the dishwasher (with its window), the dirty trays waiting, the return chute from the door, the clean-set lift
     s += box(4, 20, 6, 40, 40, 34, 0, lv.wash ? 'ob-wash new' : 'ob-wash') + `<g transform="${FRONT(4, 60.05, 40)}"><rect class="ob-washwin" x="6" y="6" width="22" height="18" rx="3"/><text class="label sign" x="34" y="10" font-size="3" text-anchor="middle">${lv.wash ? '食洗機' : '洗い場'}</text><circle class="ob-washled" cx="34" cy="16" r="1.4"/></g>`
-      + `<path class="chute" d="${path([[16, 83, 26], [16, 62, 34]])}" style="stroke-width:5;stroke:#2a3038"/>` + post(4, 76, 6, 82) + post(14, 76, 6, 82);
+      + `<path class="chute" d="${path([[16, 83, 26], [16, 62, 34]])}" style="stroke-width:5;stroke:#2a3038"/>` + post(4, 76, 6, 52) + post(14, 76, 6, 52);
     s += box(50, 30, 6, 30, 26, 4) + `<g transform="${FRONT(50, 56.05, 10)}"><text class="label" x="15" y="3" font-size="2.4" text-anchor="middle">下げ膳</text></g>`;
     // the kitchen floor over the base
     s += box(2, 30, 58, 90, 52, 3, 0, 'ob-floor');

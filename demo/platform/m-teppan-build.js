@@ -369,7 +369,7 @@ const TPB = (() => {
   /* ---------- the deck's food: okonomiyaki, yakisoba, ikayaki (bottom at z, k its size) ---------- */
   // f = { kind, c (cooked 0..1), flip (0..1, over the y axis), sauce (colour; s 0..1 brushed), mayo (m 0..1), top
   // (mix / negi / tonpei / kaisen; beni; omu; egg), t (the topping 0..1), katsu (flakes), fold (ikayaki 0..1), tz (tossed up) }
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   const rnd = i => { const v = Math.sin(i * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };   // a hash (scattered, not on a line)
   function okono(x, y, z, o, k = 1) {
     const tonpei = o.top === 'tonpei', rx = (tonpei ? 5.2 : 5) * k, ry = (tonpei ? 3 : 5) * k, th = 1.2 * k, A = Math.PI * (o.flip || 0), zc = z + th / 2 + (o.tz || 0) + Math.sin(A) * 4 * k;

@@ -77,7 +77,7 @@ const ARB = (() => {
   // a product's look as CSS vars (every var always set: an unset one would make its rule invalid)
   const vars = p => `--c:${p.fill};--d:${p.d || 'transparent'};--o:${p.o || 0}`;
   const use = (id, p, x, y, z) => { const [sx, sy] = P(x, y, z); return `<use href="#${id}" x="${f(sx)}" y="${f(sy)}" style="${vars(p)}"/>`; };
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   const post = (x, y, z, h) => box(x - .8, y - .8, z, 1.6, 1.6, h);
   // glass drawn as its edges only: big translucent faces cost a full blend every frame the rain repaints over them
   const glassBox = (x, y, z, w, d, h, cls = 'au-glass') => CORE.edges(x, y, z, w, d, h, cls);

@@ -71,7 +71,7 @@
   function paintDoor() {
     X.tiles.forEach((t, k) => t.querySelector('.soldout').classList.toggle('on', !S.bins[k].length || peelFull()));
     X.clean.classList.toggle('on', peelFull());
-    if (!busy) { X.lcd.textContent = idleText(); X.bar.setAttribute('width', 0); }
+    if (!busy) { const t = idleText(); if (X.lcd.__nd !== t) { X.lcd.textContent = t; X.lcd.__nd = t; } if (X.bar.getAttribute('width') !== '0') X.bar.setAttribute('width', 0); }   // (app build)
   }
   const at = (x, y, z) => { const [sx, sy] = P(x, y, z); return `translate(${f(sx)} ${f(sy)})`; };
   const drawCup = (pt, juice, sealed) => { I.station.innerHTML = `<g transform="${at(...pt)}">${JUB.cupSVG(cupLv, juice, sealed)}</g>`; };
@@ -129,7 +129,7 @@
     CORE.glow(X.slotGlow, 1000);
     // the LCD: しぼり中 and a bar filling over the run
     const two = I.presses.length > 1, est = two ? 3700 : 5100;
-    X.lcd.textContent = 'しぼり中…'; UTIL.tween(est, e => X.bar.setAttribute('width', f(27 * e)), t => t);
+    X.lcd.textContent = 'しぼり中…'; X.lcd.__nd = null; UTIL.tween(est, e => X.bar.setAttribute('width', f(27 * e)), t => t);
     await I.cm.coinIn(p.price, JU.SLOTW);
     // an empty cup drops from the tube onto the stand
     const c0 = [CUPTUBE[0], CUPTUBE[1], CUPTUBE[2] + 1];

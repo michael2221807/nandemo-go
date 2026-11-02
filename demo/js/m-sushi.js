@@ -79,12 +79,13 @@
       slabEl = UTIL.el('use', { href: '#su-slab' + lookN }, I.liftG); liftEl = null; }
     slabEl.setAttribute('transform', move(0, 0, z));
     if (lift && lift.p) liftEl = useAt(liftEl, I.liftG, lift.p, { dome: !!lv.dome }, STN.lift, DECK.y, z); else if (liftEl) { liftEl.remove(); liftEl = null; } };
+  const LCD = s => { if (X.lcd.__t !== s) { X.lcd.__t = s; X.lcd.textContent = s; } };   // (app build: written only when it changes)
   function paintDoor() {
     if (!X) return;
     X.tiles.forEach(t => { const k = +t.dataset.k; t.querySelector('.soldout').classList.toggle('on', !canMake(k) && !beltOf(k)); });
-    X.count.textContent = `${S.belt.length}皿`;
+    { const t = `${S.belt.length}皿`; if (X.count.__t !== t) { X.count.__t = t; X.count.textContent = t; } }   // (app build)
     X.halfLamp.classList.toggle('on', S.belt.some(b => b.half || stale(b)));
-    if (!busy && !ready) X.lcd.textContent = S.rice <= .02 ? 'シャリ切れ' : 'いらっしゃいませ';
+    if (!busy && !ready) LCD(S.rice <= .02 ? 'シャリ切れ' : 'いらっしゃいませ');
   }
   const tile = k => X.tiles.find(t => +t.dataset.k === k);
   function windowPlate(r) {
@@ -180,17 +181,17 @@
     const t = tile(kk), no = (S.no = S.no % 99 + 1);
     if (t) { t.querySelector('.led').classList.add('on'); CORE.glow(t.querySelector('.su-tglow'), 1600, .4); if (who === 'player') CORE.press(t); }
     if (who === 'player') SND.click();
-    CORE.glow(X.slotGlow, 1000); X.lcd.textContent = `ご注文 · ${no}番`;
+    CORE.glow(X.slotGlow, 1000); LCD(`ご注文 · ${no}番`);
     await I.cm.coinIn(MENU[kk].price, SU.SLOTW);
     let b = going, express = null;
-    if (b) { b.want = true; X.lcd.textContent = `${no}番 · レーンからどうぞ`; }
-    else { while (making) await UTIL.wait(80); X.lcd.textContent = `${no}番 · 握っています`; const r = await make(kk, true); if (!r) return false; if (r.express) express = r; else b = r; }
+    if (b) { b.want = true; LCD(`${no}番 · レーンからどうぞ`); }
+    else { while (making) await UTIL.wait(80); LCD(`${no}番 · 握っています`); const r = await make(kk, true); if (!r) return false; if (r.express) express = r; else b = r; }
     if (b) { await new Promise(res => { b.res = res; setTimeout(res, 16000); });   // at the exit (or the view went away)
       if (S.belt.includes(b)) { S.belt.splice(S.belt.indexOf(b), 1); if (b.el) b.el.remove(); } }
     const p = b ? b.p : express.p, half = b ? b.half || stale(b) : false, price = Math.round(p.price * (half ? .5 : 1));
     if (t) t.querySelector('.led').classList.remove('on');
     await UTIL.tween(220, e => X.flap.setAttribute('transform', `translate(0 ${f(7 * e)})`), UTIL.ease.out);
-    const done = { p, half, no, who }; ready = done; windowPlate(done); X.ready.classList.add('on'); X.lcd.textContent = `${no}番 · お待たせしました`; SND.ding(); UTIL.haptic(14);
+    const done = { p, half, no, who }; ready = done; windowPlate(done); X.ready.classList.add('on'); LCD(`${no}番 · お待たせしました`); SND.ding(); UTIL.haptic(14);
     saleFn({ name: p.name, price, pid: p.pid, tier: p.tier || 1 }, who);
     if (who === 'customer') setTimeout(() => take(false), 900); else setTimeout(() => { if (ready === done) take(true); }, 7000);
     paintDoor(); return true;
@@ -274,7 +275,7 @@
     if (!I) return;
     const prev = phase; phase = (phase + dt / LAP) % 1; run += dt / LAP;
     if (!chainLen) chainLen = I.chain._len || 1;
-    I.chain.style.strokeDashoffset = f(-(run * chainLen) % 7.2);
+    if (!(window.TURN && TURN.holds && TURN.holds())) I.chain.style.strokeDashoffset = f(-(run * chainLen) % 7.2);   // (app build: not while the shell holds it)
     for (const b of S.belt.slice()) {
       const s0 = ((b.at + prev) % 1 + 1) % 1, s1 = sOf(b), crossed = x => s0 <= s1 ? s0 < x && s1 >= x : s0 < x || s1 >= x;
       if (!b.half && crossed(S_LABEL) && stale(b)) stampIt(b);

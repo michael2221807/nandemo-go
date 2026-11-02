@@ -48,21 +48,23 @@
     I.potTop.innerHTML = `<path d="${GLY.toD(GLY.ringZ(POT[2] - 6 + 5 * lvl, 5.4, 14, 0, Math.PI * 2, POT[0], POT[1]))}" fill="#c8964a" opacity="${lvl > .02 ? 1 : 0}"/>`;
   }
   // the clean sets in the magazine, the used ones waiting by the dishwasher, the spray while it washes
+  const H = (el, h) => { if (el.__h !== h) { el.__h = h; el.innerHTML = h; } };   // (app build: written only when it changes)
   function renderDishes() {
     if (!I) return; const now = Date.now(), w = WASH[lv.wash || 0].ms;
     const clean = Math.min(5, cleanSets()), waiting = S.sets.filter(s => s.back <= now && s.ready > now).length, washing = S.sets.some(s => s.ready > now && s.ready - w <= now && s.back <= now);
-    I.magG.innerHTML = Array.from({ length: clean }, (_, i) => ISO.rounded(MAG.x - 11, MAG.y - 7, BELT.z + 9 + i * 2.6, 22, 14, 1, 2.4, 'ob-tray')).join('');
-    I.dirtyG.innerHTML = Array.from({ length: Math.min(8, waiting) }, (_, i) => ISO.rounded(52, 32, 10 + i * 2.2, 24, 18, 1, 2.4, 'ob-tray dirty')).join('');
-    I.spray.innerHTML = washing ? `<g transform="${ISO.FRONT(10, 60.1, 34)}">${[0, 1, 2, 3].map(i => `<path class="ob-water" d="M${4 + i * 5} 1q1 6 -1 12"/>`).join('')}</g>` : '';
+    H(I.magG, Array.from({ length: clean }, (_, i) => ISO.rounded(MAG.x - 11, MAG.y - 7, BELT.z + 9 + i * 2.6, 22, 14, 1, 2.4, 'ob-tray')).join(''));
+    H(I.dirtyG, Array.from({ length: Math.min(8, waiting) }, (_, i) => ISO.rounded(52, 32, 10 + i * 2.2, 24, 18, 1, 2.4, 'ob-tray dirty')).join(''));
+    H(I.spray, washing ? `<g transform="${ISO.FRONT(10, 60.1, 34)}">${[0, 1, 2, 3].map(i => `<path class="ob-water" d="M${4 + i * 5} 1q1 6 -1 12"/>`).join('')}</g>` : '');
     I.spray.parentNode.querySelector('.ob-washled') && I.spray.parentNode.querySelector('.ob-washled').classList.toggle('on', washing);
   }
+  const LCD = s => { if (X.lcd.__t !== s) { X.lcd.__t = s; X.lcd.textContent = s; } };   // (app build: written only when it changes)
   function paintDoor() {
     const now = Date.now(), clean = cleanSets(), n = S.sets.length, none = clean === 0;
     X.tiles.forEach(t => { const k = +t.dataset.k; t.querySelector('.soldout').classList.toggle('on', !S.stack[k].length || S.rice <= .02 || S.miso <= .02); });
-    X.sets.textContent = `${clean}/${n}`; X.sets.classList.toggle('out', none);
+    { const t = `${clean}/${n}`; if (X.sets.__t !== t) { X.sets.__t = t; X.sets.textContent = t; } }   // (app build) X.sets.classList.toggle('out', none);
     X.washing.classList.toggle('on', none);
-    if (!busy) { if (none) { const next = Math.min(...S.sets.map(s => s.ready)), sec = Math.max(1, Math.ceil((next - now) / 1000)); X.lcd.textContent = `食器を洗っています · あと${sec}秒`; }
-      else if (!ready) X.lcd.textContent = 'いらっしゃいませ'; }
+    if (!busy) { if (none) { const next = Math.min(...S.sets.map(s => s.ready)), sec = Math.max(1, Math.ceil((next - now) / 1000)); LCD(`食器を洗っています · あと${sec}秒`); }
+      else if (!ready) LCD('いらっしゃいませ'); }
   }
   // the arms: where each tool is, what it holds
   const REST = { A: [14, 74, 118], B: [46, 74, 118] };
@@ -103,7 +105,7 @@
     if (t) { t.querySelector('.led').classList.add('on'); CORE.glow(t.querySelector('.ob-tglow'), 1600, .4); if (who === 'player') CORE.press(t); }
     if (who === 'player') SND.click();
     CORE.glow(X.slotGlow, 1000);
-    X.lcd.textContent = `調理中 · ${no}番`;
+    LCD(`調理中 · ${no}番`);
     await I.cm.coinIn(price, OB.SLOTW);
     // a ticket out of the front, the order printed in the kitchen and clipped to the rail
     X.ticketOut.style.display = ''; setTimeout(() => { if (X) X.ticketOut.style.display = 'none'; }, 1800);
@@ -161,7 +163,7 @@
     cur = null; drawTray();
     if (t) t.querySelector('.led').classList.remove('on');
     await UTIL.tween(220, e => X.flap.setAttribute('transform', `translate(0 ${f(7 * e)})`), UTIL.ease.out);
-    ready = done; windowTray(done); X.ready.classList.add('on'); X.lcd.textContent = `${no}番 · お待たせしました`; SND.ding(); UTIL.haptic(14);
+    ready = done; windowTray(done); X.ready.classList.add('on'); LCD(`${no}番 · お待たせしました`); SND.ding(); UTIL.haptic(14);
     saleFn({ name: p.name, price, pid: p.pid, tier: p.tier || 1 }, who);
     if (who === 'customer') setTimeout(() => take(false), 900); else setTimeout(() => { if (ready === done) take(true); }, 7000);
     paintDoor();
