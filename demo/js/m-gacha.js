@@ -33,10 +33,11 @@
   /* ---------- drawing ---------- */
   const look = c => ({ cap: c.p.cap, fig: c.p.fig, v: c.v, s: c.s, big: c.p.big });
   const paintGlobe = k => { if (!I || !gG[k]) return; gG[k].innerHTML = GCB.globe(k, S.glob[k].map(look), { agitator: lv.agitator, jumbo: lv.jumbo, lid: (S.glob[k][0] ? S.glob[k][0].p : MENU[k]).cap, wheel: wheelA[k], stir: stirA[k] }); };
+  const LCD = s => { if (X.lcd.__t !== s) { X.lcd.__t = s; X.lcd.textContent = s; } };   // (app build: written only when it changes)
   function paintDoor() {
     if (!X) return;
     X.tiles.forEach(t => { const k = +t.dataset.k; t.querySelector('.soldout').classList.toggle('on', !S.glob[k].length); t.querySelector('.gc-jam').classList.toggle('on', S.jam[k] && S.glob[k].length > 0); });
-    if (!busy && !ready) X.lcd.textContent = S.jam.some((j, k) => j && S.glob[k].length) ? 'つまり · トントンしてね' : 'いらっしゃいませ';
+    if (!busy && !ready) LCD(S.jam.some((j, k) => j && S.glob[k].length) ? 'つまり · トントンしてね' : 'いらっしゃいませ');
   }
   const tile = k => X.tiles.find(t => +t.dataset.k === k);
   // the take-out window: the capsule, big, its figure showing through the clear half
@@ -102,17 +103,17 @@
     const t = tile(kk), no = (S.no = S.no % 99 + 1);
     if (t) { t.querySelector('.led').classList.add('on'); CORE.glow(t.querySelector('.gc-tglow'), 1600, .4); if (who === 'player') CORE.press(t); }
     if (who === 'player') SND.click();
-    CORE.glow(X.slotGlow, 1000); X.lcd.textContent = `ご注文 · ${no}番`;
+    CORE.glow(X.slotGlow, 1000); LCD(`ご注文 · ${no}番`);
     await I.cm.coinIn(MENU[kk].price, GC.SLOTW);
-    X.lcd.textContent = `${no}番 · ガチャ…`;
+    LCD(`${no}番 · ガチャ…`);
     const r = await make(kk);
     if (t) t.querySelector('.led').classList.remove('on');
     if (!r) return false;
     await UTIL.tween(220, e => X.flap.setAttribute('transform', `translate(0 ${f(7 * e)})`), UTIL.ease.out);
     const price = r.o.s ? r.p.price * BONUS : r.p.price;
     const done = { p: r.p, o: r.o, big: r.big, no, who }; ready = done; windowCap(done); X.ready.classList.add('on');
-    if (r.o.s) { X.secretLamp.classList.add('on'); X.lcd.textContent = `${no}番 · シークレット!`; SND.chime(); CORE.sparkle(WINDOW[0], WINDOW[1] + 4, WINDOW[2] + 6, 14, '#ffd23f'); }
-    else { X.lcd.textContent = `${no}番 · でてきたよ`; SND.ding(); }
+    if (r.o.s) { X.secretLamp.classList.add('on'); LCD(`${no}番 · シークレット!`); SND.chime(); CORE.sparkle(WINDOW[0], WINDOW[1] + 4, WINDOW[2] + 6, 14, '#ffd23f'); }
+    else { LCD(`${no}番 · でてきたよ`); SND.ding(); }
     UTIL.haptic(14);
     saleFn({ name: r.p.name, price, pid: r.p.pid, tier: r.p.tier || 1 }, who);
     if (who === 'customer') setTimeout(() => take(false), 900); else setTimeout(() => { if (ready === done) take(true); }, 7000);

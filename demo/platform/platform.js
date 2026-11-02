@@ -13,9 +13,14 @@
   try { if (typeof I18N !== 'undefined') document.documentElement.dataset.names = I18N.full ? 'local' : 'jp'; } catch (e) { /* none */ }
 
   // boot ran synchronously in app.js; two frames later its first frame is on screen and the game takes touches
+  // (the launch picture also waits for the street's backdrop pictures (bgEarly, on by default; bgCover, a phone test),
+  // platform/opt.js, 3 s at most; those frames come while the scripts after this one still load, opt.js among them)
+  const ready = () => { window.__platformReady = Math.round(performance.now()); post('ready', { t: window.__platformReady }); };
+  const bgCover = () => (window.__ndOpt && __ndOpt.waitBg && __ndOpt.whenBg ? __ndOpt.whenBg(3000) : Promise.resolve()).then(ready);
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    window.__platformReady = Math.round(performance.now());
-    post('ready', { t: window.__platformReady });
+    const fl = window.__ndFlags || {};
+    if (fl.renderer || (fl.noBgEarly && !fl.bgCover)) ready();
+    else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bgCover, { once: true }); else bgCover();
   }));
 
   // a finger on a 改造 pin: the game opens the card on pointerup (app.js tap()), and the click the browser sends once
@@ -143,6 +148,10 @@
   const guide = document.getElementById('st-guide');
   if (guide) {
     const even = () => {   // (its own style changes are not watched: no loop)
+      // (hidden, nothing to measure: app.js guideTick sets hidden again at every ui(), each a mutation, and the page was
+      // laid out there and then each time, whatever else waited to be restyled — the machine's groups switching 涂装 —
+      // 15 ms a time at Chromium's 4× slowdown, 2026-11-01. Measured as it shows: hidden goes, the observer calls again)
+      if (guide.hidden) return;
       guide.style.width = '';
       const w = guide.offsetWidth, h = guide.offsetHeight;
       if (w && h > 44) {   // (one line is 38 pt tall)
@@ -154,4 +163,61 @@
     new MutationObserver(even).observe(guide, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
     even(); if (document.fonts) document.fonts.ready.then(even);
   }
+})();
+
+/* A machine's bob as it is tapped on the street, played off the page's thread (the owner, 2026-11-01: "点击机器时2D的点击动画
+   （缩小放大）有时也会一卡一卡的"). street.js open() bobs the machine (0.4 s) and opens it 0.16 s in: the machine's page laid out
+   and the 3D's work for it then held the page's thread a good part of a second, the bob stopped midway; and the bob moved
+   the drawing under its hand-drawn filter, which iOS redoes every frame. Here the drawing is copied into an svg of its own
+   before the street's layer, which the system animates in a layer of its own whatever the page's thread does; the drawing
+   itself hidden till the bob is over. The copy is the same drawing at the same place in the same units: the filter's
+   noise, set in those units, the same. The phone (0ad499c, 3 machines × 2): the bob whole, not a frame stopped, the
+   machine opened 0.70–0.85 s after the tap (as it was: stopped after 0.10–0.23 s; tapWait, the bob first: 0.97–1.20 s).
+   On by default since 2026-11-01; the page flag noTapLift turns it off.
+   (a cat asleep on the roof: the phone drew the copy over it, the roof rising through the cat as the bob stretched,
+   where Chromium keeps the street's layer over the copy. The street's cats over the bob's reach are copied too, still,
+   into an svg after the bob's copy, over it whichever way the layers go; the cats themselves hidden meanwhile) */
+(() => {
+  if ((window.__ndFlags && __ndFlags.noTapLift) || typeof UTIL === 'undefined' || !UTIL.restart) return;
+  const street = document.getElementById('street-svg'), host = document.getElementById('street'), NS = 'http://www.w3.org/2000/svg';
+  if (!street || !host) return;
+  document.head.insertAdjacentHTML('beforeend', '<style>.nd-lift{position:absolute;pointer-events:none;overflow:visible;transform-origin:50% 100%;will-change:transform}'
+    + '.nd-lift.go{animation:boing .4s ease-out}.nd-lift-over{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}</style>');
+  const r0 = UTIL.restart, still = matchMedia('(prefers-reduced-motion: reduce)');
+  // (the street's fonts for lettering, given only inside #street-svg (.st-sign, .st-num …): carried onto a copy's text)
+  const fontsOf = (from, to) => { const src = from.querySelectorAll('text, tspan'), dst = to.querySelectorAll('text, tspan');
+    src.forEach((t, k) => { const cs = getComputedStyle(t);
+      dst[k].setAttribute('style', ['font-family', 'font-weight', 'font-style', 'font-size', 'letter-spacing'].map(q => `${q}:${cs.getPropertyValue(q)}`).join(';') + ';' + (dst[k].getAttribute('style') || '')); }); };
+  let finish = null;
+  UTIL.restart = (el, cls) => {
+    const bob = cls === 'boing' && !still.matches && el && el.classList && el.classList.contains('st-m') && street.contains(el) && el.querySelector('.st-bob');
+    const m = bob && bob.getScreenCTM(), b = bob && bob.getBBox();
+    if (!bob || !m || !b.width) return r0(el, cls);
+    if (finish) finish();   // (another machine's bob still on: over at once, its drawing back)
+    const hb = host.getBoundingClientRect(), s = document.createElementNS(NS, 'svg');
+    s.setAttribute('class', 'nd-lift'); s.setAttribute('aria-hidden', 'true');
+    s.setAttribute('viewBox', `${b.x} ${b.y} ${b.width} ${b.height}`); s.setAttribute('preserveAspectRatio', 'none');
+    Object.assign(s.style, { left: `${m.a * b.x + m.e - hb.left}px`, top: `${m.d * b.y + m.f - hb.top}px`, width: `${m.a * b.width}px`, height: `${m.d * b.height}px` });
+    // (its machine's classes, less the bob's: the street's styles for its parts (.st-m .tk-…) hold in the copy too)
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('class', (el.getAttribute('class') || '').replace(/\bboing\b/g, '').trim());
+    const copy = bob.cloneNode(true); g.appendChild(copy); s.appendChild(g); fontsOf(bob, copy);
+    // the cats (and a cats' meal) where the bob reaches (it grows 4 % across, 3 % up from its foot): copied as they are
+    const r = bob.getBoundingClientRect(), reach = { l: r.left - r.width * .04, r: r.right + r.width * .04, t: r.top - r.height * .06, b: r.bottom };
+    const cats = [], over = document.createElementNS(NS, 'svg'); over.setAttribute('class', 'nd-lift-over'); over.setAttribute('aria-hidden', 'true');
+    Object.assign(over.style, { width: `${hb.width}px`, height: `${hb.height}px` });
+    for (const id of ['st-cats', 'st-meal']) { const layer = document.getElementById(id); if (!layer) continue;
+      for (const c of layer.children) { const q = c.getBoundingClientRect(); if (!q.width || q.right < reach.l || q.left > reach.r || q.bottom < reach.t || q.top > reach.b) continue;
+        const pm = c.parentNode.getScreenCTM(); if (!pm) continue;
+        const w = document.createElementNS(NS, 'g'); w.setAttribute('transform', `matrix(${pm.a} ${pm.b} ${pm.c} ${pm.d} ${pm.e - hb.left} ${pm.f - hb.top})`);
+        if (layer.getAttribute('class')) w.setAttribute('class', layer.getAttribute('class'));
+        const cc = c.cloneNode(true); w.appendChild(cc); fontsOf(c, cc); over.appendChild(w); cats.push(c); } }
+    document.querySelectorAll('.nd-lift, .nd-lift-over').forEach(x => x.remove());
+    // (the cats themselves hidden meanwhile, as the drawing is: drawn twice, their outlines came out a little bolder)
+    street.before(s); if (over.childNodes.length) street.before(over); bob.style.visibility = 'hidden'; cats.forEach(c => { c.style.visibility = 'hidden'; });
+    let ended = false; const done = () => { if (ended) return; ended = true; s.remove(); over.remove(); bob.style.visibility = ''; cats.forEach(c => { c.style.visibility = ''; }); if (finish === done) finish = null; };
+    finish = done;
+    // (two frames on, as UTIL.restart starts a CSS animation)
+    requestAnimationFrame(() => requestAnimationFrame(() => s.classList.add('go')));
+    s.addEventListener('animationend', done); setTimeout(done, 1500);
+  };
 })();

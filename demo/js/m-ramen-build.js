@@ -53,7 +53,7 @@ const RAB = (() => {
 
   /* ---------- the inside ---------- */
   // lv: fitted parts { boiler, spin, tier } — a bigger boiler, a spinning stand, a third carousel tier
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   const BOILER_H = [62, 80, 96];
   function interior(g, coinState, lv) {
     const RT = ISO.right, tiers = 2 + (lv.tier > 0 ? 1 : 0), bh = BOILER_H[lv.boiler || 0];

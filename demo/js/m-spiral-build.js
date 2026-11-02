@@ -37,7 +37,7 @@ const SP = (() => {
 const SPB = (() => {
   const { FRONT, SIDE, TOP, box, rounded, rect, path, P, f, slits } = ISO;
   const { W, D, H, ZR, CX, TW, CW, ZE_OUT } = SP;
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   // the counterweight's two cable runs for a lift at height z: lift -> pulley, pulley -> weight
   const cables = z => [path([[5.4, 80.5, z + 2.2], [5.4, 80.5, 229]]), path([[2.5, 80.5, 229], [2.5, 80.5, SP.cwZ(z) + CW.h]])];
 

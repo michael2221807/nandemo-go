@@ -48,16 +48,16 @@
   }
   function renderGauges() {
     const h = Math.max(0, Math.min(1, S.heat));
-    I.thermo.innerHTML = `<rect width="3" height="44" rx="1.5" fill="#0b0d11" stroke="var(--line)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x=".6" y="${f(43.4 - h * 42)}" width="1.8" height="${f(h * 42)}" rx=".9" fill="${S.reheating ? '#ff9a3c' : 'var(--red)'}"/>`;
+    { const html = `<rect width="3" height="44" rx="1.5" fill="#0b0d11" stroke="var(--line)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x=".6" y="${f(43.4 - h * 42)}" width="1.8" height="${f(h * 42)}" rx=".9" fill="${S.reheating ? '#ff9a3c' : 'var(--red)'}"/>`; if (I.thermo.__nd !== html) I.thermo.innerHTML = I.thermo.__nd = html; }   // (app build)
     const d = Math.max(0, Math.min(1, S.dashi)) * 46;
-    I.dashiLevel.innerHTML = `<rect width="6" height="48" fill="#0b0d11" stroke="var(--line)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x=".6" y="${f(47.4 - d)}" width="4.8" height="${f(d)}" fill="#b0703a" opacity=".9"/>`;
+    { const html = `<rect width="6" height="48" fill="#0b0d11" stroke="var(--line)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x=".6" y="${f(47.4 - d)}" width="4.8" height="${f(d)}" fill="#b0703a" opacity=".9"/>`; if (I.dashiLevel.__nd !== html) I.dashiLevel.innerHTML = I.dashiLevel.__nd = html; }   // (app build)
     I.heater.classList.toggle('ra-boost', S.reheating);
   }
   function paintDoor() {
     X.tiles.forEach((t, k) => t.querySelector('.soldout').classList.toggle('on', !countOf(MENU[k].pid) || S.dashi <= .02));
     X.prep.classList.toggle('on', S.reheating);
   }
-  const setNixie = n => { const s = String(Math.max(0, Math.min(99, n))).padStart(2, '0'); X.nixie.forEach((el, i) => { el.textContent = s[i]; el.classList.add('on'); }); };
+  const setNixie = n => { const s = String(Math.max(0, Math.min(99, n))).padStart(2, '0'); X.nixie.forEach((el, i) => { if (el.textContent !== s[i]) el.textContent = s[i]; if (!el.classList.contains('on')) el.classList.add('on'); }); };   // (app build)
   const nixieOff = () => X.nixie.forEach(el => el.classList.remove('on'));
   function windowBowl(p) {
     const [sx, sy] = P(...WINDOW);
@@ -213,7 +213,7 @@
   }
   // the shell only, while the camera turns and the insides are not drawn (they are redrawn when they come into view)
   function renderShell() { G.exterior.innerHTML = ''; shell(); }
-  function step(now) { if (now > nextPaint) { nextPaint = now + 400; heatNow(); if (G.interior.style.display !== 'none') renderGauges(); paintDoor(); } }
+  function step(now) { if (now > nextPaint) { nextPaint = now + 400; heatNow(); if (G.interior.style.display !== 'none' && G.interior.style.visibility !== 'hidden') renderGauges(); paintDoor(); } }   // (app build)
   function tap(hit) {
     const t = hit.dataset.hit;
     if (hinge.open || hinge.moving) return false;

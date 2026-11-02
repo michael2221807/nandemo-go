@@ -48,7 +48,7 @@ const ENV = (() => {
     cx2d.stroke();
   }
   function setRain(on) {
-    raining = on; rainUntil = performance.now() + (on ? UTIL.rand(70000, 140000) : UTIL.rand(50000, 100000)); SND.rain(on);
+    raining = on; rainUntil = performance.now() + ND_RAIN.spell(on); SND.rain(on);
     document.getElementById('wx').setAttribute('aria-pressed', on); document.getElementById('wxlabel').textContent = on ? T`雨` : T`晴`;
   }
   function clock() { const d = new Date(); document.getElementById('clock').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }

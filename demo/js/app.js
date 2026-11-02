@@ -8,7 +8,7 @@
   const readEl = $('readout'), hintEl = $('hint'), toastEl = $('toast'), sndBtn = $('snd'), wxBtn = $('wx'), artBtn = $('art'), xBtn = $('xray'), doorBtn = $('opendoor'), resetBtn = $('reset'), trialBtn = $('trialparts');
   const bottom = document.querySelector('.bottombar'), dock = $('dock');
   // yaw 0 = the classic iso view (azimuth 45°); -114..24 spans azimuth -69° (front-left) .. 69° (front-right)
-  const KEY = 'nandemo-v6', LIM_L = -114, LIM_R = 24, SENS = .3;
+  const KEY = 'nandemo-v6', LIM_L = -100, LIM_R = 10, SENS = .3;   // (app build: was -114, 24)
   const MBOX = [0, 0, -6, 120, 84, 252];   // the cabinet with base and lid: what zoomed views orbit around and stay on
   let sold = 0, yen = 0, cam = null, home = null, homeOpen = null, camAnim = 0, xr = 0, xrAnim = 0, msg = '', msgUntil = 0, touched = false, mode = 'shut', cur = 0, sliding = false;
   let yaw = 0, targetYaw = 0, rebuildPending = false, turning = false, yawTweens = 0, lastDetent = 0;
@@ -31,6 +31,11 @@
   // past either end the drag meets a soft stop (at most 7° further), then springs back
   const soft = o => 7 * (1 - Math.exp(-o / 14));
   const rubber = y => y > LIM_R ? LIM_R + soft(y - LIM_R) : y < LIM_L ? LIM_L - soft(LIM_L - y) : y;
+  // (app build) one drag turns at most TRAVEL° (at the finger's own rate up to ¾ of that, then less and less); let go of
+  // while it moves, it goes on FLING_T s of its speed (at most FLING_MAX°, none under FLING_MIN°/s) over FLING_MS; past an
+  // end, into the soft stop, then back over the end by BOUNCE° and back to it (OUT_MS out, BACK_MS back)
+  const TRAVEL = 60, FLING_T = .08, FLING_MAX = 8, FLING_MIN = 15, FLING_MS = 260, BOUNCE = 1.5, OUT_MS = 150, BACK_MS = 420;
+  const reach = d => { const a = TRAVEL * .75, o = Math.abs(d); return o <= a ? d : Math.sign(d) * (a + (TRAVEL - a) * (1 - Math.exp(-(o - a) / (TRAVEL - a)))); };
 
   /* ---------- glyph defs (regenerated when the camera turns) + machines, each in its own root ---------- */
   const defs = svg.querySelector('defs');
@@ -63,6 +68,8 @@
     builtYaw[i] = 0;
     return root;
   });
+  MACHINES.forEach((m, i) => { const f = m.load; if (typeof f === 'function') m.load = function (...a) { const r = f.apply(this, a);
+    if (typeof MTEXT !== 'undefined') MTEXT.apply(Object.values(parts[i])); return r; }; });   // (app build: platform/mtext.js)
   // each machine's size before any upgrade (prices are per size), and upgrade prices moved onto the price ladder
   // a part's price follows its machine's price (2026-10-18; the user: parts may cost more than the machine). The numbers
   // written with each part keep their meaning relative to one another: 30000 = the machine's price. The two machines you
@@ -131,6 +138,7 @@
     ENV.back(back);
     if (shell) { m.renderShell(); insideStale.add(i); } else { m.render(); insideStale.delete(i); }
     ENV.front(front); ZZDECO.apply(m.id, ge); sticker(m.id, ge); figure(m.id, ge);
+    if (typeof MTEXT !== 'undefined') MTEXT.apply(Object.values(parts[i]));   // (app build: platform/mtext.js)
     builtYaw[i] = yaw; drawnSig[i] = ECON.sigOf(m);
     if (i === cur) { CAT.attach(roots[i]); layers(); tagsLayout(); }
   }
@@ -231,6 +239,8 @@
   }
   // set the camera directly (its real viewBox): pinch, pan, turns, resets. Drops any flight transform
   function apply(c) {
+    if (vb && window.TURN && TURN.camLater && TURN.camLater() && (camEl.style.transform || Math.abs(c.w - vb.w) > vb.w * 1e-4)) { cam = c; camLook(); const k = size().W / c.w;   // (app build)
+      camEl.style.transition = 'none'; camEl.style.transform = `translate(${((vb.x - c.x) * k).toFixed(2)}px,${((vb.y - c.y) * k).toFixed(2)}px) scale(${(vb.w / c.w).toFixed(5)})`; clipSync(); return; }
     cam = c; vb = c;
     if (camEl.style.transform) { camEl.style.transition = 'none'; camEl.style.transform = ''; }
     const v = `${c.x.toFixed(2)} ${c.y.toFixed(2)} ${c.w.toFixed(2)} ${c.h.toFixed(2)}`; LAYERS.forEach(l => l.setAttribute('viewBox', v)); camLook(); clipSync();
@@ -283,8 +293,8 @@
     // zoomed in, the camera orbits the point on the machine at the centre of the view; at home it re-frames the machine
     const atHome = cam.w > home.w * .99, focus = atHome ? null : ISO.unproject(cam.x + cam.w / 2, cam.y + cam.h / 2, MBOX);
     // the can / bottle / cup glyphs are re-projected every 4 degrees, not every degree (a 2-degree error is invisible)
-    yaw = y; ISO.setYaw(y); const gb = Math.round(y / 4) * 4; if (gb !== glyphBucket && !turning && !yawTweens) { glyphBucket = gb; glyphDefs(); }
-    clearTimeout(glyphLate); glyphLate = setTimeout(() => { const g4 = Math.round(yaw / 4) * 4;
+    yaw = y; ISO.setYaw(y); const gb = Math.round(y / 4); if (gb !== glyphBucket && !turning && !yawTweens && !(window.TURN && TURN.glyphsLater && TURN.glyphsLater())) { glyphBucket = gb; glyphDefs(); }
+    clearTimeout(glyphLate); glyphLate = setTimeout(() => { const g4 = Math.round(yaw / 4);
       if (g4 !== glyphBucket && view === 'machine' && Math.abs(ISO.yaw - yaw) < .01) { glyphBucket = g4; glyphDefs(); } }, 150);
     rebuild(cur, true); layoutScan(); computeHome();
     if (atHome) apply(home);
@@ -317,6 +327,24 @@
   const tweenYaw = (to, ms = 380) => { const from = turnSess ? targetYaw : yaw; yawTweens++;
     return UTIL.tween(ms, e => queueYaw(from + (to - from) * e), UTIL.ease.out).then(() => turnHandler ? turnEnd(to).then(() => { yawTweens--; })
       : new Promise(r => setTimeout(() => { if (Math.abs(yaw - to) > .05) setYaw(to); yawTweens--; r(); }, 40))); };
+  // (app build) a turn let go of: on a little, or back from beyond an end with a small bounce (TRAVEL above). A finger
+  // down again stops it where it is (glideN), its drag going on from there
+  let glideN = 0, gliding = false;
+  const glide = (f, ms, to) => { const n = ++glideN; gliding = true; yawTweens++;
+    return UTIL.tween(ms, e => { if (n === glideN) queueYaw(f(e)); }, t => t).then(() => { if (n !== glideN) { yawTweens--; return; } gliding = false;
+      return turnHandler ? turnEnd(to).then(() => { yawTweens--; }) : new Promise(r => setTimeout(() => { if (Math.abs(yaw - to) > .05) setYaw(to); yawTweens--; r(); }, 40)); }); };
+  // (the finger's speed, °/s, over its last 100 ms (from the move before them if they are one); none if it rested before
+  // it lifted)
+  const speedOf = (vs = [], now = performance.now()) => { const n = vs.length, b = vs[n - 1]; if (n < 2 || now - b[0] > 60) return 0;
+    let i = n - 2; while (i > 0 && now - vs[i - 1][0] < 100) i--; const a = vs[i]; return now - a[0] < 200 && b[0] > a[0] ? (b[1] - a[1]) / (b[0] - a[0]) * 1000 : 0; };
+  function fling(y0, v) {
+    const inside = y0 >= LIM_L && y0 <= LIM_R, go = inside && Math.abs(v) >= FLING_MIN ? Math.max(-FLING_MAX, Math.min(FLING_MAX, v * FLING_T)) : 0, to = window.TURN && TURN.settle ? TURN.settle(y0 + go) : y0 + go, end = clampYaw(to);
+    if (to === end) return Math.abs(to - y0) > .05 ? glide(e => y0 + (to - y0) * UTIL.ease.out(e), FLING_MS, to) : turnHandler && turnSess ? turnEnd(to) : Promise.resolve();
+    // (past the end: as far into the soft stop as it had still to go, then back, over the end by a little, and to it)
+    const peak = go ? rubber(to) : y0, s = Math.sign(peak - end), b = Math.min(BOUNCE, Math.abs(peak - end) / 2), k = go ? OUT_MS / (OUT_MS + BACK_MS) : 0, io = UTIL.ease.inOut;
+    const back = u => u < .6 ? peak + (end - s * b - peak) * io(u / .6) : end - s * b + s * b * io((u - .6) / .4);
+    return glide(e => e < k ? y0 + (peak - y0) * UTIL.ease.out(e / k) : back((e - k) / (1 - k)), (go ? OUT_MS : 0) + BACK_MS, end);
+  }
 
   /* ---------- machine switching ---------- */
   const figNo = $('figNo'), figName = $('figName'), dots = $('dots');
@@ -343,12 +371,12 @@
   async function switchTo(i, dir) {
     if (sliding || mode !== 'shut' || M().doorMoving || trial) return;
     if (i === cur || !(i >= 0)) return;
-    sliding = true; if (window.TURN && TURN.coming) TURN.coming(i); if (xr > 0) await xray(false, 300);
+    sliding = true; if (window.TURN && TURN.coming) TURN.coming(i, dir); if (xr > 0) await xray(false, 300);
     if (stale.has(i)) freshen(i); else if (builtYaw[i] !== yaw) rebuild(i);
     const from = roots[cur], to = roots[i], d = cam.w * 1.05 * dir;
     to.show(true); SND.lift(); UTIL.haptic(8);
     flyTo(home, 300);
-    await UTIL.tween(520, e => { from.setAttribute('transform', `translate(${(-d * e).toFixed(1)} 0)`); to.setAttribute('transform', `translate(${(d * (1 - e)).toFixed(1)} 0)`); }, UTIL.ease.inOut);
+    await UTIL.tween(520, e => { from.setAttribute('transform', `translate(${(-d * e).toFixed(1)} 0)`); to.setAttribute('transform', `translate(${(d * (1 - e)).toFixed(1)} 0)`); if (window.TURN && TURN.slid) TURN.slid(+(-d * e).toFixed(1)); }, UTIL.ease.inOut);
     showMachine(i); sliding = false; save();
   }
   $('prevM').addEventListener('click', () => { firstGesture(); stepMachine(-1); });
@@ -360,10 +388,11 @@
   artBtn.addEventListener('click', () => { firstGesture(); setArt(device.dataset.art === 'zzz' ? 'iso' : 'zzz'); SND.switchOn(); save(); });
 
   /* ---------- door + dock ---------- */
+  let doorFlow = false;   // (app build: __ND.doorFlow)
   async function openDoor() {
     if (trial) { say(trial.preview ? T`试装时不开门 · 先买下或拆下` : T`试运转时不开门补货 · 买下这台机器就可以`, 2600); SND.buzz(); return; }
     if (mode !== 'shut' || M().doorMoving || sliding) return;
-    mode = 'opening'; ui();
+    mode = 'opening'; doorFlow = true; ui();
     if (xr > 0) await xray(false, 450);
     if (M().prepare) M().prepare();
     if (M().isBusy && M().isBusy()) { say(T`等这一单卖完…`, 2400); while (M().isBusy()) await UTIL.wait(120); }
@@ -406,7 +435,7 @@
     // longest frame of a restock), and only once the door's thud has settled
     // (v0.44) during 全部补货 the camera leaves for the next machine at once: this one is redrawn when it is next seen
     if (redrawOnClose) { redrawOnClose = false; if (ECON.sigOf(M()) !== drawnSig[cur]) { if (allRun) builtYaw[cur] = NaN; else { await UTIL.wait(240); rebuild(cur); } } }
-    mode = 'shut';
+    mode = 'shut'; doorFlow = false;
     ui(); save();
   }
 
@@ -666,11 +695,12 @@
   $('upg').addEventListener('click', e => { if (e.target === $('upg') || e.target.closest('.upg-x')) { closePart(); SND.pop(); } });
   $('upg-go').addEventListener('click', () => { firstGesture(); if (trial && trial.preview) { closePart(); buyPreview(); } else installPart(); });
   $('upg-try').addEventListener('click', () => { firstGesture(); const id = partOpen; closePart(); startPreview(id); });
+  let partFlow = false;   // (app build: __ND.partFlow)
   async function installPart() {
     const m = M(), id = partOpen, p = id && UPG.part(m, id), nx = id && UPG.next(m, id);
     if (!nx || mode !== 'shut' || sliding) return;
     if (!trial && !ECON.spend(nx.cost)) { closePart(); say(T`钱还不够`, 2000); return; }
-    closePart(); mode = 'opening'; ui();   // nothing else starts during the ceremony
+    closePart(); mode = 'opening'; partFlow = true; ui();   // nothing else starts during the ceremony
     while (m.isBusy && m.isBusy()) await UTIL.wait(120);
     if (xr < .5) await xray(true, 500);
     // the camera leans in toward the spot
@@ -687,7 +717,7 @@
     setTimeout(() => SND.chime(), 220);
     toast(trial ? T`试装 · ${p.name} · ${nx.effect}` : T`改造完成 · ${p.name} · ${nx.effect}`, 4200);
     await UTIL.wait(1300);
-    mode = 'shut'; await flyTo(back.w > home.w * .99 ? home : clamp(back), 600);
+    mode = 'shut'; partFlow = false; await flyTo(back.w > home.w * .99 ? home : clamp(back), 600);
     if (trial) { trialParts(); ui(); return; }
     ALBUM.refresh(); refreshStreet(); shopDot(); ui(); save();
   }
@@ -788,32 +818,64 @@
   ['st-carry-card', 'news', 'st-receipt', 'st-neko', 'ask-notif', 'sys-alert', 'settings', 'phone', 'pay-sheet', 'store-sheet'].forEach(id => new MutationObserver(() => { if (!cardOpen()) { cardGap = performance.now() + 1100; setTimeout(pumpCards, 1200); } })
     .observe($(id), { attributes: true, attributeFilter: ['hidden'] }));
 
-  /* ---------- the guide: one line, the one thing to do next; done, the next. Up close it is the hint line under the
-     buttons, on the street a bubble under the wallet. It runs once (a street saved before it existed skips it) ---------- */
-  let guide = { done: [], end: false }, guideLine = '', guideLeave = 0, tapSales = 0, restocks = 0;
+  /* ---------- the guide (app build: platform/tutorial.js draws it; the owner 2026-11-01, testers found no way in). One
+     step at a time, in order: a step is done when its test says so (or the player taps 知道了 / its button), the next one
+     shows where it belongs; on the wrong screen a pointer leads there. Then, once each, a tip the first time a thing is
+     there to use. Saved in `guide` (done, end, tips); a street saved before the guide existed has played it ---------- */
+  let guide = { done: [], end: false }, guideLine = '', tapSales = 0, restocks = 0;
+  const q = s => document.querySelector(s);
+  // (the street's machines and lots in page order are not left to right, and the street is wider than a phone: on the
+  // owner's iPhone the first one was the rightmost, half off screen, 2026-11-02) the one most on screen, the leftmost of
+  // those wholly on it
+  const onScreen = sel => { let best = null, bs = -1;
+    document.querySelectorAll(sel).forEach(el => { const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+      const w = Math.max(0, Math.min(r.right, innerWidth) - Math.max(r.left, 0)), h = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
+      const k = w * h / (r.width * r.height), sc = k > .98 ? 2 - r.left / innerWidth / 10 : k; if (sc > bs) { bs = sc; best = el; } });
+    return bs > 0 ? best : null; };
   const GUIDE = [
-    { id: 'enter', at: 'street', t: T`点一台机器，进去看看`, done: () => view === 'machine' },
-    { id: 'tap', at: 'machine', t: T`点机器招呼客人 · 点得越快，卖得越快`, done: () => tapSales >= 3 },
-    { id: 'restock', at: 'machine', t: T`卖空了 · 点「开门码货」补货`, when: () => out(M()) && mode === 'shut', done: () => restocks > 0, pulse: 'opendoor' },
-    { id: 'back', at: 'machine', t: T`补好了 · 点左上角「‹ 街」回街上看看`, when: () => restocks > 0 && mode === 'shut', done: () => restocks > 0 && view === 'street', pulse: 'tostreet' },
-    { id: 'scarf', at: 'street', t: T`图鉴里有一条红围巾等你领 · 领了给ミケ戴上`, when: () => COLLECT.claimable().length > 0, done: () => COLLECT.owns('scarf-red') },
-    { id: 'feed', at: 'street', t: T`点一下ミケ，送她一包小鱼干`, when: () => NEKO.foodOpen(NEKO.FOODS[0]), done: () => NEKO.state('mike').fed > 0 },
-    { id: 'leave', at: 'street', t: T`放着它们也会自己卖 · 过几个小时回来看看`, when: () => GUIDE.every(g => g.id === 'leave' || guide.done.includes(g.id)) },
+    { id: 'welcome', at: 'street', card: true },
+    { id: 'enter', no: 1, at: 'street', el: () => [onScreen('#street-svg .st-m')], done: () => view === 'machine' },
+    { id: 'tap', no: 2, at: 'machine', tap: true, when: () => mode === 'shut' && !trial && xr < .5, n: () => Math.min(tapSales, 5), done: () => tapSales >= 5 },
+    { id: 'door', no: 3, at: 'machine', when: () => mode === 'shut' && !trial && xr < .5, el: () => [$('opendoor')], done: () => restocks > 0 || doorFlow },
+    { id: 'load', no: 4, at: 'machine', when: () => mode === 'open', el: () => [$('pourall')], byTap: true, done: () => restocks > 0 || M().count() >= M().capacity },
+    { id: 'close', no: 4, at: 'machine', when: () => mode === 'open', el: () => [$('closedoor')], done: () => restocks > 0 },
+    { id: 'back', no: 5, at: 'machine', when: () => mode === 'shut', el: () => [$('tostreet')], done: () => view === 'street' },
+    { id: 'goal', no: 6, at: 'street', el: () => [q('#st-wallet .st-goal:not([hidden])') || $('st-wallet'), onScreen('#street-svg .st-lot.locked') || onScreen('#street-svg .st-lot')], ok: true },
+    { id: 'leave', no: 7, at: 'street', ok: true },
+  ];
+  // (on the other screen than the step: back to the street, or into a machine)
+  const AWAY = { street: { id: 'to-street', el: () => [$('tostreet')] }, machine: { id: 'to-machine', el: () => [onScreen('#street-svg .st-m')] } };
+  const TIPS = [
+    { id: 'lot', at: 'street', when: () => ECON.lots().some((id, g) => ECON.lotOpen(g) && !id), el: () => [onScreen('#street-svg .st-lot:not(.locked)')] },
+    { id: 'upgrade', at: 'machine', when: () => mode === 'shut' && !trial && xr < .5 && UPG.affordable(M(), ECON.bank), el: () => [xBtn] },
+    { id: 'lineup', at: 'machine', when: () => mode === 'shut' && !trial && shopBtn.classList.contains('new'), el: () => [shopBtn] },
+    { id: 'restockall', at: 'street', when: () => { const b = $('st-restock'); return !b.classList.contains('locked') && !b.classList.contains('idle'); }, el: () => [$('st-restock')] },
+    { id: 'album', at: 'street', when: () => COLLECT.claimable().length > 0, el: () => [$('st-albumbtn')] },
+    { id: 'feed', at: 'street', when: () => NEKO.foodOpen(NEKO.FOODS[0]) && !NEKO.state('mike').fed, el: () => [onScreen('#street-svg .nk-cat[data-cat="mike"]')] },
+    { id: 'street2', at: 'street', when: () => ECON.streetN() > 1, el: () => [$('st-street')] },
   ];
   function guideTick() {
     guideLine = '';
-    if (guide.end) { $('st-guide').hidden = true; return; }
-    GUIDE.forEach(g => { if (g.done && !guide.done.includes(g.id) && g.done()) guide.done.push(g.id); });
-    const g = GUIDE.find(x => !guide.done.includes(x.id) && x.at === view && (!x.when || x.when())), quiet = cardOpen() || allRun || STREET.dining;
-    if (view === 'machine' && g) guideLine = g.t;
-    const bubble = $('st-guide'), show = view === 'street' && !!g && !quiet;
-    if (show && bubble.textContent !== g.t) { bubble.textContent = g.t; UTIL.restart(bubble, 'pop'); }
-    bubble.hidden = !show;
-    ['opendoor', 'tostreet'].forEach(id => $(id).classList.toggle('guide-pulse', view === 'machine' && !!g && g.pulse === id));
-    $('st-albumbtn').classList.toggle('guide-pulse', view === 'street' && !!g && g.id === 'scarf' && !quiet);
-    // the last line stays a while, then the guide is done for good
-    if (g && g.id === 'leave' && show) { if (!guideLeave) guideLeave = performance.now() + 9000; else if (performance.now() > guideLeave) { guide.done.push('leave'); guide.end = true; bubble.hidden = true; save(); } }
+    if (!guide.tips) guide.tips = [];
+    const quiet = cardOpen() || allRun || STREET.dining || mode === 'opening' || mode === 'closing' || sliding;
+    let g = null, tip = null;
+    if (!guide.end) {
+      let cur;
+      while ((cur = GUIDE.find(x => !guide.done.includes(x.id))) && cur.done && cur.done()) guide.done.push(cur.id);
+      if (!cur) guide.end = true;
+      else if (cur.at !== view) g = { ...AWAY[cur.at], no: cur.no, away: true };
+      else if (!cur.when || cur.when()) g = cur;
+    } else if (view === 'street' || view === 'machine') tip = TIPS.find(x => !guide.tips.includes(x.id) && x.at === view && x.when()) || null;
+    $('st-guide').hidden = true;
+    if (window.TUT) TUT.show(g, tip, quiet, view);
   }
+  window.__NDGUIDE = {
+    done(id) { if (!guide.done.includes(id)) guide.done.push(id); if (id === 'leave') guide.end = true; save(); ui(); },
+    skip() { guide.done = GUIDE.map(x => x.id); guide.end = true; save(); ui(); },
+    replay() { guide.done = []; guide.end = false; tapSales = 0; restocks = 0; save(); ui(); },
+    tip(id) { if (!guide.tips) guide.tips = []; if (!guide.tips.includes(id)) guide.tips.push(id); save(); },
+    get end() { return guide.end; },
+  };
   // the next thing to look forward to: the soonest of a price step, a cat coming visiting, a lot, the warehouse
   // demo only: a new street from scratch, to see the first 15 minutes again (tap twice: the first tap only asks)
   let fresh = false;   // set while the page reloads into a new street: nothing may save the old one back
@@ -939,13 +1001,15 @@
     try { camEl.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     if (pts.size === 1) {
       const onHandle = !!(e.target.closest && e.target.closest('#scanHandle'));
-      down = { x: e.clientX, y: e.clientY, t: performance.now(), target: e.target, moved: false, used: false, scan: onHandle, kind: null, yaw0: yaw };
+      down = { x: e.clientX, y: e.clientY, t: performance.now(), target: e.target, moved: false, used: false, scan: onHandle, kind: null, yaw0: yaw, glid: gliding };
+      if (gliding) { glideN++; gliding = false; down.yaw0 = targetYaw; if (turnHandler && turnSess) turnHandler({ type: 'start', yaw: targetYaw }); }   // (app build: a fling or a bounce under way, stopped there)
       if (onHandle) { xrAnim++; return; }
       clearTimeout(lpTimer); lpTimer = setTimeout(() => { if (down && !down.moved) down.used = longPress(down.target); }, 480);
     } else if (pts.size === 2) {   // two fingers: pinch to zoom, move them together to pan
       clearTimeout(lpTimer); if (down) { down.moved = true; down.kind = 'pinch'; }
       const [a, b] = [...pts.values()], r = stageRect();
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), cam: { ...cam }, mx: (a.x + b.x) / 2 - r.left, my: (a.y + b.y) / 2 - r.top };
+      if (window.TURN && TURN.pinch) pinch.t3d = TURN.pinch('start', pinch);   // (app build: the shell may draw it, platform/turn.js)
     }
   };
   // (v0.44) on #cam: a touch on the shell or the top layer lands there, not on the stage under them
@@ -971,7 +1035,7 @@
       if (down.wantTurn && !down.kind && canTurn()) { down.kind = 'turn'; down.x = e.clientX; down.yaw0 = yaw; turning = true; camEl.classList.add('dragging'); return; }   // (app build: from this point on)
       if (down.kind === 'pan') apply(clamp({ ...cam, x: cam.x - (e.clientX - prev.x) * k, y: cam.y - (e.clientY - prev.y) * k }));
       else if (down.kind === 'panv') apply(clamp({ ...cam, y: cam.y - (e.clientY - prev.y) * k }));
-      else if (down.kind === 'turn') queueYaw(rubber(down.yaw0 + dx * SENS));
+      else if (down.kind === 'turn') { const y = rubber(down.yaw0 + reach(dx * SENS)); (down.vs || (down.vs = [])).push([performance.now(), y]); if (down.vs.length > 16) down.vs.shift(); queueYaw(y); }   // (app build: reach, the speed's samples)
     } else if (pts.size === 2 && pinch) {
       const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2 - r.left, my = (a.y + b.y) / 2 - r.top, c0 = pinch.cam;
       // the world point first under the fingers' midpoint stays under it while they spread and move
@@ -980,17 +1044,19 @@
     }
   });
   // (app build) the pinch on #cam's transform: the picture of the real viewBox (vb) scaled onto c, as flyTo does
-  function pinchTo(c) { if (!vb) { apply(c); return; } cam = c; camLook(); const k = size().W / c.w;
+  // (the shell drawing the pinch, pinch.t3d: only where the camera is; the viewBox once, at the end)
+  function pinchTo(c) { if (pinch && pinch.t3d) { cam = c; camLook(); return; } if (!vb) { apply(c); return; } cam = c; camLook(); const k = size().W / c.w;
     camEl.style.transition = 'none'; camEl.style.transform = `translate(${((vb.x - c.x) * k).toFixed(2)}px,${((vb.y - c.y) * k).toFixed(2)}px) scale(${(vb.w / c.w).toFixed(5)})`; }
   const end = e => {
     if (!pts.has(e.pointerId)) return;
     pts.delete(e.pointerId); clearTimeout(lpTimer); clearInterval(holdIv); camEl.classList.remove('dragging');
-    if (pts.size < 2 && pinch) { pinch = null; commitCam(); }   // (app build: the viewBox once, at the end)
+    if (pts.size < 2 && pinch) { const t3d = pinch.t3d; pinch = null; commitCam(); if (t3d) TURN.pinch('end', cam); }   // (app build: the viewBox once, at the end)
     if (pts.size === 0 && down) {
       if (down.pet) CAT.petEnd();
       if (down.scan) { if (xr > .5) CAT.xray(); ui(); }
-      else if (down.kind === 'turn') { turning = false; const t = clampYaw(window.TURN && TURN.settle ? TURN.settle(targetYaw) : targetYaw); if (Math.abs(t - targetYaw) > .01) tweenYaw(t, 360); else if (turnHandler) turnEnd(t); save(); }
-      else if (!down.moved && !down.used && e.type === 'pointerup' && performance.now() - down.t < 700) tap(down.target, down.x, down.y);
+      else if (down.kind === 'turn') { turning = false; if (turnHandler && turnSess) turnHandler({ type: 'up', yaw: targetYaw }); fling(targetYaw, speedOf(down.vs)).then(() => save()); }   // (app build: was a spring back, 360 ms ease out; the shell told the finger's gone)
+      else if (!down.moved && !down.used && e.type === 'pointerup' && performance.now() - down.t < 700 && Math.hypot(e.clientX - down.x, e.clientY - down.y) <= 7 && !turning && !yawTweens) tap(down.target, down.x, down.y);   // (app build: a quick swipe is no tap)
+      if (down.glid && down.kind !== 'turn') fling(targetYaw, 0);   // (app build: a fling stopped by a tap, ended where it stopped)
       down = null;
     }
   };
@@ -1043,7 +1109,7 @@
           : `<p class="lg-h">${T`商品、品牌和猫的名字`}</p><div class="lg-row two">`
             + `<button type="button" class="lg-opt${!full ? ' on' : ''}" data-f="0"><b>${T`原汁原味`}</b><small>${SAMPLE.jp}</small></button>`
             + `<button type="button" class="lg-opt${full ? ' on' : ''}" data-f="1"><b>${T`全部翻译`}</b><small>${SAMPLE[l]}</small></button></div>`)
-        + `<p class="lg-note">${T`机器和招牌上画的字永远是日文：那是这条街本来的样子。`}</p>`;
+        + `<p class="lg-note">${T`选「原汁原味」时，街上招牌画的字保留日文：那是这条街本来的样子。`}</p>`;
     };
     $('lang-sheet').onclick = e => {
       const b = e.target.closest('button');
@@ -1170,6 +1236,7 @@
     MACHINES.forEach((_, i) => { builtYaw[i] = NaN; });
     queueReceipt(({ away: T`${h} 小时（快进）`, n: r.count, yen: r.money, firsts: r.firsts, sets: [], refills: r.refills, empty: r.empty, paws: r.paws, lucky: r.lucky, stocked: r.stocked, tips: r.tips, busy: r.busy, bulk: r.bulk }));
     refreshStreet(); streetGoods(); setTimeout(seriesCheck, 900); save();
+    if (view === 'machine') rebuild(cur);
   }
 
   /* ---------- 全部补货: every machine that needs it, one after another, with the real restock sped up ×6 but whole —
@@ -1188,7 +1255,7 @@
     const all = actIdx().filter(i => needs(MACHINES[i])), list = all.filter(i => stOf(i) === curSt), rest = all.filter(i => stOf(i) !== curSt);
     if (!all.length) { note(T`都是满的`, 2000); return; }
     const others = [...new Set(rest.map(i => ECON.STREETS[stOf(i)].name))];
-    allRun = true; introDone = true; allSkip = false; $('allrun').hidden = false; allSpeed = 6 * devSpeed * skipX();
+    allRun = true; introDone = true; allSkip = false; $('allrun').hidden = false; allSpeed = 1.5 * devSpeed * skipX();
     device.classList.add('keep-street');   // (v0.46) the street stays laid out under the machines (index.html)
     const bank0 = ECON.bank;
     try {
@@ -1199,7 +1266,7 @@
         if (cur !== i) continue;
         await openDoor(); if (mode !== 'open') continue;
         // the crates go in faster than the doors and the camera move (×14 against ×6)
-        const m = M(); allSpeed = 14 * devSpeed * skipX(); await DOCK.fillUp(() => mode === 'open' && !allSkip, () => m.count() >= m.capacity); allSpeed = 6 * devSpeed * skipX();
+        const m = M(); allSpeed = 1.5 * devSpeed * skipX(); await DOCK.fillUp(() => mode === 'open' && !allSkip, () => m.count() >= m.capacity); allSpeed = 1.5 * devSpeed * skipX();
         await UTIL.wait(250); await closeDoor();
         if (allSkip) { instantFill(list.slice(n).concat(rest).map(k => MACHINES[k])); rest.length = 0; break; }   // (this one's shelves are finished too)
         if (DOCK.poor) break;
@@ -1241,7 +1308,7 @@
     $('lots-s').textContent = here ? T`换一台？换下来的机器连货带改造收起来，随时免费换回。` : T`摆哪一台？收着的机器免费，新机器要买。`;
     const offer = ECON.offers();
     $('lots-list').innerHTML = MACHINES.filter(m => (window.__ndTrial && !__ndTrialOk(m.id)) || ECON.owns(m.id) || openNow(m) || offer.includes(m.id)).map(m => {
-      const at = lots.indexOf(m.id), owned = ECON.owns(m.id), price = ECON.priceOf(m.id), c = STREET.SKIN[m.id] || {};
+      const at = lots.indexOf(m.id), owned = ECON.owns(m.id), price = ECON.priceOf(m.id);
       let tag, cls = '', ok = true;
       if (window.__ndTrial && !__ndTrialOk(m.id)) { tag = __ndTrialLot(); ok = false; cls = 'far'; }
       else if (at === j) { tag = T`在这里`; ok = false; cls = 'here'; }
@@ -1253,7 +1320,7 @@
       // (v0.46) machines that suit this street come first in their group, with a tag
       const fit = ECON.suits(m.goods.kind, st);
       return { o: window.__ndTrial && !__ndTrialOk(m.id) ? 100 + Math.log10(price + 1) : (at === j ? -1 : at >= 0 ? 0 : owned ? 1 : locked(m) ? 99 : 2 + Math.log10(price + 1)) - (fit ? .5 : 0),
-        h: `<li><button type="button" class="lot-row ${cls}" data-id="${m.id}"${ok ? '' : ' disabled'}><i class="sw" style="background:${c.body};border-color:${c.side}"></i><b>${m.brand}${fit ? `<i class="lot-fit">${T`駅前向き`}</i>` : ''}</b><span>${(p => `${p.tag} · ${p.line}`)(ECON.personaLine(m.goods.kind, st))}</span><em>${tag}</em></button></li>` };
+        h: `<li><button type="button" class="lot-row ${cls}" data-id="${m.id}"${ok ? '' : ' disabled'}><span class="lot-art"><svg viewBox="-8 440 116 228" aria-hidden="true">${STREET.art(m.id)}</svg></span><b>${m.brand}${fit ? `<i class="lot-fit">${T`駅前向き`}</i>` : ''}</b><span>${(p => `${p.tag} · ${p.line}`)(ECON.personaLine(m.goods.kind, st))}</span><em>${tag}</em></button></li>` };
     }).sort((a, b) => a.o - b.o).map(r => r.h).join('') + `<li class="lot-more">${T`今日の入荷 · 明天会换几台`}</li>`;
     $('st-lots').hidden = false;
   }
@@ -1474,9 +1541,13 @@
   }
 
   window.__ND = { get cur() { return cur; }, get view() { return view; }, get mode() { return mode; }, get xr() { return xr; }, save: () => save(),
-    get cam() { return cam; }, get home() { return home; }, get yaw() { return yaw; }, SENS,
+    get cam() { return cam; }, get home() { return home; }, get yaw() { return yaw; }, SENS, TRAVEL,
+    // (the angle a turn is at now: its target while one goes on (a fling still gliding), the drawn one at rest)
+    get turnYaw() { return turnSess ? targetYaw : yaw; },
     // (turning with pictures, platform/turn.js and renderer.js: the save as it stands, the camera, any angle quietly)
     state: () => snapshot(), setCam: c => { apply(clamp({ ...c })); },
+    // (the pinch drawn natively, platform/turn.js: clamp()'s inputs, so the shell keeps the camera where the game would)
+    clampInfo: () => ({ base: baseView(), B: machineBounds(), insets: insets(), W: size().W, H: size().H }),
     // the home camera and the zoomed one at angle y, from the camera now, nothing drawn (zoomed in, a turn orbits the
     // point at the centre of the view; at home every angle frames the machine): setYaw's two cameras
     // (from: the camera and angle a turn started from, so a turn ends as it began)
@@ -1486,7 +1557,16 @@
       } finally { ISO.setYaw(yaw); } },
     shot(y) { quietTurn = true; try { setYaw(y); } finally { quietTurn = false; } },
     // (the turning pictures of the X-ray, platform/renderer.js: scanned all the way at once, no sweep)
-    setXr(v) { xrAnim++; setScan(v); } };   // (app build)
+    setXr(v) { xrAnim++; setScan(v); },
+    // (the glyphs at the angle now, if setYaw left them for later: platform/turn.js, full 3D)
+    glyphsNow() { const gb = Math.round(yaw / 4); if (gb !== glyphBucket) { glyphBucket = gb; glyphDefs(); } },
+    // (the door being opened, open or being closed for a restock, from its first step to the last: platform/turn.js,
+    // full 3D; mode 'opening' alone is any ceremony's, the 改造's too)
+    get doorFlow() { return doorFlow; },
+    // (an upgrade being fitted, the 改造 ceremony, from the X-ray and the camera in to the camera back: platform/turn.js)
+    get partFlow() { return partFlow; },
+    // (the real viewBox brought up to the camera, as the shell lets the page draw its machine again: apply, below)
+    commitCam: () => commitCam() };   // (app build)
 
   /* ---------- prototype-only test hook (2026-10-18, the economy re-run): a scripted player drives the real code — the
      away replay, 全部补货 (sped up), buying machines and parts — without the UI. Not part of the game ---------- */

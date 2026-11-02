@@ -59,7 +59,7 @@
     X.rows.forEach(r => r.querySelector('.soldout').classList.toggle('on', !countShelf(+r.dataset.k) || d));
     X.defrost.classList.toggle('on', d);
     const e = d ? 1 - (S.defrostUntil - Date.now()) / S.defrostMs : 0, t = Math.round(-25 + 20 * Math.sin(Math.PI * Math.min(1, e)));
-    X.temp.textContent = `${t < 0 ? '−' : ''}${Math.abs(t)}℃`;
+    { const tt = `${t < 0 ? '−' : ''}${Math.abs(t)}℃`; if (X.temp.textContent !== tt) X.temp.textContent = tt; }   // (app build)
     X.fr.forEach((el, i) => el.classList.toggle('on', fr > i / 5 + .01));
     if (I) I.heater.classList.toggle('on', d);
   }
@@ -145,7 +145,7 @@
   }
   // meltwater: a drop from the evaporator into the pan, only while defrosting and only when the insides are drawn
   function drip() {
-    if (!I || G.interior.style.display === 'none') return;
+    if (!I || G.interior.style.display === 'none' || G.interior.style.visibility === 'hidden') return;   // (app build)
     const c = UTIL.el('circle', { r: .9, fill: 'rgba(170,220,255,.85)' }, I.drips), x = 12 + Math.random() * 70;
     UTIL.tween(520, e => { const q = P(x, 12, 52 - 46 * e * e); c.setAttribute('cx', f(q[0])); c.setAttribute('cy', f(q[1])); }, t => t).then(() => c.remove());
   }

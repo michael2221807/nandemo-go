@@ -40,7 +40,7 @@
   }
   const renderAll = () => { renderMag(0); renderMag(1); renderCol(); renderTrays(); };
   function paintDoor() { X.tiles.forEach(t => t.querySelector('.soldout').classList.toggle('on', !S.q[+t.dataset.k].length)); }
-  const setNixie = n => { const s = String(Math.max(0, Math.min(99, n))).padStart(2, '0'); X.nixie.forEach((el, i) => { el.textContent = s[i]; el.classList.add('on'); }); };
+  const setNixie = n => { const s = String(Math.max(0, Math.min(99, n))).padStart(2, '0'); X.nixie.forEach((el, i) => { if (el.textContent !== s[i]) el.textContent = s[i]; if (!el.classList.contains('on')) el.classList.add('on'); }); };   // (app build)
   const nixieOff = () => X.nixie.forEach(el => el.classList.remove('on'));
   // in the window: the packet as it drops in, then opened so you see what you got (the curry is served open already)
   const DONE = ['g-foil-hot', 'g-foil-hot', 'g-bbox', 'g-tray-c'], OPEN = ['g-toast-open', 'g-toast-open', 'g-bbox-open', 'g-tray-c'];

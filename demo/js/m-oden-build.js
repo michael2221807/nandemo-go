@@ -89,7 +89,7 @@ const ODB = (() => {
     const jug = `<g id="g-od-jug"><path d="M-5 0q-1-8 1-11h8q2 3 1 11q-5 1.4-10 0z" fill="#e8e0cc" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><path d="M-4.2 -11v-2.4h8.4v2.4" fill="#c9d0da" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><path d="M5 -9q3 0 3 3t-3 3" fill="none" stroke="#c9d0da" stroke-width="1.4"/><rect x="-3.6" y="-8" width="7.2" height="4.4" rx="1" fill="#2a3a6a"/><text x="0" y="-4.7" font-size="3.2" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">だし</text></g>`;
     return pack + jug;
   }
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 
   /* ---------- the pot ---------- */
   // the pot, its broth at level l, the dividers at rotation rot (the pieces are <use>s the machine places on top);

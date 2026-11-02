@@ -55,7 +55,7 @@ const JUB = (() => {
   }
   // the menu tiles' fruit (door-local units)
   const tileFruit = (x, y, p, r = 4.4) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${p.fruit}" stroke="rgba(0,0,0,.4)" stroke-width=".6" vector-effect="non-scaling-stroke"/><circle cx="${f(x - r * .34)}" cy="${f(y - r * .38)}" r="${f(r * .28)}" fill="#fff" opacity=".45"/><path d="M${x} ${y - r}q2-2.4 4-1.4" fill="none" stroke="#4a8a2a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   const PEEL_W = [30, 38, 44];   // the peel bin grows wider with each level
 
   /* ---------- the inside. lv: fitted parts { bin, press, hopper } ---------- */

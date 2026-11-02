@@ -196,7 +196,7 @@ const PBB = (() => {
     const tub = `<g id="g-pb-dough"><path d="M-7 0l-1-11h16l-1 11z" fill="#e6eef6" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><ellipse cx="0" cy="-11" rx="8" ry="2.2" fill="#f2e2c0" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x="-5" y="-8" width="10" height="4.4" rx="1" fill="#c97c2c"/><text x="0" y="-4.8" font-size="3.2" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">生地</text></g>`;
     return pack + tub;
   }
-  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
+  const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 
   /* ---------- the belt: its top as a dark strip with slats that move ---------- */
   function belt(off) {

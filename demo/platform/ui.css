@@ -1,0 +1,67 @@
+/* The app's own interface, in its own sheet: platform.css and the page's <style> are part of the hash the turning
+   pictures baked into the app are checked against (tools/build_www.py bake_hashes); nothing here draws a machine. */
+
+/* 换一台机器 (the lot's list of machines): each machine as the album's 机器 page draws it, where the prototype had a
+   block of its body colour (the owner, 2026-10-25). app.js openLots, build patch */
+.lot-row{grid-template-columns:28px 1fr auto}
+.lot-row .lot-art{grid-column:1;grid-row:1/span 2;width:28px;height:55px}   /* (a span: .lot-row span puts spans in column 2) */
+.lot-row .lot-art svg{display:block;width:100%;height:100%}
+
+/* 新货到了 card: the green badges (.news-s b: the % more a new good earns, the ×10 of a price step; a 2 px border and
+   padding round a 15 px figure) were inline boxes, so they did not make their line taller: when the sentence wrapped
+   and a badge began the next line it covered the line above (the owner's play test 10-27, and again 11-01: the fix of
+   10-27 was on the play-test branch, PR #2, never merged into this one). As inline blocks they take the room they
+   need, in any language and at any width; and kept whole, a figure and its % never split over two lines */
+.news-s b{display:inline-block;line-height:1.15;vertical-align:middle;margin:2px 0;white-space:nowrap}
+
+/* a turn the shell draws in 3D (platform/turn.js 'native', Turn3D.swift): the page's own machine out meanwhile, its
+   cats with it (the model has none yet). (Here, not in platform.css: that one counts for the baked pictures' hash)
+   Not in full 3D, where it is see-through already: hidden and shown again, every element of the machine was restyled
+   at the start and at the end of each turn and pinch, 86 ms each at Chromium's 4× slowdown, 2026-10-30 */
+.device.nd-t3d:not(.nd-t3d-full) .mroot:not(.off) { visibility: hidden !important; }
+/* full3d: the shell draws the machine at rest too; the page's stays, unseen, for the taps (turn.js t3dHoldTick).
+   Hidden, not see-through: at opacity 0 the phone still painted it whenever anything on it moved, 0.3 s a frame through
+   a sale in 霓虹 (its glows), and the page fell to 28–34 fps at rest there, 2026-10-30. Hidden things take no taps, so
+   the machine takes them where it is painted, as before (auto/visiblePainted then, painted now) */
+/* (but the machine coming as ‹ › slides, drawn by the page while the shell's slides out: turn.js T.coming, nd-t3d-web) */
+.device.nd-t3d-full .mroot:not(.off):not(.nd-t3d-web) { visibility: hidden !important; pointer-events: painted !important; }
+/* …except what was hidden before too and took none: the insides of a shut machine and the X-ray's ghost (app.js layers,
+   inline), the shell under a full X-ray (#xr-ext) and the ghost layer with no X-ray (#xr-ghost), index.html. Said always,
+   the same without full 3D (hidden, they take no taps there either): said with nd-t3d-full, they made each turn of it on
+   and off restyle the whole machine, 160–400 ms at Chromium's 4× slowdown, against 10 ms see-through */
+.g-int[style*="visibility: hidden"], .g-ghost[style*="visibility: hidden"] { pointer-events: none; }
+.device.xr-full #xr-ext .mroot:not(.off), .device:not(.xr-any) #xr-ghost .mroot:not(.off) { pointer-events: none !important; }
+/* (and a clip's shapes, never painted themselves, visible: hidden, they clip all away, taps too; the clip of the
+   display window, drink-build.js dk-dispclip) */
+.mroot clipPath { visibility: visible !important; }
+/* …and while the shell shows it, its looping CSS animations that the shell does not read stand still: the teppan's burner
+   flames (tpFlame, a fill each frame) and the bonito flakes on its board (tpDance), the drink's heater and cold air while
+   it works (heat, flowc; the shell plays those by `busy`). Hidden, they were worked out every frame all the same (the
+   teppan at rest: the page's main thread 591 → 409 ms a second at Chromium's 4× slowdown, 2026-10-31). Only these, by
+   name: what the shell reads from the page's styles (an upgrade's rails lit, .ubuilt; the lamps, the pins, the parts
+   drawn anew) keeps moving. Paused, not stopped: let go, each goes on from where it stood */
+.device.nd-t3d-full .mroot:not(.off) :is(.tp-flame, .tp-dance, .heater, .flow) { animation-play-state: paused !important; }
+/* …and its background is drawn by the shell, whose view is then under this page (turn.js t3dBackdrop): see-through */
+.device.nd-t3d-full { background: transparent !important; }
+/* (the root never painted in full 3D, the body painting the page's background: the root's changed restyled the whole page,
+   0.9 s at Chromium's 4× slowdown, the body's 5 ms, 2026-11-01) */
+html.nd-t3d-on { background: transparent !important; }
+body.nd-t3d-bg { background: transparent !important; }
+/* (leaving for the street in full 3D: the machine's layer keeps its visibility till only-street takes it out of the page,
+   70 ms after the fade (index.html, app.js showView). Its visibility going hidden 0.35 s into the fade, inherited, restyled
+   the whole layer, 15,229 elements, 565 ms at Chromium's 4× slowdown whenever it came before only-street; the phone's
+   page stood 1.6–1.8 s there, the street's fade not begun, 2026-11-01. Its machine is see-through here already) */
+html.nd-t3d-on .device.is-street #cam { visibility: visible; transition: none; }
+/* …and as the shell takes the machine, the page's fades out over it, 180 ms, not cut (turn.js see): see-through already,
+   the machine's groups at full opacity and then none; nd-t3d-full after, hidden. Only for those 180 ms: at opacity 0 the
+   phone still painted the machine whenever anything on it moved (above) */
+.device.nd-t3d-fade { background: transparent !important; }
+.device.nd-t3d-fade .mroot:not(.off) { transition: opacity .18s linear; }
+.device.nd-t3d-out .mroot:not(.off) { opacity: 0; }
+/* (a measurement only, flag t3dquiet: turn.js) */
+html.nd-t3d-quiet .device.nd-t3d-full .mroot:not(.off) :is(.g-int, .g-ghost) { visibility: hidden !important; }
+
+/* the camera's grabbing hand while a finger drags (index.html #cam.dragging): no cursor in the app, and the cursor, an
+   inherited property, restyled every element on the camera at the start and at the end of every drag: 0.5 and 1.0 s at
+   Chromium's 4× slowdown, the page's machine and all, 2026-10-30. Left as it was, nothing below is restyled */
+.device #cam.dragging { cursor: grab; }

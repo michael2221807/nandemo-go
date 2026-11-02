@@ -1,0 +1,12 @@
+/* The machine's painted words in the player's language (platform/mtext.js): a sign in Dela like the Japanese it replaces
+   (a second cut with the letters the translations need), or a word whose letters Dela lacks in Noto Sans Black, whole
+   (tools/mkfonts_mtext.py writes the three faces).
+   Its own sheet, not platform.css (2026-10-30): platform.css counts for the hash the turning pictures baked into the app
+   are checked against (tools/build_www.py bake_hashes), and these rules touch only translated words, which the baked
+   (Japanese) pictures never show; in platform.css they made every baked set look stale. */
+@font-face{font-family:"ND Dela Plus";font-weight:400;font-display:block;src:url(fonts/mtext-dela-400.woff2) format("woff2")}
+@font-face{font-family:"ND Sign SC";font-weight:400;font-display:block;src:url(fonts/mtext-sc-900.woff2) format("woff2")}
+@font-face{font-family:"ND Sign TC";font-weight:400;font-display:block;src:url(fonts/mtext-tc-900.woff2) format("woff2")}
+.mroot text.sign[data-mt] { font-family: "ND Dela Plus", var(--display); }
+.mroot text.sign[data-mf="b"] { font-family: "ND Sign SC", var(--display); }
+html[data-script="hant"] .mroot text.sign[data-mf="b"] { font-family: "ND Sign TC", var(--display); }

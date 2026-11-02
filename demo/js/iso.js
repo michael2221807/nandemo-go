@@ -1,3 +1,4 @@
+if (!window.__REC && ((window.__ndFlags || {}).full3d || /[?&]flags=[^&]*full3d/.test(location.search))) window.__REC = { on: true, planes: new Map(), polys: new Map(), pts: new Map(), hulls: new Map(), cap: 60000, fr: 0 };
 /* Axonometric kernel + small helpers.
    Projection, plane() and the rounded box follow iso-figure / iso-glow (MIT, Tolga Cohce & April Zhu), generalised
    so the camera can turn around the vertical axis: yaw 0 = true isometric (azimuth 45°), elevation stays at 35.26°.
@@ -8,19 +9,23 @@ const ISO = (() => {
   let A = Math.PI / 4, ax, ay, bx, by, sa, ca;
   const set = a => { A = a; sa = Math.sin(a); ca = Math.cos(a); ax = K * ca; ay = -K * sa; bx = KSB * sa; by = KSB * ca; };
   set(A);
-  const P = (x, y, z) => [ax * x + ay * y, bx * x + by * y - z];
-  const D = P;
+  const P0 = (x, y, z) => [ax * x + ay * y, bx * x + by * y - z];
+  const P = (x, y, z) => { const r = P0(x, y, z); const R = window.__REC; if (R && R.on && R.pts) { if (R.cap && R.pts.size > R.cap) { R.pts.clear(); if (R.conf) R.conf.clear(); } const k = f(r[0]) + " " + f(r[1]), o = R.pts.get(k); if (o && o.f === R.fr && Math.abs(o[0] - x) + Math.abs(o[1] - y) + Math.abs(o[2] - z) > 1e-3) (R.conf || (R.conf = new Map())).set(k, R.fr); const v = [x, y, z]; v.f = R.fr; R.pts.set(k, v); } return r; };
+  const D = P0;
   const f = n => (Math.round(n * 100) / 100);
-  const plane = (O, U, V) => { const o = P(...O), u = D(...U), v = D(...V);
+  const plane0 = (O, U, V) => { const o = P(...O), u = D(...U), v = D(...V);
     return `matrix(${f(u[0])} ${f(u[1])} ${f(v[0])} ${f(v[1])} ${f(o[0])} ${f(o[1])})`; };
+  const plane = (O, U, V) => { const s = plane0(O, U, V); const R = window.__REC; if (R && R.on) { if (R.cap && R.planes.size > R.cap) R.planes.clear(); R.planes.set(s, [O, U, V]); } return s; };
   const TOP = (x, y, z) => plane([x, y, z], [1, 0, 0], [0, 1, 0]);
   const FRONT = (x, y, z) => plane([x, y, z], [1, 0, 0], [0, 0, -1]);
   const SIDE = (x, y, z) => plane([x, y, z], [0, -1, 0], [0, 0, -1]);
   // the x-min face seen from the left: origin at its back-top corner, u runs toward the front so text reads normally
   const SIDEL = (x, y, z) => plane([x, y, z], [0, 1, 0], [0, 0, -1]);
   const rect = (t, w, h, r = 0, cls = 'face', extra = '') => `<g transform="${t}"><rect class="${cls}" width="${w}" height="${h}" rx="${r}" ${extra}/></g>`;
-  const d3 = pts => 'M' + pts.map(p => P(...p).map(f).join(' ')).join('L') + 'Z';
-  const path = pts => 'M' + pts.map(p => P(...p).map(f).join(' ')).join('L');
+  const d30 = pts => 'M' + pts.map(p => P(...p).map(f).join(' ')).join('L') + 'Z';
+  const path0 = pts => 'M' + pts.map(p => P(...p).map(f).join(' ')).join('L');
+  const d3 = pts => { const s = d30(pts); const R = window.__REC; if (R && R.on) { if (R.cap && R.polys.size > R.cap) R.polys.clear(); R.polys.set(s, { pts, closed: true }); } return s; };
+  const path = pts => { const s = path0(pts); const R = window.__REC; if (R && R.on) { if (R.cap && R.polys.size > R.cap) R.polys.clear(); R.polys.set(s, { pts, closed: false }); } return s; };
   // rounded box: one rounded top + the side wall that faces the camera (outward normals at angle t with sin(t + A) > 0)
   const rounded = (x, y, z, w, d, h, r, cls = '') => {
     r = Math.min(r, w / 2, d / 2);
