@@ -195,7 +195,7 @@
   const supply = {
     title: T`仕込み`, unit: T`份`, gap: 60, flyRot: 0, anyTarget: false,
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-ob-pan', vars: `--c:${m.c}`, pos: [9 + j * 13, 8 + k * 11.2, 2], target: 'p' + k }))),
+    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-ob-pan-' + m.g, vars: `--c:${m.c}`, pos: [9 + j * 13, 8 + k * 11.2, 2], target: 'p' + k }))),
       { glyph: 'g-ob-rice', vars: '', pos: [98, 24, 2], target: 'rice' }, { glyph: 'g-ob-miso', vars: '', pos: [98, 54, 2], target: 'miso' }],
     back: crateBack, front: crateFront,
     entry: t => t === 'rice' ? [COOKER[0], COOKER[1], COOKER[2] + 14] : t === 'miso' ? [POT[0], POT[1], POT[2] + 14] : (() => { const [x, y, z] = place(+t.slice(1)); return [x, y + 6, z + 10]; })(),

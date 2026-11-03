@@ -280,7 +280,9 @@ html[data-lang="zh"][data-names="jp"] #nk-name { font-family: "ND Dela", "ND Qin
 
 /* 漫画 art: the recycling bins stay green from every side (the owner, 2026-10-30). With the camera on the left they are
    drawn behind the machine, in .env-back, whose faces take the plinth's grey (index.html); the same green as in front.
-   (In the turning pictures' hash: the baked sets were drawn with the grey, tools/bake_turn.py again) */
-.device[data-art="zzz"] .env-back [data-hit="bins"] .face{fill:#2fbf74}
-.device[data-art="zzz"] .env-back [data-hit="bins"] .face.top{fill:#7be0a8}
-.device[data-art="zzz"] .env-back [data-hit="bins"] .face.side{fill:#1e8a52}
+   (In the turning pictures' hash: the baked sets were drawn with the grey, tools/bake_turn.py again)
+   (Not on a machine in 霓虹 (skin.js .nd-neon on its .mroot): its bins stay dark from every side as in front; the green
+   came back once it was turned to the left, the page's alone (the 3D's were dark), 2026-11-02) */
+.device[data-art="zzz"] .mroot:not(.nd-neon) .env-back [data-hit="bins"] .face{fill:#2fbf74}
+.device[data-art="zzz"] .mroot:not(.nd-neon) .env-back [data-hit="bins"] .face.top{fill:#7be0a8}
+.device[data-art="zzz"] .mroot:not(.nd-neon) .env-back [data-hit="bins"] .face.side{fill:#1e8a52}

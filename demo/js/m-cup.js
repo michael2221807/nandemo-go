@@ -65,7 +65,7 @@
     const hi = holderAt(BL), [hx, hy, hz] = holder(hAngle(hi)), cup = makeCup();
     S.cups--; renderStack(); SND.cupDrop();
     if (I.turret && S.cups > 0 && S.cups % CUB.PER === 0) swapTurret();
-    I.gears.forEach((gr, i) => UTIL.tween(300, e => gr.setAttribute('transform', `translate(${i ? 15 : 3} 3) rotate(${(i ? -1 : 1) * 180 * e})`)));
+    I.gears.forEach((gr, i) => UTIL.tween(300, e => gr.setAttribute('transform', `rotate(${(i ? -1 : 1) * 180 * e})`)));
     await UTIL.tween(240, e => placeCup(cup, hx, hy, 116 + (hz - 116) * e), UTIL.ease.in);
     SND.tok(); onHolder[hi] = cup; cup.liq = d.liq;
     await rotate(Math.PI * 2 / 3);
@@ -114,7 +114,7 @@
     const M = CUB.MILL, a = [M.x + 2, M.y + 5, M.z + 1], b = [BOWL[0], BOWL[1], BOWL[2] + 4], ms = 760 * sp(); SND.powder();
     let last = 0;
     const spin = UTIL.tween(ms, e => { const now = performance.now(); if (now - last < 32 && e < 1) return; last = now;
-      if (I.burr) I.burr.setAttribute('transform', `${I.burr.getAttribute('transform').replace(/ rotate\(.*\)/, '')} rotate(${(e * 720).toFixed(0)})`);
+      if (I.burr) I.burr.setAttribute('transform', `rotate(${(e * 720).toFixed(0)})`);
       if (I.beans) I.beans.setAttribute('transform', `translate(${(Math.sin(e * 40) * .3).toFixed(2)} 0)`); }, t => t);
     const dots = Array.from({ length: 14 }, (_, k) => new Promise(res => setTimeout(() => {
       const d = UTIL.el('circle', { r: .7, fill: '#4a2a14' }, I.movers);

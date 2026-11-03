@@ -192,7 +192,7 @@
   const supply = {
     title: T`鲷鱼烧料`, unit: T`份`, gap: 60, flyRot: 0, anyTarget: false,
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-ty-pack', vars: `--c:${m.fill}`, pos: [8 + j * 9.4, 10 + k * 15, 2], target: 'f' + k }))),
+    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-ty-pack-' + ({ tsubu: 'beans', crotsubu: 'beans', kinpaku: 'beans', kuri: 'beans', custard: 'cream', crocustard: 'cream', cheese: 'cream', choco: 'swirl', crochoco: 'swirl', ichigo: 'swirl' }[m.g] || 'smooth'), vars: `--c:${m.fill}`, pos: [8 + j * 9.4, 10 + k * 15, 2], target: 'f' + k }))),
       { glyph: 'g-ty-batter', vars: '', pos: [104, 26, 2], target: 'batter' }, { glyph: 'g-ty-scraper', vars: '', pos: [104, 58, 2], target: 'scrape' }],
     back: crateBack, front: crateFront,
     entry: t => t === 'batter' ? [SX.fill - 8, 44, TOP + 42] : t === 'scrape' ? [SX.eject, CH.y, TOP + 8] : hopTop(+t.slice(1)),

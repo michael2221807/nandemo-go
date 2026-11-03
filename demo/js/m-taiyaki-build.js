@@ -132,12 +132,28 @@ const TYB = (() => {
     if (dough === 'gold') s += `<path d="M0-3l1 1.4-1 1.4-1-1.4zM6 1l.8 1.1-.8 1.1-.8-1.1z" fill="#fff6b0"/>`;
     return s + `</g>`;
   }
+  // (app build) the crate: a tub of filling by its look (the colour is the slot's --c: any filling the lineup picks), its
+  // surface, a dollop, a lid. beans: つぶあん and the like; cream: custard, cheese (specks); swirl: chocolate, strawberry
+  const TYPACKS = () => ['smooth', 'beans', 'cream', 'swirl'].map(t => {
+    const KK = 'stroke="rgba(0,0,0,.42)" stroke-width=".45" vector-effect="non-scaling-stroke"', C = 'style="fill:var(--c)"';
+    const bean = (u, v) => `<ellipse cx="${u}" cy="${v}" rx=".6" ry=".42" fill="rgba(40,8,8,.45)"/><ellipse cx="${u - .15}" cy="${v - .12}" rx=".22" ry=".14" fill="rgba(255,255,255,.35)"/>`;
+    const flat = { smooth: '<path d="M2.4 2.4q3-1 6 .2" fill="none" stroke="rgba(255,255,255,.3)" stroke-width=".5" stroke-linecap="round"/>',
+      beans: [[2.2, 2.2], [3.6, 4.6], [5.4, 2], [7.6, 3.2], [8.6, 5], [2.6, 5.4], [6.4, 5.6], [8.4, 1.8]].map(([u, v]) => bean(u, v)).join(''),
+      cream: '<path d="M2.2 4.6q2-2.6 4.6-1.2t2.4-.8" fill="none" stroke="rgba(255,255,255,.5)" stroke-width=".6" stroke-linecap="round"/>' + [[3, 2.4], [5.6, 4.8], [7.8, 2.6], [4.4, 5.2]].map(([u, v]) => `<circle cx="${u}" cy="${v}" r=".14" fill="#5a4010"/>`).join(''),
+      swirl: '<path d="M2.2 4.6q2-2.6 4.6-1.2t2.4-.8" fill="none" stroke="rgba(255,255,255,.3)" stroke-width=".6" stroke-linecap="round"/>' }[t];
+    const [a, b] = P(.6, .4, 2.05);
+    const dollop = `<path d="M${f(a - 3)} ${f(b)}q-.4-1.4 1.2-1.7q.4-1.4 1.8-1.3q1.4-.1 1.8 1.3q1.6.3 1.2 1.7q-3 1.2-6 0z" ${C} ${KK}/><path d="M${f(a - 1.2)} ${f(b - 2.3)}q.8-.5 1.6 0" fill="none" stroke="rgba(255,255,255,.45)" stroke-width=".45" stroke-linecap="round"/>`
+      + (t === 'beans' ? [[-1.8, -.8], [.2, -1.6], [1.6, -.7], [-.6, -.4]].map(([u, v]) => bean(f(a + u), f(b + v))).join('') : '')
+      + (t === 'cream' ? `<circle cx="${f(a + .8)}" cy="${f(b - 1)}" r=".14" fill="#5a4010"/>` : '');
+    return `<g id="g-ty-pack-${t}">${box(-5.5, -3.5, 0, 11, 7, 2, 0, 'ty-pack')}<g transform="${TOPP(-5.5, -3.5, 2.03)}"><rect x="1" y="1" width="9" height="5" rx="2.4" ${C}/>${flat}</g>${dollop}`
+      + `<g transform="${TOPP(-5.5, -3.5, 3.4)}"><rect x=".6" y=".6" width="9.8" height="5.8" rx="2.6" fill="rgba(230,245,255,.16)" stroke="rgba(255,255,255,.7)" stroke-width=".3"/><path d="M2 1.6h3.8M1.8 2.4h1.6" stroke="#fff" stroke-width=".45" stroke-linecap="round" opacity=".75"/></g></g>`;
+  }).join('');
   // the crate: a pack of filling (in its colour), the batter bag, the scraper
   function defs() {
     const pack = `<g id="g-ty-pack">${box(-5.5, -3.5, 0, 11, 7, 2, 0, 'ty-pack')}<g transform="${TOPP(-5.5, -3.5, 2.03)}"><rect x="1" y="1" width="9" height="5" rx="2.4" style="fill:var(--c)"/></g></g>`;
     const bag = `<g id="g-ty-batter"><path d="M-6 0q-1-10 1-13q5-1.4 10 0q2 3 1 13q-6 1.4-12 0z" fill="#f6f0dc" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x="-4" y="-9" width="8" height="5" rx="1" fill="#d8902a"/><text x="0" y="-5.4" font-size="3.4" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">生地</text></g>`;
     const scraper = `<g id="g-ty-scraper"><rect x="-1" y="-14" width="2" height="9" rx="1" fill="#a8642a" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><path d="M-5 -5h10l-1 5h-8z" fill="#c9d0da" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/></g>`;
-    return pack + bag + scraper;
+    return pack + bag + scraper + TYPACKS();
   }
   const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 

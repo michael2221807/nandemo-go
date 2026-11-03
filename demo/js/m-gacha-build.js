@@ -102,10 +102,25 @@ const GCB = (() => {
       + `<g transform="translate(12 10.6) scale(${big ? 1.25 : 1.05})">${figure(fig, 0)}${cheek ? `<path d="${dots([[-cheek[0], cheek[1]], [cheek[0], cheek[1]]], .5)}" fill="#ff7aa8" opacity=".55"/>` : ''}</g><ellipse cx="8" cy="7" rx="2.2" ry="1.2" fill="#fff" opacity=".8"/>`
       + (big ? `<text x="12" y="22.4" font-size="3.2" text-anchor="middle" fill="#fff" font-weight="700">BIG</text>` : '');
   }
-  // the crate: a capsule (in its colour)
-  function defs() {
-    return `<g id="g-gc-cap"><circle cy="-3" r="3" fill="#eef7ff" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><path d="M-3-3A3 3 0 0 0 3-3Z" style="fill:var(--c)"/><ellipse cx="-1" cy="-4.6" rx=".9" ry=".5" fill="#fff" opacity=".8"/></g>`;
+  // the crate: a capsule (in its colour, var --c) standing on the crate's floor, the size of one in the globes, its
+  // figure showing through the clear half: one glyph per figure (g-gc-cap-neko …; g-gc-cap: none). They had been a dot
+  // of r 3 with no figure, "like sweets" on the tray (the owner, 2026-11-03)
+  const CRATE_R = 6.2;
+  function crateCap(id, fig) {
+    const r = CRATE_R, R = f(r), ln = 'stroke="rgba(0,0,0,.5)" stroke-width=".6" vector-effect="non-scaling-stroke"';
+    return `<g id="${id}"><ellipse cy="-.2" rx="${f(r * .86)}" ry="${f(r * .3)}" fill="rgba(0,0,0,.28)"/><g transform="translate(0 ${f(-r)})">`
+      // the clear half's glass behind, the coloured half, its shade low on the right, the figure, the seam's lip, the glass's shine
+      + `<circle r="${R}" fill="rgba(236,246,255,.7)"/>`
+      + `<path d="M${f(-r)} 0A${R} ${R} 0 0 0 ${R} 0Z" style="fill:var(--c)"/>`
+      + `<path d="M${f(r * .2)} ${f(r * .97)}A${R} ${R} 0 0 0 ${f(r * .97)} ${f(r * .2)}Q${f(r * .55)} ${f(r * .7)} ${f(r * .2)} ${f(r * .97)}Z" fill="rgba(0,0,0,.2)"/>`
+      + (fig ? `<g transform="translate(0 ${f(-r * .12)}) scale(${f(r / 6.4)})">${figure(fig, 0)}</g>` : '')
+      + `<path d="M${f(-r)} 0A${R} ${R} 0 0 1 ${R} 0Z" fill="rgba(255,255,255,.18)"/>`
+      + `<path d="M${f(-r)} 0H${R}" stroke="rgba(0,0,0,.45)" stroke-width=".55" vector-effect="non-scaling-stroke"/><path d="M${f(-r * .96)} ${f(r * .2)}Q0 ${f(r * .42)} ${f(r * .96)} ${f(r * .2)}" fill="none" stroke="rgba(255,255,255,.45)" stroke-width=".5" vector-effect="non-scaling-stroke"/>`
+      + `<circle r="${R}" fill="none" ${ln}/>`
+      + `<ellipse cx="${f(-r * .38)}" cy="${f(-r * .52)}" rx="${f(r * .3)}" ry="${f(r * .15)}" transform="rotate(-28 ${f(-r * .38)} ${f(-r * .52)})" fill="#fff" opacity=".85"/><circle cx="${f(r * .42)}" cy="${f(-r * .62)}" r="${f(r * .07)}" fill="#fff" opacity=".8"/>`
+      + `</g></g>`;
   }
+  function defs() { return crateCap('g-gc-cap', null) + Object.keys(PAL).map(k => crateCap('g-gc-cap-' + k, k)).join(''); }
   const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 
   /* ---------- a globe: the glass, the capsules in it, its lid; its base with the star wheel and the spout ---------- */
@@ -280,5 +295,5 @@ const GCB = (() => {
   function ghost(g) {
     g.insertAdjacentHTML('beforeend', CORE.edges(0, 0, 0, W, D, H, 'xedge') + `<g transform="${FRONT(0, D, H)}"><rect class="xline" x="5" y="22" width="88" height="34"/><path class="xline" d="${pill()}"/><rect class="xline" x="30" y="194" width="60" height="26" rx="3"/></g>`);
   }
-  return { defs, interior, exterior, ghost, globe, wheel, capsule, capAt, figure, icon, route, setView, KNOB, sr: () => SR };
+  return { defs, CRATE_R, capGlyph: fig => PAL[fig] ? 'g-gc-cap-' + fig : 'g-gc-cap', interior, exterior, ghost, globe, wheel, capsule, capAt, figure, icon, route, setView, KNOB, sr: () => SR };
 })();

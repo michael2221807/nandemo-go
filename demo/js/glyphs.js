@@ -15,7 +15,7 @@ const GLY = (() => {
   }
   // (the hull's points' 3D places, iso.js P's by their screen points: kept with the outline's string as toD draws it)
   function hull(pts) { const h = hull0(pts), R = window.__REC; if (R && R.on && R.hulls) { const p3 = pts.map(q => R.pts.get(f(q[0]) + ' ' + f(q[1]))); if (p3.every(Boolean)) h.p3 = p3; } return h; }
-  const toD = (pts, close = true) => { const s = toD0(pts, close), R = window.__REC; if (pts.p3 && R && R.on && R.hulls) { if (R.cap && R.hulls.size > R.cap / 10) R.hulls.clear(); R.hulls.set(s, pts.p3); } return s; };
+  const toD = (pts, close = true) => { const s = toD0(pts, close), R = window.__REC; if (pts.p3 && R && R.on && R.hulls) { if (R.cap && R.hulls.size > R.cap / 10) { R.hulls.clear(); R.clr = (R.clr || 0) + 1; } R.hulls.set(s, pts.p3); } return s; };
   // rings: axis along x (lying) or z (standing)
   const ringX = (x, r, n = 30, a = 0, b = TAU, cy = 0, cz = 0) => Array.from({ length: n + 1 }, (_, i) => { const t = a + (b - a) * i / n; return P(x, cy + r * Math.cos(t), cz + r * Math.sin(t)); });
   const ringZ = (z, r, n = 30, a = 0, b = TAU, cx = 0, cy = 0) => Array.from({ length: n + 1 }, (_, i) => { const t = a + (b - a) * i / n; return P(cx + r * Math.cos(t), cy + r * Math.sin(t), z); });

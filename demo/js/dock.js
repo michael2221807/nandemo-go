@@ -90,7 +90,9 @@ const DOCK = (() => {
   // flight from a device-local point to a world point in the machine
   function flight(slot, from, scale0, target, first) {
     return new Promise(res => {
-      const [ex, ey] = P(...supply.entry(target)), [tx, ty, s1] = toDevice(stage, ex, ey);
+      const [ex, ey] = P(...supply.entry(target)), [tx, ty, s0] = toDevice(stage, ex, ey);
+      // (flyEnd: the crate's glyph drawn bigger than the machine's own, shrunk to that as it lands: the gacha's capsules)
+      const s1 = s0 * (supply.flyEnd || 1);
       const el = UTIL.el('use', { href: '#' + slot.glyph, style: slot.vars || '' }, fly);
       const [fx, fy] = from, cx = (fx + tx) / 2, cy = Math.min(fy, ty) - 110, rot = supply.flyRot ?? -80;
       UTIL.tween(470, e => {

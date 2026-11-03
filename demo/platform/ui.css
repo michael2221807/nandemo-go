@@ -65,3 +65,33 @@ html.nd-t3d-quiet .device.nd-t3d-full .mroot:not(.off) :is(.g-int, .g-ghost) { v
    inherited property, restyled every element on the camera at the start and at the end of every drag: 0.5 and 1.0 s at
    Chromium's 4× slowdown, the page's machine and all, 2026-10-30. Left as it was, nothing below is restyled */
 .device #cam.dragging { cursor: grab; }
+/* (inside a machine the street stays laid out, not out of the page: content-visibility keeps its layout and skips its
+   painting meanwhile, so back on the street it is painted again, not restyled and laid out whole. Taken out of the page
+   (index.html .device.only-machine .street display:none), its 0.7–1.7 s frame was the street coming back, the phone,
+   2026-11-02. An experiment: compare against 42edc3d before keeping it) */
+.device.only-machine .street { display: block; visibility: hidden; content-visibility: hidden; }
+
+/* the street's bubble for a held machine (platform/street-touch.js, 2026-11-03): a comic card above the machine, its tail
+   pointing at it; it pops in and fades out */
+.stx-bubble{position:absolute;z-index:4;width:max-content;min-width:150px;max-width:224px;padding:9px 11px 8px;border:2.5px solid #141018;border-radius:12px;
+  background:#fff8ec;color:#141018;box-shadow:3px 3px 0 #141018;font:500 12px/1.35 var(--maru);pointer-events:none;
+  transform-origin:var(--tail,50%) 100%;animation:stx-pop .2s cubic-bezier(.3,1.6,.6,1) both}
+.stx-bubble.below{transform-origin:var(--tail,50%) 0}
+.stx-bubble::after{content:"";position:absolute;left:calc(var(--tail,50%) - 7px);bottom:-9px;width:12px;height:12px;background:#fff8ec;
+  border-right:2.5px solid #141018;border-bottom:2.5px solid #141018;transform:rotate(45deg)}
+.stx-bubble.below::after{bottom:auto;top:-9px;transform:rotate(225deg)}
+.stx-bubble.out{animation:stx-out .18s ease-in both}
+.stx-bubble p{margin:0}
+.stx-bubble .t{font:700 13px/1.25 var(--maru);margin-bottom:5px;padding-bottom:4px;border-bottom:2px dashed #d8c8e4}
+.stx-bubble ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.stx-bubble li{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.stx-bubble li i{flex:none;width:9px;height:9px;border-radius:50%;border:1.6px solid #141018}
+.stx-bubble li .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.stx-bubble li b{flex:none;font-weight:700;font-variant-numeric:tabular-nums}
+.stx-bubble li em{flex:none;font-style:normal;font-size:10px;color:#fff;background:#ff4f8b;border-radius:6px;padding:0 4px}
+.stx-bubble .sum{margin-top:5px;padding-top:4px;border-top:2px dashed #d8c8e4;color:#5a4a68;font-variant-numeric:tabular-nums}
+.stx-bubble .eta{margin-top:2px;font-weight:700;color:#e23d78}
+.stx-bubble .eta.out{color:#141018}
+@keyframes stx-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes stx-out{to{opacity:0;transform:scale(.85)}}
+@media (prefers-reduced-motion:reduce){.stx-bubble,.stx-bubble.out{animation-duration:.01s}}

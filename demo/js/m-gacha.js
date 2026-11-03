@@ -138,9 +138,13 @@
   const crateFront = () => box(0, 71.5, 0, 112, 2.5, 8, 0, 'cr') + box(109.5, 2.5, 0, 2.5, 69, 8, 0, 'cr');
   const globeTop = k => { const Gk = GLOBES[k]; return [Gk.x, Gk.y, Gk.z + Gk.r + 4]; };
   const supply = {
-    title: T`扭蛋`, unit: T`个`, gap: 60, flyRot: 0, anyTarget: false,
+    // (flyEnd: the crate's capsules are drawn bigger than the globes' (GCB.crateCap); one lands their size)
+    title: T`扭蛋`, unit: T`个`, gap: 60, flyRot: 0, anyTarget: false, get flyEnd() { return GC.CAPR.n * GCB.sr() / GCB.CRATE_R; },
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-gc-cap', vars: `--c:${m.cap}`, pos: [8 + j * 8.6, 13 + k * 15.4, 2], target: k }))),
+    // (each globe's twelve as a row of two, staggered, the capsules the size of the globes' (GCB.crateCap); one row of
+    // twelve at that size ran into each other)
+    slots: () => MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: GCB.capGlyph(m.fig), vars: `--c:${m.cap}`,
+      pos: [9 + (j >> 1) * 16.8 + (j & 1) * 8.4, 9.5 + (k * 2 + (j & 1)) * 7.7, 2], target: k }))),
     back: crateBack, front: crateFront,
     entry: k => globeTop(k),
     accept: k => S.glob[k].length + reserved[k] < CAP,

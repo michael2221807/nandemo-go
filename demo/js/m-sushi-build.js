@@ -151,11 +151,19 @@ const SUB = (() => {
     else top = rice + (NIGIRI[g] || NIGIRI.salmon)();
     return `<ellipse cx="12" cy="16" rx="10.4" ry="5" fill="${rc}" ${k}/><ellipse cx="12" cy="15.6" rx="8.4" ry="3.8" fill="${fc}"/>${top}${tier >= 5 ? '<ellipse cx="12" cy="16" rx="10.4" ry="5" fill="none" stroke="#ffd23f" stroke-width=".9"/>' : ''}`;
   }
+  // (app build) the crate: one pack per kind, six of its slices (the piece without its rice), back to front, under a lid
+  const SUPACKS = () => Object.keys(PIECE).map(g => {
+    const neta = (a, b) => g === 'tamago' ? slab(a, b, '#ffd23f') + `<path d="M${f(a - 1.8)} ${f(b - .9)}q1.8-.9 3.6 0" fill="none" stroke="#e8b020" stroke-width=".35"/>` : PIECE[g](a, b).replace(rice(a, b), '');
+    const at = [[-3.4, -1.7], [0, -1.7], [3.4, -1.7], [-3.4, 1.7], [0, 1.7], [3.4, 1.7]].sort((u, v) => u[0] + u[1] - v[0] - v[1]);
+    return `<g id="g-su-pack-${g}">${box(-6, -4, 0, 12, 8, 2.2, 0, 'su-pack')}<g transform="${TOP(-6, -4, 2.23)}"><rect x="1" y="1" width="10" height="6" rx="1" fill="#dfe8e2"/></g>`
+      + at.map(([x, y]) => { const [a, b] = P(x, y, 2.6); return `<g transform="translate(${f(a)} ${f(b)}) scale(.85)">${neta(0, 0)}</g>`; }).join('')
+      + `<g transform="${TOP(-6, -4, 3.2)}"><rect x=".6" y=".6" width="10.8" height="6.8" rx="1" fill="rgba(230,245,255,.18)" stroke="rgba(255,255,255,.7)" stroke-width=".3"/><path d="M1.6 1.5h4.6M1.6 2.3h2.2" stroke="#fff" stroke-width=".45" stroke-linecap="round" opacity=".75"/></g></g>`;
+  }).join('');
   // the crate: a pack of sliced neta (in its colour) and the rice sack
   function defs() {
     const pack = `<g id="g-su-pack">${box(-6, -4, 0, 12, 8, 2.2, 0, 'su-pack')}<g transform="${TOP(-6, -4, 2.23)}"><rect x="1" y="1" width="10" height="6" rx="1" fill="rgba(230,245,255,.35)"/><path d="M2.4 2.2l2.2 3.6M4.8 2.2l2.2 3.6M7.2 2.2l2.2 3.6" style="stroke:var(--c)" stroke-width="1.8" stroke-linecap="round"/></g></g>`;
     const sack = `<g id="g-su-rice"><path d="M-6 0q-1-10 1-13q5-1.4 10 0q2 3 1 13q-6 1.4-12 0z" fill="#f6f2e6" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x="-4" y="-9" width="8" height="5" rx="1" fill="#e8453a"/><text x="0" y="-5.4" font-size="3.4" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">シャリ</text></g>`;
-    return pack + sack;
+    return pack + sack + SUPACKS();
   }
   const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 

@@ -84,10 +84,17 @@ const ODB = (() => {
       + `<path d="M18.6 8.6q-1-1.4 0-2.8t0-2.8" fill="none" stroke="#b8b0a0" stroke-width=".8" stroke-linecap="round" opacity=".7"/>`;
   }
   // the crate: a tray of pieces (in their colour) and the jug of dashi
+  // (app build) one pack per piece: tray, dashi, two pieces (back one first), the lid's film and a glint
+  const ODPACKS = () => Object.keys(PIECE).filter(g => !/^m[a-z]/.test(g) || !PIECE[g.slice(1)]).map(g => {
+    const pc = (x, y) => { const [a, b] = P(x, y, 2.05); return `<g transform="translate(${f(a)} ${f(b)}) scale(1.15)">${PIECE[g](0, 0)}</g>`; };
+    return `<g id="g-od-pack-${g}">${box(-5.5, -3.5, 0, 11, 7, 2, 0, 'od-pack')}<g transform="${TOP(-5.5, -3.5, 2.03)}"><rect x="1" y="1" width="9" height="5" rx="1" fill="#e8c878" opacity=".55"/></g>`
+      + pc(-2.9, 1) + pc(2.9, -1)
+      + `<g transform="${TOP(-5.5, -3.5, 2.6)}"><rect x=".6" y=".6" width="9.8" height="5.8" rx="1" fill="rgba(230,245,255,.18)" stroke="rgba(255,255,255,.7)" stroke-width=".3"/><path d="M1.6 1.5h4.2M1.6 2.3h2" stroke="#fff" stroke-width=".45" stroke-linecap="round" opacity=".75"/></g></g>`;
+  }).join('');
   function defs() {
     const pack = `<g id="g-od-pack">${box(-5.5, -3.5, 0, 11, 7, 2, 0, 'od-pack')}<g transform="${TOP(-5.5, -3.5, 2.03)}"><rect x="1" y="1" width="9" height="5" rx="1" fill="rgba(230,245,255,.35)"/><circle cx="3.4" cy="3.5" r="1.5" style="fill:var(--c)"/><circle cx="7.4" cy="3.5" r="1.5" style="fill:var(--c)"/></g></g>`;
     const jug = `<g id="g-od-jug"><path d="M-5 0q-1-8 1-11h8q2 3 1 11q-5 1.4-10 0z" fill="#e8e0cc" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><path d="M-4.2 -11v-2.4h8.4v2.4" fill="#c9d0da" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><path d="M5 -9q3 0 3 3t-3 3" fill="none" stroke="#c9d0da" stroke-width="1.4"/><rect x="-3.6" y="-8" width="7.2" height="4.4" rx="1" fill="#2a3a6a"/><text x="0" y="-4.7" font-size="3.2" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">だし</text></g>`;
-    return pack + jug;
+    return pack + jug + ODPACKS();
   }
   const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 

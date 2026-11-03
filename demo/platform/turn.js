@@ -98,6 +98,19 @@ window.__t3dLive = {
   // bags, the stations: __t3dK)
   bakery: ['.pb-lcd', '.pb-gauge', '.pb-bakelamp', '.pb-prooflamp', '.pb-ready', '.pb-door .door-out > g.nohit', '.pb-dock', '.pb-frylamp', '.g-int .coin', '.upin'],
 };
+// the live parts the X-ray paints in the page's order, not over everything (Turn3D "live": ord, the place export.mjs
+// records for each as kdom 'L<selector>:<n>'): the drink machine's heat pump, its box and fins, under the X-ray drawn over
+// the coin tubes, cans and bottles the page paints after it, 2026-11-03; and its coins, in their tubes. (the glows and pins
+// stay over the rest)
+window.__t3dLiveOrder = { drink: ['[data-part="heatpump"] .hpbox', '[data-part="heatpump"] .hpfin', '.g-int .coin'] };
+// (each one's key within its selector: by its place among them ('L0:2'), but the coins by their kind and face ('L2:c10',
+// 'L2:c10-top'): how many there are goes with the save, a tube emptied has none, 2026-11-03. The page and export.mjs both
+// number them here, a machine's root (one layer) at a time)
+window.__t3dLiveKeys = (id, root) => { const out = new Map();
+  ((window.__t3dLiveOrder || {})[id] || []).forEach((sel, si) => root.querySelectorAll(sel).forEach((e, n) => {
+    const kind = sel === '.g-int .coin' && [...e.classList].find(c => /^c\d+$/.test(c));
+    out.set(e, 'L' + si + ':' + (kind ? kind + (e.classList.contains('top') ? '-top' : '') : n)); }));
+  return out; };
 // what the page draws anew as it works (handbook 2. K: group.innerHTML = a function of where the parts are now), each
 // group sent to the shell as its 3D shapes whenever it changes (t3dK), left out of the model (tools/turn3d/export.mjs)
 window.__t3dK = {
@@ -106,7 +119,7 @@ window.__t3dK = {
   teppan: ['.tp-plate', '.tp-car', '.tp-hoses', '.tp-carousel', '.tp-beltg', '.tp-boats', '.tp-toppers', '.tp-movers', '.tp-st', '.tp-dbelt', '.tp-packs', '.tp-lift', '.tp-window'],
   // frozen: each shelf's packs (<use>s of the packs' glyphs) and its spirals behind and in front of them (turned a
   // pitch as it sells: renderCoil sets their paths), a pack on its way down, the elevator, the frost, the meltwater, the
-  // pack in the take-out window (and the goods themselves as it clears)
+  // pack in the take-out window (and the goods themselves as it clears; its cold cloud not, T3D_KSKIP: drawn by the shell, T3D_FX)
   frozen: ['.fz-items', 'g:has(> .coil.back)', 'g:has(> .coil.front)', '.fz-movers', '.fz-liftg', '.fz-frost', '.fz-drips', '.fz-window'],
   // ramen: the bowls on each tier of the carousel (<use>s of the bowls' glyphs, turned round as it sells), the lift
   // (moved up and down, the spin plate on it), the bowl on the stand (filled, tipped or spun), a bowl on its way and the
@@ -151,10 +164,10 @@ window.__t3dK = {
   // is carried down the chute; the plate in the take-out window
   sushi: ['.su-chain', '.su-rear > use, .su-front > use', '.su-turret', '.su-rice', '.su-mag', '.su-drum', '.su-pusher', '.su-flameg', '.su-stampg', '.su-paddle', '.su-lift', '.su-shuttle', '.su-deckplate', '.su-movers', '.su-window'],
   // oden: the pot (its broth sinking as it sells, its dividers turned round), the pieces in it (each a <use>, moved round
-  // as it turns), its front wall and the hub's float (the broth's level), the steam as a basket comes up, the baskets
+  // as it turns), its front wall and the hub's float (the broth's level), the steam (not read: no element has nd-t3d-fx, its place kept for kdom; drawn by the shell, T3D_FX), the baskets
   // dipping, the carriage and its cup (moved along the rail by its transform), the broth or miso pouring, what slides down
   // the trough or the chute; the cup in the take-out window
-  oden: ['.od-pot', '.od-pcs > use', '.od-potfront', '.od-hub', '.od-steamg', '.od-basket', '.od-basket2', '.od-cart > g', '.od-streamg', '.od-movers', '.od-window'],
+  oden: ['.od-pot', '.od-pcs > use', '.od-potfront', '.od-hub', '.od-steamg.nd-t3d-fx', '.od-basket', '.od-basket2', '.od-cart > g', '.od-streamg', '.od-movers', '.od-window'],
   // taiyaki: the pins lifting the fish at the eject station, the seven moulds round the chain (each a group of its own, its
   // lid opening and shutting, turned over round the sprockets, what is in it: the page puts them far ones first as they
   // go round, and the lid behind or before its half), the roller brush turning (the upgrade), the blade sweeping, the
@@ -210,10 +223,33 @@ window.__t3dGlow = {
 // fade units, swaying wob[1] units along axis wob[0] with a period of 2π × wob[2] ms, at most op opaque (the hot ones,
 // those matching hot: hotOp); blink: a part switching a class on and off every ms; move: a part the page moves itself
 // by its transform (one element each), a picture of its own at rest, moved as the page has it now (Turn3D "moves") and
-// drawn over the live glows (the take-out flap swinging in as a can lands, over the pocket's warm light, drink.js flap())
+// drawn over the live glows (the take-out flap swinging in as a can lands, over the pocket's warm light, drink.js flap());
+// once: a stroke the game plays a CSS animation on once now and then by a class (UTIL.restart(el, cls): the pulse running
+// along a wire as a lane is chosen or water is poured), exported as a 3D line with that animation (export.mjs), played by
+// the app once each time the page restarts it (Turn3D "once", t3dOnceHook; 2026-11-02, they had been missing in 3D)
+// (a stroke played once is known to the app by its place among the machine's ones in its layer, the same at export and in
+// play: 'stage:3'. Not by its path: a wire through 3D points is drawn anew at every angle, its d another each time)
+window.__t3dOnceKey = el => { const r = el.closest('.mroot'); if (!r) return ''; const on = (window.__t3dMotion[r.getAttribute('data-m')] || {}).once || [];
+  return (r.ownerSVGElement ? r.ownerSVGElement.id : '') + ':' + [...r.querySelectorAll(on.map(m => m.sel).join(',') || 'none')].indexOf(el); };
+// one-shot effects the game builds with innerHTML and takes away again, drawn by the shell (turn.js t3dFxWatch, Turn3D
+// "fx"): the container watched (its children only), the element that starts one, its kind, its place in the machine's own
+// x, y, z as the game's build module. Out here so tests/regression can check the copied places against the prototype
+window.__t3dFx = {
+  // (m-oden-build.js steam(): round q(POT.x, POT.y + 4, POT.z1 + 6); POT { x: 40, y: 58, z1: 104 } is not exported,
+  // tests/regression t3dfx.places checks this copy against the prototype)
+  oden: { sel: '.od-steamg', add: '.od-steam', kind: 'steam', at: [40, 62, 110] },
+  // (m-frozen.js windowItem(): the pack arriving in the take-out window in its cold cloud, m-frozen-build.js fog() round
+  // WINDOW, which the build module exports (FZ.WINDOW))
+  frozen: { sel: '.fz-window', add: '.fz-fog', kind: 'fog', at: () => FZ.WINDOW, end: true },
+  // (m-cup.js iceDrop(): three cubes, 130 ms apart, each 420 ms ease-in from the ice maker [104, 34, 168] (a literal there,
+  // checked by tests/regression) to the bowl [BOWL[0] + 2, BOWL[1] + 1, TT.z + 12] (CU exports BOWL, TT); one "fx" a cube)
+  cup: { sel: '.cu-movers', add: 'rect[width="2.6"]', kind: 'ice', at: [104, 34, 168], to: () => [CU.BOWL[0] + 2, CU.BOWL[1] + 1, CU.TT.z + 12] },
+};
 window.__t3dMotion = {
   drink: {
     move: [{ sel: '#dk-flap' }],
+    once: [{ sel: '.pulse', cls: 'go' }],
+    // (the fan: tapped, 3 times as fast for 2.5 s, t3dSpinRate)
     spin: [{ sel: '#dk-fan', rate: 420 }],
     drift: [{ sel: '#dk-particles > circle', axis: 2, lo: 112, hi: 226, v: [5, 11], fade: 20, wob: [0, 1.5, 900], op: .55, hot: '[r=".9"]', hotOp: .7, hotK: 1.3 }],
     blink: [{ sel: '#dk-led1', cls: 'on', ms: 900 }],
@@ -258,6 +294,10 @@ window.__t3dMotion = {
   // they are fitted (the spin plate rides on the lift, __t3dK)
   ramen: {
     move: [{ sel: '.ra-flap' }],
+    once: [{ sel: '.pulse', cls: 'go' }],
+    // (the heater while it boils the water again, .ra-boost: yellower, thicker and quicker; it had stayed red and thin in
+    // 3D, t3dRestyle, 2026-11-02)
+    restyle: [{ sel: '.ra-heater', cls: 'ra-boost' }],
     door: { el: '.ra-door', hide: ['.ra-door', '.ra-window'], out: '.door-out', in: '.door-in', hinge: [0, 84] },
     marks: { boiler: '[data-part="boiler"]:not(.upin)', tier: '[data-part="tier"]:not(.upin)',
       tile0: '.ra-tile[data-k="0"]', tile1: '.ra-tile[data-k="1"]', tile2: '.ra-tile[data-k="2"]', tile3: '.ra-tile[data-k="3"]', lockh: '.thandle' },
@@ -267,7 +307,10 @@ window.__t3dMotion = {
   // and milk buttons and the lock's T-handle pressed; the turret's top, the turbo whipper and the mill slid in as they are
   // fitted (the turret's cups ride in .cu-stack, __t3dK)
   cup: {
-    move: [{ sel: '.cu-win' }],
+    // (the two little gears turning as a cup drops, the mill's burr while grinding: each in a group of its own where it
+    // stands, build_www.py CUP_TURN, 2026-11-02)
+    move: [{ sel: '.cu-win' }, { sel: 'g:nth-of-type(1) > .cu-gear' }, { sel: 'g:nth-of-type(2) > .cu-gear' }, { sel: '.cu-burr' }],
+    once: [{ sel: '.pulse', cls: 'go' }],
     door: { el: '.cu-door', hide: ['.cu-door'], out: '.door-out', in: '.door-in', hinge: [0, 84] },
     marks: { turret: '[data-part="turret"]:not(.upin):not(.cu-stack)', turbo: '[data-part="turbo"]:not(.upin)', mill: '[data-part="mill"]:not(.upin)',
       tile0: '.cu-tile[data-k="0"]', tile1: '.cu-tile[data-k="1"]', tile2: '.cu-tile[data-k="2"]', tile3: '.cu-tile[data-k="3"]', tile4: '.cu-tile[data-k="4"]', tile5: '.cu-tile[data-k="5"]',
@@ -289,7 +332,9 @@ window.__t3dMotion = {
   // the save's menu: T3D_DECALS) and the lock's T-handle pressed; the kitchens slid in as they are fitted (their stacks,
   // pushers, lift and blade are __t3dK; the press's only part, its coil, rides with the press)
   auto: {
-    move: [{ sel: '.au-flap' }],
+    // (the vent fan's blades turning while it cooks, the oven's turntable while it heats: each turned round its own place,
+    // as the page has it now, 2026-11-02)
+    move: [{ sel: '.au-flap' }, { sel: '.au-blades' }, { sel: '.au-spokes' }],
     door: { el: '.au-door', hide: ['.au-door', '.au-window'], out: '.door-out', in: '.door-in', hinge: [0, 84] },
     marks: { burger: '[data-part="burger"]:not(.upin):not(.au-col):not(.au-col + g + g):not(.au-lift)',
       curry: '[data-part="curry"]:not(.upin):not(.au-trays):not(.au-trays + g):not(.au-pouches):not(.au-pouches + g + g)',
@@ -317,6 +362,9 @@ window.__t3dMotion = {
   // colour a moment as goods land: left as it stands
   spiral: {
     spin: [{ sel: '.sp-fan', rate: 380 }],
+    once: [{ sel: '.pulse', cls: 'go' }],
+    // (the lift's two pulleys, turning while it travels: build_www.py SPIRAL_TRIM no longer stops them, 2026-11-02)
+    move: [{ sel: '.sp-pulley[data-i="0"]' }, { sel: '.sp-pulley[data-i="1"]' }],
     door: { el: '.sp-door', hide: ['.sp-door'], out: '.door-out', in: '.door-in', hinge: [0, 84] },
     marks: { lift: '[data-part="lift"]:not(.upin)', twin: '[data-part="twin"]:not(.upin)',
       keyA: '.sp-key[data-key="A"]', keyB: '.sp-key[data-key="B"]', keyC: '.sp-key[data-key="C"]', keyD: '.sp-key[data-key="D"]', keyE: '.sp-key[data-key="E"]', key1: '.sp-key[data-key="1"]', key2: '.sp-key[data-key="2"]', key3: '.sp-key[data-key="3"]', key4: '.sp-key[data-key="4"]', lockh: '.thandle' },
@@ -1060,7 +1108,10 @@ window.__t3dMotion = {
     if (rack) cans.push(...out('#dk-movers'));
     // (the take-out pocket's: the page paints them over its door, the flap and all, so the shell draws them over its own)
     const tray = out('#dk-tray-out');
-    const key = looks.join(',') + '|' + win.concat(cans, [[-1]], tray).map(r => r.map(v => +v.toFixed(2)).join(' ')).join(',');
+    // (whether the racks are sent at all, too: under the X-ray with none in stock the rack is an empty list, and its key was
+    // the one the view without the X-ray had sent, so it was never sent and the shell drew the model's racks, a new game's
+    // full ones, over a machine sold out, the phone 2026-11-03)
+    const key = (rack ? 'R|' : '') + looks.join(',') + '|' + win.concat(cans, [[-1]], tray).map(r => r.map(v => +v.toFixed(2)).join(' ')).join(',');
     if (key === T3D.goodsKey) return;
     T3D.goodsKey = key;
     NATIVE.post('turn3d', { type: 'goods', machine: m.id, looks, window: win, rack: rack ? cans : null, tray });
@@ -1103,6 +1154,81 @@ window.__t3dMotion = {
       else if (r.type === 'attributes' && (r.attributeName === 'opacity' && T3D.glowSet && T3D.glowSet.has(t) || r.attributeName === 'transform' && T3D.moveSet && T3D.moveSet.has(t))) T3D.glowDirty = now;
       else if (T3D.liveSet && T3D.liveSet.has(t)) T3D.liveDirty = now; } });
     T3D.mo.observe(cam, { subtree: true, childList: true, attributes: true, characterData: true });
+  }
+  // a part the shell turns on its own (__t3dMotion spin): how fast the page turns it now against its rate there, the
+  // shell's turning that much faster or stopped (Turn3D "spins") — the spiral machine's fan in spells and while it works,
+  // the drink machine's tapped 3 times as fast for 2.5 s; both had turned at one speed in 3D all along, 2026-11-02.
+  // (the page's own speed for it, el.__ndSpin, degrees a second, set by the app build's step: it does not turn the hidden
+  // part itself while the shell holds the machine, build_www.py DRINK_AMBIENT, SPIRAL_TRIM; looked at 4 times a second,
+  // sent only when it changes)
+  function t3dSpinRate(m) {
+    const sp = (window.__t3dMotion[m.id] || {}).spin; if (!sp || !sp.length) return;
+    const now = performance.now(); if (now - (T3D.spinAt || 0) < 250) return; T3D.spinAt = now;
+    const el = t3dRoots(m.id).map(r => r.querySelector(sp[0].sel)).find(Boolean); if (!el || el.__ndSpin == null) return;
+    const q = +(el.__ndSpin / sp[0].rate).toFixed(2), was = T3D.spinM === m.id ? T3D.spinSent : 1;
+    if (q !== was) { T3D.spinSent = q; T3D.spinM = m.id; NATIVE.post('turn3d', { type: 'spins', machine: m.id, s: q }); }
+  }
+  // a dashed line the page runs by its stroke-dashoffset (the sushi belt's chain, m-sushi.js step: -(run · its length) mod
+  // 7.2, run going on a lap each LAP 9000 ms, all the time the machine is open) and K reads only now and then: where its
+  // pattern is as the shell takes the machine, a share of one dash and gap, and how many patterns a second it moves, sent
+  // once to the shell, which runs it on its own from there (Turn3D "dashrun") — the chain had stood still in 3D, 2026-11-03.
+  // (once a hold: the app build stops writing the offset while the shell holds the machine, build_www.py SUSHI_TRIM, so
+  // the page's offset stands still from then on and a later reading of it would set the chain back)
+  const T3D_DASHRUN = { sushi: { sel: '.su-chain', lap: 9000 } };
+  function t3dDashRun(m) {
+    const dr = T3D_DASHRUN[m.id]; if (!dr || T3D.dr === m.id) return;
+    const el = t3dRoots(m.id).map(r => r.querySelector(dr.sel)).find(Boolean); if (!el || !el._len) return;
+    const per = (getComputedStyle(el).strokeDasharray || '').split(/[\s,]+/).map(parseFloat).slice(0, 2).reduce((a, b) => a + (b || 0), 0); if (!(per > 0)) return;
+    const off = parseFloat(el.style.strokeDashoffset) || 0, f = +(((off / per) % 1 + 1) % 1).toFixed(4), v = +(-el._len / dr.lap * 1000 / per).toFixed(4);
+    T3D.dr = m.id; NATIVE.post('turn3d', { type: 'dashrun', machine: m.id, f, v, t: performance.timeOrigin + performance.now() });
+  }
+  // a CSS-animated stroke (export.mjs anims: a 3D line the app plays) restyled by a class the game turns on and off
+  // (__t3dMotion restyle): its colour, its width against its own without the class and its cycle as the page has them
+  // now, sent when the class comes or goes (Turn3D "restyle"; matched by the class its selector names) — the ramen
+  // machine's heater, yellower, thicker and quicker while it boils the water again, had stayed red and thin in 3D,
+  // 2026-11-02. (looked at 4 times a second, the page's styles read only when the class has come or gone)
+  function t3dRestyle(m) {
+    const rs = (window.__t3dMotion[m.id] || {}).restyle; if (!rs || !rs.length) return;
+    const now = performance.now(); if (now - (T3D.restyleAt || 0) < 250) return; T3D.restyleAt = now;
+    const els = rs.map(r => t3dRoots(m.id).map(x => x.querySelector(r.sel)).find(Boolean)), on = els.map((el, i) => !!el && el.classList.contains(rs[i].cls));
+    const key = m.id + on.join(); if (key === T3D.restyleKey) return; T3D.restyleKey = key;
+    const a = []; rs.forEach((r, i) => { const el = els[i]; if (!on[i]) return;
+      el.classList.remove(r.cls); const w0 = parseFloat(getComputedStyle(el).strokeWidth) || 1; el.classList.add(r.cls);
+      const cs = getComputedStyle(el), c = /rgba?\(([^)]+)\)/.exec(cs.stroke), n = c && c[1].split(/[\s,/]+/).filter(Boolean).map(Number); if (!n) return;
+      a.push({ cls: r.sel.replace(/^\./, ''), color: [n[0] / 255, n[1] / 255, n[2] / 255], wk: +((parseFloat(cs.strokeWidth) || w0) / w0).toFixed(3), dur: parseFloat(cs.animationDuration) || 0 }); });
+    NATIVE.post('turn3d', { type: 'restyle', machine: m.id, a });
+  }
+  // the game restarting one (UTIL.restart: the class off, on again two frames later): the app told to play it once from
+  // then on (Turn3D "once"), while the shell holds the machine
+  function t3dOnceHook() {
+    if (T3D.onceHook || typeof UTIL === 'undefined' || !UTIL.restart) return; T3D.onceHook = true;
+    const restart = UTIL.restart;
+    UTIL.restart = (el, cls = 'go') => { restart(el, cls); if (!el || !T3D.held || !el.closest) return;
+      const r = el.closest('.mroot'), id = r && r.getAttribute('data-m'), on = id && (window.__t3dMotion[id] || {}).once;
+      if (!on || !on.some(m => m.cls === cls && el.matches(m.sel))) return;
+      const k = window.__t3dOnceKey(el); requestAnimationFrame(() => requestAnimationFrame(() => NATIVE.post('turn3d', { type: 'once', machine: id, k }))); };
+  }
+  // one-shot effects the game builds with innerHTML and takes away again: the shell told the moment the page adds one
+  // (Turn3D "fx": kind, place in the machine's own x, y, z, the page's time), and draws it itself as the page's CSS plays
+  // it. Not read as a moving part (T3D_K): caught at its first frame, the steam's opacity still 0, it never showed in 3D,
+  // 2026-11-03. A container's children watched only (childList), only while the shell holds that machine
+  const T3D_FX = window.__t3dFx;
+  function t3dFxWatch() {
+    const id = T3D.held && T3D.heldM, spec = id && T3D_FX[id];
+    if (T3D.fxObs && T3D.fxObs.id === id && T3D.fxObs.at >= (T3D.domDirty || 0)) return;
+    if (T3D.fxObs) { T3D.fxObs.o.disconnect(); T3D.fxObs = null; }
+    if (!spec) return;
+    // (one a mutation: the steam's three strokes and the cloud's four circles come in one innerHTML; one each for the parts
+    // added one at a time, the cup's ice cubes)
+    const v = x => typeof x === 'function' ? x() : x;
+    const o = new MutationObserver(recs => { const t = performance.timeOrigin + performance.now();
+      for (const r of recs) { const has = l => [...l].some(n => n.matches && n.matches(spec.add));
+        // (and, spec.end, the moment the page takes it away before its CSS is done: the frozen machine's cloud, gone as the
+        // pack is opened and the window drawn anew at ~0.88 s, or the pack taken; it had run its whole 1.4 s in 3D, 2026-11-03)
+        if (!has(r.addedNodes)) { if (spec.end && has(r.removedNodes)) NATIVE.post('turn3d', { type: 'fx', machine: id, kind: spec.kind, end: true, t }); continue; }
+        NATIVE.post('turn3d', { type: 'fx', machine: id, kind: spec.kind, at: v(spec.at), to: spec.to ? v(spec.to) : undefined, t }); } });
+    for (const r of t3dRoots(id)) r.querySelectorAll(spec.sel).forEach(el => o.observe(el, { childList: true }));
+    T3D.fxObs = { id, o, at: performance.now() };
   }
   // the machine's roots, one in each of the page's layers (looked for again once the page has built anew)
   const t3dRoots = id => { if (!T3D.roots || T3D.rootsId !== id || (T3D.domDirty || 0) >= T3D.rootsAt || T3D.roots.some(r => !r.isConnected)) {
@@ -1206,13 +1332,19 @@ window.__t3dMotion = {
     if (T3D_TICK) { const t = performance.now(), g = t - (T3D.tickAt || t); T3D.tickAt = t;
       if (g > 100 && T3D.held) NATIVE.post('diag', `T3DGAP ${g.toFixed(0)}ms before it: ${(T3D.tickFr || []).join(' ') || 'nothing of the tick'} · mode ${typeof __ND !== 'undefined' && __ND.mode} turning ${!!T.active}`); T3D.tickFr = []; }
     if (typeof __ND === 'undefined' || !MACHINES.length) return;
+    t3dOnceHook(); t3dFxWatch();
     if (T3D.slide && (__ND.cur === T3D.slide.i || performance.now() - T3D.slide.at > 6000)) T3D.slide = null;
     if (T3D.slide) t3dWebRoots(MACHINES[T3D.slide.i].id); else if (T3D.webOn) t3dWebRoots(null); T3D.webOn = !!T3D.slide;
     if (T3D.toward && ((__ND.cur === T3D.toward.i && __ND.view === 'machine') || performance.now() - T3D.toward.at > 3000)) T3D.toward = null;
     t3dWant();
     // (an upgrade fitted: the X-ray's insides with its parts)
     // (霓虹 worn or taken off: its model; the shell keeps the look it has till then, t3dSwap)
-    { const id = M().id; if (!T3D.slide && T3D.shellId && id in T3D.shellId) { const full = id in T3D.xrId, xr = full ? t3dXrId(id) : undefined, sh = t3dShellId(id); if (xr !== T3D.xrId[id] || sh !== T3D.shellId[id]) NATIVE.post('turn3d', { type: 'prepare', machine: id, shell: sh, lang: t3dLangNow(), full, xr }); if (sh !== T3D.shellId[id]) T3D.liveDirty = T3D.swapAt = performance.now(); if (full) T3D.xrId[id] = xr; T3D.shellId[id] = sh; } }
+    const now0 = performance.now();
+    // (looked at 4 times a second, not every frame: the upgrades' levels and the look read anew each time cost the frozen
+    // machine 5.8 ms a second at rest, 2026-11-01; an upgrade or 霓虹 is seen within a quarter of a second, 2026-11-02)
+    if (now0 - (T3D.idAt || 0) > 250) { T3D.idAt = now0; const id = M().id; if (!T3D.slide && T3D.shellId && id in T3D.shellId) { const full = id in T3D.xrId, xr = full ? t3dXrId(id) : undefined, sh = t3dShellId(id); if (xr !== T3D.xrId[id] || sh !== T3D.shellId[id]) NATIVE.post('turn3d', { type: 'prepare', machine: id, shell: sh, lang: t3dLangNow(), full, xr }); if (sh !== T3D.shellId[id]) T3D.liveDirty = T3D.swapAt = performance.now(); if (full) T3D.xrId[id] = xr; T3D.shellId[id] = sh; } }
+    if (!T3D.slide && T3D.held) { t3dSpinRate(M()); t3dRestyle(M()); t3dDashRun(M()); }
+    if (!T3D.held) T3D.dr = null;   // (the chain's run sent anew each time the shell takes a machine)
     t3dWatch();
     const now = performance.now(), look = now - (T3D.domDirty || 0) < 400 || now - (T3D.lookAt || 0) > 300; if (look) T3D.lookAt = now;
     // (?t3dtick=1, a measurement: what each part of this tick costs the page, posted every 2 s as T3DTICK in the diag log;
@@ -1241,6 +1373,10 @@ window.__t3dMotion = {
     // the page's is not shown again for it. Shown, it was restyled whole and painted for nothing as the fade began: the page's
     // frame after letting go 0.35–0.9 s on the phone (753c844), 180 ms in Chromium, the street's fade a jump, 2026-11-01)
     // (and a few frames after that, not in the frame the machine's layer goes, the street's slowest of itself)
+    // (but the shell told at once that the page has left (leave): it draws on at a low rate till release, the street's fade
+    // getting the GPU; a page stalled leaving ramen held release back 4 s, the shell drawing ramen at full rate, the phone
+    // recording, 2026-11-02. Once a stay away, again after the page is back on a machine)
+    if (!t3dCan() && !T3D.leaveSent && (T3D.held || device.classList.contains('nd-t3d-full') || device.classList.contains('nd-t3d-fade'))) { T3D.leaveSent = true; NATIVE.post('turn3d', { type: 'leave' }); } else if (t3dCan()) T3D.leaveSent = false;
     if (!t3dCan() && __ND.view === 'street' && device.classList.contains('nd-t3d-full') && (T3D.goneFr = device.classList.contains('only-street') ? (T3D.goneFr || 0) + 1 : 0) < 3
       && performance.now() - (T3D.leaveAt || (T3D.leaveAt = performance.now())) < 1000) return;
     T3D.leaveAt = 0; T3D.goneFr = 0;
@@ -1829,7 +1965,10 @@ window.__t3dMotion = {
       return [c.s, hp]; };
     lap('q'); const ek = new Map(), nk = t3dNeon(m.id) ? 'neon;' : '';
     for (const e of within(sel)) { if ((!withInt && ec(e).int) || inDoor(e)) continue; const [st, hp] = styleOf(e); if (st.startsWith('none;')) continue;
-      ek.set(e, nk + [e.getAttribute('class'), e.getAttribute('d'), e.getAttribute('x'), e.getAttribute('y'), e.getAttribute('height'), e.getAttribute('transform'), e.textContent, st, hp].join(';')); }
+      ek.set(e, nk + [e.getAttribute('class'), e.getAttribute('d'), e.getAttribute('x'), e.getAttribute('y'), e.getAttribute('height'), e.getAttribute('transform'), e.textContent, st, hp,
+        // (and where a line, circle, ellipse or polygon is, and a rect's width: the heat pump's 9 fins, <line>s alike but for
+        // their ends, had one key, so one picture, the first fin's, for all nine, stacked as one in 3D, 2026-11-03)
+        ...['x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'r', 'rx', 'ry', 'width', 'points'].map(a => e.getAttribute(a))].join(';')); }
     const els = [...ek.keys()]; lap('styles');
     const gls = T3D_GLOW[m.id] ? within(T3D_GLOW[m.id]).filter(e => !inDoor(e)) : [];
     if (T3D.liveSetQ !== Q) { T3D.liveSetQ = Q; const watch = T3D.liveSet = new WeakSet(), mark = e => { watch.add(e); for (const d of e.querySelectorAll('*')) watch.add(d); };
@@ -1887,6 +2026,8 @@ window.__t3dMotion = {
       last.set(el, d); lastK.set(kz(k), d); if (lastK.size > 400) lastK.clear();
       if (sentPic.has(d.id)) { const { png, ...rest } = d; return rest; } sentPic.add(d.id); return d; };
     const part = () => ({ items: [], decals: [], cards: [] }), ext = part(), int = part(), mine = new Set(els.concat(gls)), go = el => ec(el).int ? doInt : doExt;
+    // (a part painted in the page's order under the X-ray, __t3dLiveOrder: its place's key, as export.mjs numbers them)
+    const ordOf = new Map(); roots.forEach(r => window.__t3dLiveKeys(m.id, r).forEach((k, e) => ordOf.set(e, k)));
     const rgba = (c, a) => { const m2 = /rgba?\(([^)]+)\)/.exec(c || ''); if (!m2) return null; const v = m2[1].split(/[\s,/]+/).filter(Boolean).map(Number); return [v[0] / 255, v[1] / 255, v[2] / 255, (v.length > 3 ? v[3] : 1) * a]; };
     for (const el of els) try {
       if (!go(el)) continue;
@@ -1901,13 +2042,14 @@ window.__t3dMotion = {
         let c = CK.get(k); if (!c) CK.set(k, c = t3dCard(el, p3)); to.cards.push(c); } continue; }
       // (a marked part's, __t3dMotion marks: the shell moves it with the part)
       const mk = t3dMarkOf(el, m), mark = mk ? { mark: mk } : {};
-      if (plane && plane !== el) { const [O, U, V] = R.planes.get(plane.getAttribute('transform')); const d = paintOnce(ek.get(el) + t3dPicAt(plane, O, U, V), raw => t3dPaint({ el, plane, face: { O, U, V }, raw }, mine), el); if (d) to.decals.push(mk ? { ...d, ...mark } : d); }
+      if (plane && plane !== el) { const [O, U, V] = R.planes.get(plane.getAttribute('transform')); const d = paintOnce(ek.get(el) + t3dPicAt(plane, O, U, V), raw => t3dPaint({ el, plane, face: { O, U, V }, raw }, mine), el); if (d) to.decals.push(mk || ordOf.has(el) ? { ...d, ...mark, ...(ordOf.has(el) ? { ord: ordOf.get(el) } : {}) } : d); }
       else if (poly) {
         const cs = getComputedStyle(el), op = +cs.opacity, pts = poly.pts, fill = rgba(cs.fill, op * (+cs.fillOpacity || 1)), stroke = rgba(cs.stroke, op * (+cs.strokeOpacity || 1));
+        const od = ordOf.has(el) ? { ord: ordOf.get(el) } : {};   // (a coin: its place in the X-ray's order)
         // (a non-scaling stroke: its width in CSS px, px, the same on the screen at any zoom, so a pinch changes nothing here)
         const w = parseFloat(cs.strokeWidth) || 0, px = cs.getPropertyValue('vector-effect') === 'non-scaling-stroke' ? 1 : undefined;
-        if (fill && fill[3] > 0 && poly.closed && pts.length >= 3) to.items.push({ k: 'fill', p: pts, tri: pts.slice(2).flatMap((_, i) => [0, i + 1, i + 2]), color: fill, opaque: fill[3] >= .999, layer, ...mark });
-        if (stroke && stroke[3] > 0 && w > 0) to.items.push({ k: 'line', p: poly.closed ? pts.concat([pts[0]]) : pts, color: stroke, w, px, layer, ...mark });
+        if (fill && fill[3] > 0 && poly.closed && pts.length >= 3) to.items.push({ k: 'fill', p: pts, tri: pts.slice(2).flatMap((_, i) => [0, i + 1, i + 2]), color: fill, opaque: fill[3] >= .999, layer, ...mark, ...od });
+        if (stroke && stroke[3] > 0 && w > 0) to.items.push({ k: 'line', p: poly.closed ? pts.concat([pts[0]]) : pts, color: stroke, w, px, layer, ...mark, ...od });
       }
     } catch (e) { console.warn('turn3d live', e); }
     lap('parts');
@@ -1981,6 +2123,18 @@ window.__t3dMotion = {
     if (!sels) { T3D.kSeen = true; return; }
     if (!t3dFull || !R || !R.on || !T3D.ready.has(m.id) || T.active) return;
     t3dWatch();
+    // (the page's recorded 3D points thinned since the groups were read (past __REC.cap, build_www.py: those of earlier
+    // frames dropped, __REC.clr counting it): a group read now finds no 3D point under what the page drew before, and lays
+    // it flat across the camera's plane at its place on the screen, off the machine. The spiral machine's goods and coils
+    // flat and off to its left, its shelves bare, after turns and a pinch (the owner's phone, 2026-11-03; ~2,000 points
+    // a turn stop, 27,000 a whole drawing, the cap 60,000). So the machine drawn again at the angle now, its points and its
+    // glyphs' recorded anew, and every group read again; only when the page could turn it (GAME.canTurn: not while a sale,
+    // the door or a fitting moves it; looked at again after))
+    if ((R.clr || 0) !== (T3D.kClr || 0) && typeof __ND !== 'undefined' && __ND.shot && typeof GAME !== 'undefined' && GAME.canTurn
+      && !__ND.doorFlow && !__ND.partFlow) {
+      __ND.shot(__ND.yaw); T3D.kClr = R.clr || 0; T3D.glyB = null; T3D.kQ = null; T3D.kSent = null;
+      NATIVE.post('diag', `T3D k: the page's 3D points thinned, ${m.id} drawn again and read anew`);
+    }
     const now = performance.now(), doorD = t3dDoorOf(m), doorUp = !!doorD && t3dDoorA(m) > .002;
     // (the groups: looked for again once the page has built anew; each by its selector's place and its own among them)
     if (!T3D.kQ || T3D.kQ.m !== m.id || (T3D.domDirty || 0) > T3D.kQ.at || T3D.kQ.l.some(g => !g.el.isConnected)) {
@@ -2039,6 +2193,10 @@ window.__t3dMotion = {
   // width in the element's units, strength] (tools/turn3d/pack.py HALO, the same); a line in points: its units' points
   const T3D_HALO = [[1.28, .25], [2.97, .14]], T3D_HALO_PX = 1.3;
   // one group's shapes, in 3D (each shape of the page's under it, in its order)
+  // what a group's walk leaves out, by machine: the one-shot effects the shell draws itself (T3D_FX). Not by narrowing the
+  // group's selector: the frozen take-out window's group is .fz-window itself, whose own transform and opacity carry the
+  // pack up and away when it is taken; read from its children, the pack stood in 3D after it was taken, 2026-11-03
+  const T3D_KSKIP = { frozen: '.fz-fog' };
   function t3dKItems(root, R, ext, chain0 = '') {
     const C = t3dKCam(), items = [], layer = ext ? 'stage-ext' : undefined;
     // (a screen point the page drew one 3D point at, in this frame: two at once (__REC.conf), neither)
@@ -2082,6 +2240,8 @@ window.__t3dMotion = {
       // lamp on its lift glowing, a bare thin line in 3D, the phone 2026-11-01)
       if (cs.strokeDasharray && cs.strokeDasharray !== 'none') { const d = cs.strokeDasharray.split(/[\s,]+/).map(parseFloat); if (d.length >= 2 && d[0] + d[1] > 0) s.dash = d.slice(0, 2); }
       if (/#soft["')]/.test(cs.filter || '')) s.glow = 1;
+      // (a dashed line the shell runs on its own, T3D_DASHRUN: the sushi belt's chain)
+      if (s.dash) { const dr = T3D_DASHRUN[M().id]; if (dr && el.matches(dr.sel)) s.run = 1; }
       // (a glyph's non-scaling line: as one, its width as the page gives it, in points. platform/nss.js turns them into
       // scaled ones (--ndn 1), and a glyph laid out anew (t3dGlyphs) is read before it gets to its own style: a width of 1
       // unit, the locker's eggplants' outlines twice the page's, three of them a dark band across the tray, 2026-10-31)
@@ -2101,7 +2261,7 @@ window.__t3dMotion = {
       if (more.hull) { if (fc || sk) items.push({ k: 'hull', p: pts, color: fc, sc: sk, w, px: st.px, pull, layer }); return; }
       if (fc) items.push({ k: 'fill', p: pts, tri: t3dTri(pts, more.bridged), color: fc, opaque: false, pull, layer });
       if (sk) { const ln = { k: 'line', p: closed ? pts.concat([pts[0]]) : pts, w, px: st.px, color: sk, pull, layer }, u = st.px ? T3D_HALO_PX : sw;
-        if (st.dash) ln.dash = st.dash.map(v => +(v * (st.px ? 1 : sw)).toFixed(3));
+        if (st.dash) { ln.dash = st.dash.map(v => +(v * (st.px ? 1 : sw)).toFixed(3)); if (st.run) ln.run = 1; }
         if (st.glow) for (const [dw, al] of T3D_HALO) items.push({ ...ln, w: +(w + dw * u).toFixed(3), color: sk.slice(0, 3).concat(+(sk[3] * al).toFixed(3)) });
         items.push(ln); }
     };
@@ -2153,9 +2313,11 @@ window.__t3dMotion = {
         }
         return { pts: P, closed: true }; });
     };
+    const kskip = T3D_KSKIP[M().id];
     const walk = (el, G, pl, L, op, sw, chain) => {
       for (const c of el.children) {
         const n = c.localName; if (n === 'defs' || n === 'clipPath' || n === 'mask' || n === 'title') continue;
+        if (kskip && c.matches(kskip)) continue;
         if (c.getAttribute('display') === 'none' || (c.style.display === 'none' && !(T3D.reveal && T3D.reveal.was.has(c)))) continue;
         const t = c.getAttribute('transform'), o = c.getAttribute('opacity'), op2 = op * (o == null ? 1 : +o);
         let G2 = G, pl2 = pl, L2 = L, sw2 = sw;
@@ -2164,6 +2326,12 @@ window.__t3dMotion = {
         if (n === 'g' || n === 'svg' || n === 'a') { walk(c, G2, pl2, L2, op2, sw2, chain + '>' + ['class', 'fill', 'stroke', 'stroke-width', 'style'].map(a => c.getAttribute(a)).join(':')); continue; }
         // (words on a plane (a station's signs): a picture of them there; others, and pictures, not drawn)
         if (n === 'text' && pl2) { const pic = t3dKPic(c, pl2, L2, G2, app, ap2); if (pic) items.push({ ...pic, pull, layer }); continue; }
+        // (words across the screen, not on a plane: a picture of them across the camera's plane, through the 3D point the page
+        // drew at their x, y (the shaved-ice cup's 氷: x, y its print's point on the cup, dy down to the baseline; else not
+        // drawn, as before). The cup in 3D had no 氷 (2026-11-02)
+        if (n === 'text' && !pl2) { const x = +c.getAttribute('x') || 0, y = +c.getAttribute('y') || 0, q = at(x, y);
+          if (q) { const O = [0, 1, 2].map(i => q[i] - x * C.ex[i] - y * C.ey[i]), pic = t3dKPic(c, [O, C.ex, C.ey], ID2, G2, app, ap2); if (pic) items.push({ ...pic, pull, layer }); }
+          continue; }
         // (a glyph drawn by reference, the frozen machine's packs: its own shapes, t3dKUse)
         if (n === 'use' && !pl) { const u = t3dKUse(c, t ? comp(G, liftAt(mOf(c))) : G, op2, sw2, chain, !!t); if (u) items.push(...u.map(it => ({ ...it, pull, layer }))); continue; }
         if (n === 'text' || n === 'use' || n === 'image' || n === 'tspan') continue;

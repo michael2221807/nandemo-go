@@ -68,7 +68,7 @@
   const at = (x, y, z) => { const [sx, sy] = P(x, y, z); return `translate(${f(sx)} ${f(sy)})`; };
   const lerp = (a, b, e) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e, a[2] + (b[2] - a[2]) * e];
   const moveG = (el, a, b, ms, ease = UTIL.ease.inOut) => UTIL.tween(ms, e => el.setAttribute('transform', at(...lerp(a, b, e))), ease);
-  const slide = (el, dx, dy, dz, ms, back = false) => { const [sx, sy] = P(dx, dy, dz); return UTIL.tween(ms, e => { const t = back ? 1 - e : e; el.setAttribute('transform', `translate(${f(sx * t)} ${f(sy * t)})`); }, UTIL.ease.inOut); };
+  const slide = (el, dx, dy, dz, ms, back = false) => { const [sx, sy] = P(dx, dy, dz), t0 = el.__t0 != null ? el.__t0 : (el.__t0 = el.getAttribute('transform') || ''); return UTIL.tween(ms, e => { const t = back ? 1 - e : e; el.setAttribute('transform', `translate(${f(sx * t)} ${f(sy * t)}) ${t0}`.trim()); }, UTIL.ease.inOut); };
   const item = (glyph, p, parent) => UTIL.g(parent || I.movers, `<use href="#${glyph}" style="${ARB.vars(p)}"/>`, {});
   const OUT = [WINDOW[0], WINDOW[1] - 3, 27];
   async function runToast(k, p) {
@@ -102,7 +102,7 @@
     await slide(O.hatch, 0, 0, 12, 180); SND.tok();
     await Promise.all([slide(O.pusher, 10, 0, 0, 420), moveG(el, a, TURN, 420)]);
     slide(O.pusher, 10, 0, 0, 260, true);
-    await slide(O.hatch, 0, 0, 12, 160, true); O.hatch.removeAttribute('transform'); SND.click();
+    await slide(O.hatch, 0, 0, 12, 160, true); O.hatch.setAttribute('transform', O.hatch.__t0); SND.click();
     // under the light, on the turntable
     O.light.classList.add('on'); SND.rumble();
     await UTIL.tween(2300, e => O.spokes.setAttribute('transform', `rotate(${f(e * 540)})`), t => t);
@@ -187,7 +187,7 @@
   const supply = {
     title: T`补货`, unit: T`件`, gap: 80, flyRot: 0, anyTarget: false,
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => act().flatMap((k, r) => Array.from({ length: CAPS[k] }, (_, j) => ({ glyph: GLYPH[k], vars: `--c:${MENU[k].fill}`, pos: k === 3 ? [11 + j * 12.6, 12 + r * 17.4, 2] : [13 + j * 17, 12 + r * 17.4, 2], target: 'k' + k }))),
+    slots: () => act().flatMap((k, r) => Array.from({ length: CAPS[k] }, (_, j) => ({ glyph: k < 2 ? 'g-foil-crate' : GLYPH[k], vars: `--c:${MENU[k].fill}`, pos: k === 3 ? [11 + j * 12.6, 12 + r * 17.4, 2] : [13 + j * 17, 12 + r * 17.4, 2], target: 'k' + k }))),
     back: crateBack, front: crateFront,
     entry: t => { const k = +t.slice(1); return k < 2 ? [MAG.x[k], MAG.y, 210] : k === 2 ? [COL.x, COL.y, 160] : [TRAY.x, TRAY.y, 96]; },
     accept: t => { const k = +t.slice(1); return S.q[k].length + reserved[k] < CAPS[k]; },

@@ -199,7 +199,7 @@
   const supply = {
     title: T`关东煮料`, unit: T`份`, gap: 60, flyRot: 0, anyTarget: false,
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-od-pack', vars: `--c:${TOPC[raw(m.g)] || '#e8c890'}`, pos: [9 + j * 13, 7.5 + k * 10.6, 2], target: 'c' + k }))),
+    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-od-pack-' + raw(m.g), vars: `--c:${TOPC[raw(m.g)] || '#e8c890'}`, pos: [9 + j * 13, 7.5 + k * 10.6, 2], target: 'c' + k }))),
       { glyph: 'g-od-jug', vars: '', pos: [100, 38, 2], target: 'dashi' }],
     back: crateBack, front: crateFront,
     entry: t => t === 'dashi' ? [POT.x, POT.y, POT.z1 + 10] : cmpTop(+t.slice(1)),

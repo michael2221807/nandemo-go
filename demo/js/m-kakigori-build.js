@@ -89,7 +89,7 @@ const KGB = (() => {
     const av = Math.atan2(VIEW[1], VIEW[0]), rz = w => CUP.r0 + (r - CUP.r0) * w / CUP.h, [lx, ly] = q(x + rz(5.2) * Math.cos(av), y + rz(5.2) * Math.sin(av), z + 5.2);
     let s = `<path d="${toD(hull([...ring(x, y, z, CUP.r0), ...ring(x, y, top, r)]))}" style="fill:#fbfaf4;${ST}"/>`
       + `<path d="${toD([...ringZ(z + 1.2, rz(1.2) + .02, 12, av - 1.5, av + 1.5, x, y), ...ringZ(z + 2.6, rz(2.6) + .02, 12, av + 1.5, av - 1.5, x, y)])}" style="fill:#3a8aff;stroke:none"/>`
-      + `<text x="${lx}" y="${f(+ly + 1.3)}" font-size="3.4" text-anchor="middle" fill="#e83a4a" class="sign">氷</text>`;
+      + `<text x="${lx}" y="${ly}" dy="1.3" font-size="3.4" text-anchor="middle" fill="#e83a4a" class="sign">氷</text>`;
     if (d < .02) return s + `<path d="${toD(ring(x, y, top, r - .4))}" style="fill:#e8e4d8;stroke:none"/>`;
     const h = CUP.dome * d, rr = r + .4 * d;
     const domeD = (z0, k0, k1) => toD(hull([...ring(x, y, z0, rr * k0, 16), ...ring(x, y, z0 + (top + h - z0) * .5, rr * .8 * k1, 14), ...ring(x, y, top + h * .88, rr * .42 * k1, 10), ...ring(x, y, top + h, .6, 6)]));
