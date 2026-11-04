@@ -219,9 +219,12 @@ const TPB = (() => {
   }
   // the crate: a sauce bottle (in its colour), the batter tub
   function defs() {
+    const C = 'var(--c)', W = '#fbf8ee';
+    const bottle = `<g id="g-tp-squeeze">${cyl(0, 0, 0, 6.2, 2, 2, C)}${cyl(0, 0, 2, 4.8, 2.04, 2.04, W)}${cyl(0, 0, 2.9, 3.7, 2.06, 2.06, C)}${cyl(0, 0, 6.2, 7.2, 2, 1.25, C)}${cyl(0, 0, 7.2, 8.4, 1.25, 1.05, '#e8453a')}${cyl(0, 0, 8.4, 10.2, .55, .18, W)}`
+      + (() => { const [a, b] = q(-1.2, 1, 5.6), [c, d] = q(-1.2, 1, .8); return `<path d="M${a} ${b}L${c} ${d}" stroke="#fff" stroke-width=".5" stroke-linecap="round" opacity=".55"/></g>`; })();
     const pack = `<g id="g-tp-bottle">${box(-2.2, -2.2, 0, 4.4, 4.4, 8, 0, 'tp-bottle')}<g transform="${TOPP(-2.2, -2.2, 8.03)}"><rect x=".6" y=".6" width="3.2" height="3.2" rx="1.2" style="fill:var(--c)"/></g></g>`;
     const tub = `<g id="g-tp-batter"><path d="M-7 0l-1-11h16l-1 11z" fill="#e6eef6" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><ellipse cx="0" cy="-11" rx="8" ry="2.2" fill="#f6e6b4" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x="-5" y="-8" width="10" height="4.4" rx="1" fill="#c8303a"/><text x="0" y="-4.8" font-size="3.2" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">生地</text></g>`;
-    return pack + tub;
+    return pack + tub + bottle;
   }
 
   /* ---------- the belt ---------- */

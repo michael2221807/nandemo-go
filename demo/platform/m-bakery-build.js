@@ -190,11 +190,36 @@ const PBB = (() => {
     }
     return `<g transform="translate(.2 .4)">${s}</g>`;
   }
+  // (app build) the crate: a tub of filling by its look (the colour is the slot's --c: any good the lineup picks), its
+  // surface, what is heaped in it, a lid
+  const PBPACKS = () => ['smooth', 'cream', 'noodles', 'butter', 'wiener', 'chunks'].map(t => {
+    const KK = 'stroke="rgba(0,0,0,.42)" stroke-width=".45" vector-effect="non-scaling-stroke"', C = 'style="fill:var(--c)"';
+    const [a, b] = P(.6, .4, 2.45);
+    const heap = (more = '') => `<path d="M${f(a - 3)} ${f(b)}q-.4-1.4 1.2-1.7q.4-1.4 1.8-1.3q1.4-.1 1.8 1.3q1.6.3 1.2 1.7q-3 1.2-6 0z" ${C} ${KK}/><path d="M${f(a - 1.2)} ${f(b - 2.3)}q.8-.5 1.6 0" fill="none" stroke="rgba(255,255,255,.45)" stroke-width=".45" stroke-linecap="round"/>` + more;
+    const quad = (pts, fill) => `<path d="M${pts.map(p => P(...p).map(f).join(' ')).join('L')}z" fill="${fill}" ${KK}/>`;
+    const pat = (x, y) => { const x0 = x - 1.1, x1 = x + 1.1, y0 = y - .8, y1 = y + .8, z0 = 2.45, z1 = 3.35, [u, v] = P(x, y, z1);
+      return quad([[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], '#f0d870') + quad([[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], '#e2c25a')
+        + quad([[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], '#fff2b0') + `<circle cx="${f(u - .4)}" cy="${f(v)}" r=".18" fill="#fff"/><circle cx="${f(u + .3)}" cy="${f(v + .2)}" r=".15" fill="#fff"/>`; };
+    const link = (x, y) => { const [u, v] = P(x, y, 2.9); return `<rect x="${f(u - 2.4)}" y="${f(v - .7)}" width="4.8" height="1.4" rx=".7" ${C} ${KK}/><path d="M${f(u - 1.6)} ${f(v - .3)}h2.6" stroke="rgba(255,255,255,.45)" stroke-width=".35" stroke-linecap="round"/>`; };
+    const noodles = '<path d="M1.6 2.2q1 .9 2-.2t2 .2 2-.2 1.8.3M1.6 3.6q1 .9 2-.2t2 .2 2-.2 1.8.3M1.6 5q1 .9 2-.2t2 .2 2-.2 1.8.3" fill="none" stroke="#d89a4a" stroke-width=".55" stroke-linecap="round"/>';
+    const R = {
+      smooth: ['<path d="M2.4 2.4q3-1 6 .2" fill="none" stroke="rgba(255,255,255,.3)" stroke-width=".5" stroke-linecap="round"/>', heap()],
+      cream: ['<path d="M2.2 4.6q2-2.6 4.6-1.2t2.4-.8" fill="none" stroke="rgba(255,255,255,.5)" stroke-width=".6" stroke-linecap="round"/>' + [[3, 2.4], [5.6, 4.8], [7.8, 2.6]].map(([u, v]) => `<circle cx="${u}" cy="${v}" r=".14" fill="#5a4010"/>`).join(''),
+        heap(`<circle cx="${f(a + .8)}" cy="${f(b - 1)}" r=".14" fill="#5a4010"/>`)],
+      noodles: [noodles + [[3, 3], [7.2, 4.4]].map(([u, v]) => `<rect x="${u}" y="${v}" width=".9" height=".35" fill="#e8453a"/>`).join('') + [[5, 2.4], [2.6, 4.8], [8, 2.6]].map(([u, v]) => `<circle cx="${u}" cy="${v}" r=".18" fill="#3a7a2a"/>`).join(''),
+        heap(`<path d="M${f(a - 2.4)} ${f(b - .8)}q1-.8 2 0t2 0M${f(a - 2)} ${f(b - 1.7)}q1-.8 2 0t1.6 0" fill="none" stroke="#e8b060" stroke-width=".45" stroke-linecap="round"/><rect x="${f(a + .4)}" y="${f(b - 2.2)}" width=".9" height=".35" fill="#e8453a"/>`)],
+      butter: ['', [[-2.6, -1], [.2, -1], [3, -1], [-1.2, 1.4], [1.6, 1.4]].sort((u, v) => u[0] + u[1] - v[0] - v[1]).map(([x, y]) => pat(x, y)).join('')],
+      wiener: ['', [[-1.6, -2], [-.2, -.2], [1.2, 1.6]].map(([x, y]) => link(x, y)).join('')],
+      chunks: ['<path d="M2.4 2.4q3-1 6 .2" fill="none" stroke="rgba(255,255,255,.3)" stroke-width=".5" stroke-linecap="round"/>', heap([[-1.8, -.8, '#f08a2a'], [.4, -1.7, '#e8c070'], [1.6, -.6, '#8a4a2a'], [-.4, -.5, '#e8c070']].map(([u, v, c]) => `<ellipse cx="${f(a + u)}" cy="${f(b + v)}" rx=".6" ry=".45" fill="${c}"/>`).join(''))],
+    }[t];
+    return `<g id="g-pb-pack-${t}">${box(-5.5, -3.5, 0, 11, 7, 2.4, 0, 'pb-pack')}<g transform="${TOPP(-5.5, -3.5, 2.43)}"><rect x="1" y="1" width="9" height="5" rx="2.4" ${t === 'butter' || t === 'wiener' ? 'fill="#f4efe2"' : C}/>${R[0]}</g>${R[1]}`
+      + `<g transform="${TOPP(-5.5, -3.5, 3.8)}"><rect x=".6" y=".6" width="9.8" height="5.8" rx="2.6" fill="rgba(230,245,255,.16)" stroke="rgba(255,255,255,.7)" stroke-width=".3"/><path d="M2 1.6h3.8M1.8 2.4h1.6" stroke="#fff" stroke-width=".45" stroke-linecap="round" opacity=".75"/></g></g>`;
+  }).join('');
   // the crate: a pack of filling (in its colour), the dough tub
   function defs() {
     const pack = `<g id="g-pb-pack">${box(-5.5, -3.5, 0, 11, 7, 2.4, 0, 'pb-pack')}<g transform="${TOPP(-5.5, -3.5, 2.43)}"><rect x="1" y="1" width="9" height="5" rx="2.4" style="fill:var(--c)"/></g></g>`;
     const tub = `<g id="g-pb-dough"><path d="M-7 0l-1-11h16l-1 11z" fill="#e6eef6" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><ellipse cx="0" cy="-11" rx="8" ry="2.2" fill="#f2e2c0" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><rect x="-5" y="-8" width="10" height="4.4" rx="1" fill="#c97c2c"/><text x="0" y="-4.8" font-size="3.2" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">生地</text></g>`;
-    return pack + tub;
+    return pack + tub + PBPACKS();
   }
   const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
 

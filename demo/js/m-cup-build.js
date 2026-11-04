@@ -44,7 +44,7 @@ const CUB = (() => {
   const turboGhost = () => CORE.edges(BOWL[0] - 4.5, BOWL[1] - 4.5, 108.6, 9, 9, 11.4, 'ugh');
   // ミル: a clear bean hopper, the burr grinder under it, a chute down to the bowl
   const MILL = { x: 37, y: 16, z: 186 };
-  const millKit = () => box(MILL.x - 5, MILL.y - 5, MILL.z, 10, 10, 13, 0, 'cu-mill') + `<g transform="${FRONT(MILL.x - 5, MILL.y + 5.05, MILL.z + 13)}"><circle cx="5" cy="5.6" r="3.2" class="face"/><g class="cu-burr" transform="translate(5 5.6)"><path class="hair" d="M-2.6 0H2.6M0-2.6V2.6M-1.8-1.8L1.8 1.8M1.8-1.8L-1.8 1.8"/></g><text x="5" y="12" font-size="1.8" text-anchor="middle" fill="var(--amber)" class="label">MILL</text></g>`
+  const millKit = () => box(MILL.x - 5, MILL.y - 5, MILL.z, 10, 10, 13, 0, 'cu-mill') + `<g transform="${FRONT(MILL.x - 5, MILL.y + 5.05, MILL.z + 13)}"><circle cx="5" cy="5.6" r="3.2" class="face"/><g transform="translate(5 5.6)"><g class="cu-burr"><path class="hair" d="M-2.6 0H2.6M0-2.6V2.6M-1.8-1.8L1.8 1.8M1.8-1.8L-1.8 1.8"/></g></g><text x="5" y="12" font-size="1.8" text-anchor="middle" fill="var(--amber)" class="label">MILL</text></g>`
     + `<path d="${toD(hull([...ringZ(MILL.z + 13, 3.4, 18, 0, Math.PI * 2, MILL.x, MILL.y), ...ringZ(MILL.z + 36, 6, 18, 0, Math.PI * 2, MILL.x, MILL.y)]))}" style="fill:rgba(225,240,252,.18);stroke:rgba(225,240,252,.55);stroke-width:.6;vector-effect:non-scaling-stroke"/>`
     + `<path class="cu-beans" d="${toD(hull([...ringZ(MILL.z + 14, 3.2, 18, 0, Math.PI * 2, MILL.x, MILL.y), ...ringZ(MILL.z + 29, 5.2, 18, 0, Math.PI * 2, MILL.x, MILL.y)]))}"/>`
     + `<path class="chute" d="${path([[MILL.x + 2, MILL.y + 5, MILL.z + 1], [BOWL[0] - 2, BOWL[1] - 2, BOWL[2] + 6]])}"/>`;
@@ -94,7 +94,7 @@ const CUB = (() => {
     g.insertAdjacentHTML('beforeend', lv.mill ? `<g data-part="mill">${millKit()}</g>` : `<g class="ugh-g">${millGhost()}</g>`);
     const stack = UTIL.g(g, '', lv.turret ? { class: 'cu-stack', 'data-part': 'turret' } : { class: 'cu-stack' });
     g.insertAdjacentHTML('beforeend', (lv.turret ? `<g data-part="turret">${turretTop()}</g>` : rounded(TUBE[0] - 7.4, TUBE[1] - 7.4, 116, 14.8, 14.8, 112, 7.4, 'tubeglass'))
-      + `<g transform="${FRONT(TUBE[0] - 9, TUBE[1] + 8, 120)}">${[[3, 3], [15, 3]].map(([x, y]) => `<g class="cu-gear" transform="translate(${x} ${y})"><circle class="face" r="2.6"/><path class="hair" d="M-2.6 0H2.6M0-2.6V2.6M-1.8-1.8L1.8 1.8M1.8-1.8L-1.8 1.8"/></g>`).join('')}</g>`);
+      + `<g transform="${FRONT(TUBE[0] - 9, TUBE[1] + 8, 120)}">${[[3, 3], [15, 3]].map(([x, y]) => `<g transform="translate(${x} ${y})"><g class="cu-gear"><circle class="face" r="2.6"/><path class="hair" d="M-2.6 0H2.6M0-2.6V2.6M-1.8-1.8L1.8 1.8M1.8-1.8L-1.8 1.8"/></g></g>`).join('')}</g>`);
     // ice maker (top right) with a chute to the back-right holder
     if (RT) iceMaker();
     // turntable: base and shaft, disc, three holders and the cups riding on them

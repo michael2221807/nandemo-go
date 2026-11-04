@@ -72,7 +72,8 @@ const ARB = (() => {
     const sesame = [[-1.6, -.8], [1.2, -1.6], [.4, 1.2], [-2.2, 1.4], [2.2, .6]].map(([x, y]) => { const q = P(x, y, 9.3); return `<ellipse cx="${f(q[0])}" cy="${f(q[1])}" rx=".55" ry=".3" fill="#fff8e6"/>`; }).join('');
     const bboxOpen = `<g id="g-bbox-open"><path d="${lid}" fill="#f6ecd4" style="${ST}"/><path d="${toD([P(-6, -8.2, 7.2), P(6, -8.2, 7.2), P(6, -9, 8.6), P(-6, -9, 8.6)])}" style="fill:var(--c)"/>${box(-6, -6, 0, 12, 12, 3.5, 0, 'au-bbox')}
       ${cyl(3.5, 4.9, 4.4, 4.7, '#e8a24a')}${cyl(4.9, 6.3, 4.9, 4.9, '#6a3a1e')}<path d="${toD(ringZ(6.4, 5.4, 18))}" style="fill:var(--c);${ST}"/>${cyl(6.5, 8.4, 4.8, 4.2, '#eaa24e')}${cyl(8.3, 9.4, 4.2, 2.6, '#eaa24e')}${sesame}</g>`;
-    return foil('g-foil', false) + foil('g-foil-hot', true) + bbox + tray('g-tray', false) + tray('g-tray-c', true) + pouch + set + toastOpen + bboxOpen;
+    const foilCrate = `<g id="g-foil-crate">${box(-9, -8, 0, 18, 16, 4, 0, 'au-foil')}<g transform="${TOP(-9, -8, 4.03)}"><path d="M2 3L15 13M5 1.6L17 9.6M1.5 12L6 15M12 1.5L16.5 4.5" class="au-crease"/><path d="M2.2 2.6l3.2 1.8M13 12.6l2.6 1.4" stroke="#fff" stroke-width=".7" stroke-linecap="round" opacity=".8"/><rect x="4.6" y="4.4" width="8.8" height="7.2" rx=".8" fill="#fffdf4" stroke="rgba(0,0,0,.3)" stroke-width=".3"/><rect x="4.6" y="4.4" width="8.8" height="1.5" fill="#e8453a"/><rect x="6.2" y="6.7" width="5.6" height="4.2" rx="1.1" fill="#d89a4a"/><rect x="6.7" y="7.2" width="4.6" height="3.2" rx=".7" fill="#f6e2b0"/><rect x="6.7" y="8.2" width="4.6" height="1.1" style="fill:var(--c)"/></g></g>`;
+    return foilCrate + foil('g-foil', false) + foil('g-foil-hot', true) + bbox + tray('g-tray', false) + tray('g-tray-c', true) + pouch + set + toastOpen + bboxOpen;
   }
   // a product's look as CSS vars (every var always set: an unset one would make its rule invalid)
   const vars = p => `--c:${p.fill};--d:${p.d || 'transparent'};--o:${p.o || 0}`;

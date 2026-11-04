@@ -343,7 +343,7 @@
   const supply = {
     title: T`面包料`, unit: T`份`, gap: 60, flyRot: 0, anyTarget: false,
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-pb-pack', vars: `--c:${m.fill}`, pos: [8 + j * 9.4, 10 + k * 15, 2], target: 'f' + k }))),
+    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-pb-pack-' + ({ cream: 'cream', tamago: 'cream', fruit: 'cream', amaou: 'cream', yakisoba: 'noodles', shio: 'butter', wiener: 'wiener', curry: 'chunks', katsu: 'chunks' }[m.g] || 'smooth'), vars: `--c:${m.fill}`, pos: [8 + j * 9.4, 10 + k * 15, 2], target: 'f' + k }))),
       { glyph: 'g-pb-dough', vars: '', pos: [104, 40, 2], target: 'dough' }],
     back: crateBack, front: crateFront,
     entry: t => t === 'dough' ? [PB.PROOF.x0 + 14, 30, BELT.z + 44] : hopTop(+t.slice(1)),

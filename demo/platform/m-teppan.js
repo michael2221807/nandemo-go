@@ -337,7 +337,7 @@
   const supply = {
     title: T`章鱼烧料`, unit: T`份`, gap: 60, flyRot: 0, anyTarget: false,
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-tp-bottle', vars: `--c:${m.sauce || '#f4f0e0'}`, pos: [8 + j * 9.4, 10 + k * 15, 2], target: 'f' + k }))),
+    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-tp-squeeze', vars: `--c:${m.sauce || '#f4f0e0'}`, pos: [8 + j * 9.4, 10 + k * 15, 2], target: 'f' + k }))),
       { glyph: 'g-tp-batter', vars: '', pos: [104, 40, 2], target: 'batter' }],
     back: crateBack, front: crateFront,
     entry: t => t === 'batter' ? [22, 30, 176] : bottleTop(+t.slice(1)),

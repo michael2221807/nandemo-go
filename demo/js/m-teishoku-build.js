@@ -109,12 +109,33 @@ const OBB = (() => {
     }[g] || P + `<ellipse cx="8.4" cy="9" rx="3.6" ry="2.4" fill="${c}" ${k}/>`;
     return `<rect x="1.5" y="3" width="21" height="18" rx="2.4" fill="#7a2a1a" ${k}/>${main}${g === 'unagi' ? '' : `<path d="M13 15h7q-.6 4-3.5 4t-3.5-4z" fill="#fff" ${k}/><ellipse cx="16.5" cy="15" rx="3.4" ry="1" fill="#fffdf6"/>`}<path d="M4 18h9" stroke="#e8c070" stroke-width="1.1"/>`;
   }
+  // (app build) the crate: each 定食's own hotel pan, what goes on its plate in it, back to front
+  const OBPANS = () => {
+    const Z = 2.65, SK = 'stroke="rgba(0,0,0,.45)" stroke-width=".55" vector-effect="non-scaling-stroke"';
+    const top = c => `<g transform="${TOP(-6, -4.4, 2.63)}"><rect x="1" y="1" width="10" height="6.8" rx="1" fill="${c}"/></g>`;
+    const grid = (nx, ny, fn) => { const c = []; for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) c.push([-5 + 10 * (i + .5) / nx, -3.4 + 6.8 * (j + .5) / ny]);
+      return c.sort((a, b) => a[0] + a[1] - b[0] - b[1]).map(([x, y]) => fn(x, y)).join(''); };
+    const hl = (x, y, z, rx, ry, rot, c) => { const [a, b] = q(x, y, z); return `<ellipse cx="${a}" cy="${b}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${a} ${b})" fill="${c}"/>`; };
+    const fish = (x, y) => { const [a, b] = q(x, y, Z + .3); return `<g transform="translate(${a} ${b}) scale(.62)"><path d="M-4.4 1q4.4-3.6 8.8-.4l-.4 2.2q-4.4 1.6-8.4 0z" fill="#8a6a4a" ${SK}/><path d="M-3 -.4l5.4-.6M-2.6 .8l5.4-.4" stroke="#5a6a7a" stroke-width=".6"/><path d="M-4.2 2.2q4.4 1.2 8.4-.2" fill="none" stroke="#c88a3a" stroke-width="1"/></g>`; };
+    const STEW = [[-3.6, -2.2, 0], [-1, -2.6, 2], [1.8, -2.4, 0], [4, -1.8, 1], [-3.8, .2, 1], [-1.4, -.4, 0], [1.2, 0, 0], [3.6, .6, 2], [-2.6, 2.4, 0], [0, 2.2, 1], [2.6, 2.6, 0]];
+    const F = {
+      natto: () => top('#ece6d4') + grid(3, 2, (x, y) => cyl(x, y, Z, Z + 1.1, 1.3, 1.5, '#f4f0e6') + disc(x, y, Z + 1.1, 1.35, '#a8742a') + dot(x - .5, y, Z + 1.15, .3, '#6a4a1a') + dot(x + .3, y + .5, Z + 1.15, .3, '#6a4a1a') + dot(x + .3, y - .4, Z + 1.2, .4, '#ffd23f')),
+      hiyayakko: () => top('#cfe6f0') + grid(3, 2, (x, y) => box(x - 1.3, y - 1.3, Z - .6, 2.6, 2.6, 1.6, 0, 'ob-tofu')),
+      tamagoyaki: () => top('#efe4c4') + grid(1, 2, (x, y) => box(x - 4.6, y - 1.4, Z - .5, 9.2, 2.8, 1.8, 0, 'ob-egg') + [-2.3, 0, 2.3].map(u => seg([x + u, y - 1.4, Z + 1.32], [x + u, y + 1.4, Z + 1.32], '#d8a020', .45)).join('')),
+      shogayaki: () => top('#7a3a14') + grid(3, 2, (x, y) => ell(x, y, Z + .2, 2.2, 1.2, 14, '#a8642a') + hl(x - .3, y - .2, Z + .3, 1.1, .4, 14, '#c88a4a'))
+        + [[-3, 1], [1, -1.6], [3.4, 2], [-1, 2.6]].map(([u, v]) => seg([u - .8, v, Z + .5], [u + .8, v + .4, Z + .5], '#f4e4b0', .55)).join(''),
+      sabamiso: () => top('#b07a3a') + grid(2, 2, fish),
+      nikujaga: () => top('#8a5a24') + STEW.slice().sort((a, b) => a[0] + a[1] - b[0] - b[1]).map(([u, v, k]) => ell(u, v, Z + .4, k === 2 ? 1.1 : 1.3, k === 2 ? .8 : 1, 10, ['#e8c070', '#f08a2a', '#8a4a2a'][k])).join('')
+        + [[.4, -1.2], [-.6, 1.2], [4.2, 2.8], [-4, -1]].map(([u, v]) => dot(u, v, Z + .6, .45, '#5aaa4a')).join(''),
+    };
+    return Object.keys(MAIN).map(g => `<g id="g-ob-pan-${g}">${box(-6, -4.4, 0, 12, 8.8, 2.6, 0, 'ob-pan')}${F[g] ? F[g]() : `<g transform="${TOP(-6, -4.4, 2.63)}"><rect x="1" y="1" width="10" height="6.8" rx="1" style="fill:var(--c)"/></g>`}</g>`).join('');
+  };
   // a hotel pan of portions for the crate, the rice sack, the miso jug
   function defs() {
     const pan = `<g id="g-ob-pan">${box(-6, -4.4, 0, 12, 8.8, 2.6, 0, 'ob-pan')}<g transform="${TOP(-6, -4.4, 2.63)}"><rect x="1" y="1" width="10" height="6.8" rx="1" style="fill:var(--c)"/><path d="M3 3h6M3 5h4" stroke="#fff" stroke-width=".6" opacity=".35"/></g></g>`;
     const rice = `<g id="g-ob-rice"><path d="M-6 0q-1-10 1-13q5-1.4 10 0q2 3 1 13q-6 1.4-12 0z" fill="#f6f2e6" stroke="rgba(0,0,0,.45)" stroke-width=".6" vector-effect="non-scaling-stroke"/><circle cx="0" cy="-6.6" r="3" fill="#e8453a"/><text x="0" y="-5.4" font-size="3.4" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">米</text></g>`;
     const miso = `<g id="g-ob-miso">${cyl(0, 0, 0, 10, 4, 4, '#c8964a')}${cyl(0, 0, 10, 12, 4.2, 4.2, '#6a1a14')}<text x="0" y="${f(P(0, 4, 5)[1])}" font-size="3" text-anchor="middle" fill="#fff" font-family="sans-serif">味噌</text></g>`;
-    return pan + rice + miso;
+    return pan + rice + miso + OBPANS();
   }
   const pin = (id, x, y, z) => { const [sx, sy] = P(x, y, z); return `<g class="upin hit" data-hit="part" data-part="${id}" data-p3="${x} ${y} ${z}" transform="translate(${f(sx)} ${f(sy)})"><circle class="upin-ring" r="12"/><circle class="upin-c" r="8.5"/><path class="upin-plus" d="M-4 0H4M0-4V4"/>${UPG.tag()}</g>`; };
   const post = (x, y, z, h) => box(x - .8, y - .8, z, 1.6, 1.6, h);
@@ -158,7 +179,7 @@ const OBB = (() => {
     g.insertAdjacentHTML('beforeend', box(KOBACHI[0] - 7, KOBACHI[1] - 6, KOBACHI[2] - 2, 14, 12, 2, 0, 'ob-fridge') + `<g transform="${FRONT(KOBACHI[0] - 7, KOBACHI[1] + 6.05, KOBACHI[2])}"><text class="label sign" x="7" y="1.8" font-size="1.8" text-anchor="middle">小鉢 · 冷</text></g>`
       + [[-2.6, -1.6], [0, -1.6], [2.6, -1.6], [-1.3, 1.6], [1.3, 1.6]].map(([u, v]) => cyl(KOBACHI[0] + u, KOBACHI[1] + v, KOBACHI[2], KOBACHI[2] + 1.6, 1.2, 1.6, '#2a4a6a') + disc(KOBACHI[0] + u, KOBACHI[1] + v, KOBACHI[2] + 1.6, 1.4, '#3a8a2a')).join(''));
     // the dessert shelf hangs on the warming cabinet's right side, high over the fryer (so it hides nothing)
-    if (lv.dessert) g.insertAdjacentHTML('beforeend', `<g data-part="dessert">${post(DESSERT[0] + 4, DESSERT[1] - 3, DESSERT[2], 40)}${box(DESSERT[0] - 5, DESSERT[1] - 4, DESSERT[2] - 3, 10, 8, 3, 0, 'ob-fridge')}${[[-2.4, -1.6], [2, -1.6], [-.2, 1.8]].map(([u, v]) => cyl(DESSERT[0] + u, DESSERT[1] + v, DESSERT[2], DESSERT[2] + 2.2, 1.4, 1.8, '#ffd27a') + disc(DESSERT[0] + u, DESSERT[1] + v, DESSERT[2] + 2.2, 1.7, '#8a4a1a')).join('')}<g transform="${FRONT(DESSERT[0] - 5, DESSERT[1] + 4.05, DESSERT[2])}"><text class="label sign" x="5" y="2.6" font-size="2.4" text-anchor="middle">プリン</text></g></g>`);
+    if (lv.dessert) g.insertAdjacentHTML('beforeend', `<g data-part="dessert">${post(DESSERT[0] + 4, DESSERT[1] - 3, DESSERT[2], 40)}${box(DESSERT[0] - 5, DESSERT[1] - 4, DESSERT[2] - 3, 10, 8, 3, 0, 'ob-fridge')}${[[-2.4, -1.6], [2, -1.6], [-.2, 1.8]].map(([u, v]) => cyl(DESSERT[0] + u, DESSERT[1] + v, DESSERT[2], DESSERT[2] + 2.2, 1.4, 1.8, '#ffd27a') + disc(DESSERT[0] + u, DESSERT[1] + v, DESSERT[2] + 2.2, 1.7, '#8a4a1a')).join('')}<g transform="${FRONT(DESSERT[0] - 5, DESSERT[1] + 4.5, DESSERT[2])}"><text class="label sign" x="5" y="2.6" font-size="2.4" text-anchor="middle">プリン</text></g></g>`);
     else g.insertAdjacentHTML('beforeend', `<g class="ugh-g">${CORE.edges(DESSERT[0] - 5, DESSERT[1] - 4, DESSERT[2] - 3, 10, 8, 6, 'ugh')}</g>`);
     // the belt with its rollers and its moving stripes, the tray magazine (clean sets inside), the chopstick dropper
     g.insertAdjacentHTML('beforeend', box(BELT.x0, BELT.y - 6, BELT.z - 22, BELT.x1 - BELT.x0, 12, 18, 0, 'ob-beltbody') + box(BELT.x0, BELT.y - 6, BELT.z - 4, BELT.x1 - BELT.x0, 12, 4, 0, 'ob-belt'));

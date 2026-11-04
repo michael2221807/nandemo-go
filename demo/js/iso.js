@@ -10,12 +10,12 @@ const ISO = (() => {
   const set = a => { A = a; sa = Math.sin(a); ca = Math.cos(a); ax = K * ca; ay = -K * sa; bx = KSB * sa; by = KSB * ca; };
   set(A);
   const P0 = (x, y, z) => [ax * x + ay * y, bx * x + by * y - z];
-  const P = (x, y, z) => { const r = P0(x, y, z); const R = window.__REC; if (R && R.on && R.pts) { if (R.cap && R.pts.size > R.cap) { R.pts.clear(); if (R.conf) R.conf.clear(); } const k = f(r[0]) + " " + f(r[1]), o = R.pts.get(k); if (o && o.f === R.fr && Math.abs(o[0] - x) + Math.abs(o[1] - y) + Math.abs(o[2] - z) > 1e-3) (R.conf || (R.conf = new Map())).set(k, R.fr); const v = [x, y, z]; v.f = R.fr; R.pts.set(k, v); } return r; };
+  const P = (x, y, z) => { const r = P0(x, y, z); const R = window.__REC; if (R && R.on && R.pts) { if (R.cap && R.pts.size > R.cap && R.evF !== R.fr) { R.evF = R.fr; for (const [k2, v2] of R.pts) if (v2.f !== R.fr) R.pts.delete(k2); if (R.conf) for (const [k2, v2] of R.conf) if (v2 !== R.fr) R.conf.delete(k2); R.clr = (R.clr || 0) + 1; } const k = f(r[0]) + " " + f(r[1]), o = R.pts.get(k); if (o && o.f === R.fr && Math.abs(o[0] - x) + Math.abs(o[1] - y) + Math.abs(o[2] - z) > 1e-3) (R.conf || (R.conf = new Map())).set(k, R.fr); const v = [x, y, z]; v.f = R.fr; R.pts.set(k, v); } return r; };
   const D = P0;
   const f = n => (Math.round(n * 100) / 100);
   const plane0 = (O, U, V) => { const o = P(...O), u = D(...U), v = D(...V);
     return `matrix(${f(u[0])} ${f(u[1])} ${f(v[0])} ${f(v[1])} ${f(o[0])} ${f(o[1])})`; };
-  const plane = (O, U, V) => { const s = plane0(O, U, V); const R = window.__REC; if (R && R.on) { if (R.cap && R.planes.size > R.cap) R.planes.clear(); R.planes.set(s, [O, U, V]); } return s; };
+  const plane = (O, U, V) => { const s = plane0(O, U, V); const R = window.__REC; if (R && R.on) { if (R.cap && R.planes.size > R.cap) { R.planes.clear(); R.clr = (R.clr || 0) + 1; } R.planes.set(s, [O, U, V]); } return s; };
   const TOP = (x, y, z) => plane([x, y, z], [1, 0, 0], [0, 1, 0]);
   const FRONT = (x, y, z) => plane([x, y, z], [1, 0, 0], [0, 0, -1]);
   const SIDE = (x, y, z) => plane([x, y, z], [0, -1, 0], [0, 0, -1]);
@@ -24,8 +24,8 @@ const ISO = (() => {
   const rect = (t, w, h, r = 0, cls = 'face', extra = '') => `<g transform="${t}"><rect class="${cls}" width="${w}" height="${h}" rx="${r}" ${extra}/></g>`;
   const d30 = pts => 'M' + pts.map(p => P(...p).map(f).join(' ')).join('L') + 'Z';
   const path0 = pts => 'M' + pts.map(p => P(...p).map(f).join(' ')).join('L');
-  const d3 = pts => { const s = d30(pts); const R = window.__REC; if (R && R.on) { if (R.cap && R.polys.size > R.cap) R.polys.clear(); R.polys.set(s, { pts, closed: true }); } return s; };
-  const path = pts => { const s = path0(pts); const R = window.__REC; if (R && R.on) { if (R.cap && R.polys.size > R.cap) R.polys.clear(); R.polys.set(s, { pts, closed: false }); } return s; };
+  const d3 = pts => { const s = d30(pts); const R = window.__REC; if (R && R.on) { if (R.cap && R.polys.size > R.cap) { R.polys.clear(); R.clr = (R.clr || 0) + 1; } R.polys.set(s, { pts, closed: true }); } return s; };
+  const path = pts => { const s = path0(pts); const R = window.__REC; if (R && R.on) { if (R.cap && R.polys.size > R.cap) { R.polys.clear(); R.clr = (R.clr || 0) + 1; } R.polys.set(s, { pts, closed: false }); } return s; };
   // rounded box: one rounded top + the side wall that faces the camera (outward normals at angle t with sin(t + A) > 0)
   const rounded = (x, y, z, w, d, h, r, cls = '') => {
     r = Math.min(r, w / 2, d / 2);

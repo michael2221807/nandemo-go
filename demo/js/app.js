@@ -1627,6 +1627,13 @@
       onSign: () => { firstGesture(); signTap(); }, onStreet: () => { firstGesture(); goStreet((curSt + 1) % ECON.streetN()); },
       onCarry: t => queueCard(() => STREET.carry(t)),
       onNeko: id => { firstGesture(); SND.meow(NEKO.voice(id)[0]); openNeko(id); }, onGift: () => { firstGesture(); takeGift(); }, onBowl: () => { firstGesture(); openBowl(); } });
+    STX.infoOf = i => { const m = MACHINES[i]; if (!m || !ACT.has(i)) return null;
+      const kind = m.goods.kind, cup = kind === 'cup', by = new Map();
+      ECON.planOf(m).forEach((id, k) => { const g = ECON.product(kind, id); if (!g) return; const n = cup || !m.goods.units ? null : m.goods.units(k), o = by.get(id);
+        if (o) { if (n !== null) o.n = (o.n || 0) + n; return; }
+        by.set(id, { name: g.name, n, sold: ECON.soldCount(kind, id) > 0, c: g.c ? (g.c[0] === '#' ? g.c : `var(--${g.c})`) : g.liq || g.soup || g.fruit || g.fill }); });
+      const f = sellForward(i, Date.now());
+      return { brand: m.brand, items: [...by.values()], cup, count: m.count(), cap: m.capacity, ware: ECON.ware(m), wareCap: ECON.wareCap(m), stopAt: f.stopAt, stuck: !!m.stuck }; };
     CORE.setGearFor(gearOf);
     SHOP.init();
     ALBUM.init({ ids: MACHINES.map(m => m.id), names: MACHINES.map(m => m.brand), onChange: albumChange, gearOf,
@@ -1655,7 +1662,8 @@
       allOn = !window.__ndTrial && (!!data.allOn || (data.allOn === undefined && actIdx().length >= 3));
       opened = data.opened || {};   // older saves: open if three already stand there
       away = Date.now() - (data.last || Date.now());
-      if (away < 6 * 3600e3) { sold = data.sold | 0; yen = data.yen | 0; }
+      // (as numbers, not | 0: a 32-bit integer, tonight's takings past about ¥2.1 billion came back 0 from a restart, 2026-11-03)
+      if (away < 6 * 3600e3) { sold = Math.max(0, +data.sold || 0); yen = Math.max(0, +data.yen || 0); }
       if (data.snd === false) { SND.setEnabled(false); sndBtn.setAttribute('aria-pressed', 'false'); sndBtn.textContent = T`声音 关`; }
       // away: the street sold in real time while you were gone, until shelves and warehouse were empty
       if (away > 60000 && !(hot && hot.m)) back = settle(data.last, Date.now());

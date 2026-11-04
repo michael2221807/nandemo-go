@@ -177,16 +177,16 @@ const STREET = (() => {
       <rect x="2" y="306" width="128" height="72" rx="2" fill="#c8f4ff" ${ink(2.2)}/>${[34, 66, 98].map(x => `<path d="M${x} 306v72" ${ink(1.6)}/>`).join('')}
       <path d="M8 324h20M40 330h20M72 322h20M104 328h20" stroke="#5ab8d8" stroke-width="3" stroke-linecap="round" opacity=".7"/>`
       + neon(118, 256, 11, '24H', '#3ff4ff');
+    s += STX.konbiniMore();
     // the station: a gable roof with the clock, the name board, three lit arches with the ticket gates
     s += `<rect x="156" y="236" width="288" height="150" fill="#b8a48a" ${ink()}/><rect x="156" y="236" width="288" height="150" fill="url(#st-dots)"/>
       <path d="M142 242L300 176L458 242Z" fill="#7a3a3a" ${ink()}/>${[204, 218, 231].map(y => { const h = (y - 176) / 66 * 158 - 5; return `<path d="M${(300 - h).toFixed(1)} ${y}H${(300 + h).toFixed(1)}" stroke="#5e2a2a" stroke-width="2"/>`; }).join('')}
-      <circle cx="300" cy="214" r="17" fill="#fff8ec" ${ink(2.4)}/><path d="M300 214V203M300 214l7 4" ${ink(2)}/><circle cx="300" cy="214" r="1.6" fill="${INK}"/>
-      ${[0, 90, 180, 270].map(a => { const r = a * Math.PI / 180; return `<path d="M${(300 + 13 * Math.sin(r)).toFixed(1)} ${(214 - 13 * Math.cos(r)).toFixed(1)}l${(1.6 * Math.sin(r)).toFixed(1)} ${(-1.6 * Math.cos(r)).toFixed(1)}" ${ink(1.6)}/>`; }).join('')}
       <rect x="226" y="246" width="148" height="28" rx="4" fill="#1e2a5a" ${ink(2.2)}/><text x="300" y="266" class="st-pop-t st-jp" font-size="16" text-anchor="middle" fill="#fff8ec">${sg('ねこまち駅', T`猫町站`, 16, 140)}</text>`
       + [0, 1, 2].map(i => { const x = 178 + i * 84;
         return `<path d="M${x} 386V312q0-22 31-22t31 22V386z" fill="#ffe7a0" ${ink(2.4)}/><path d="M${x} 386V312q0-22 31-22t31 22V386z" fill="url(#st-glow)" opacity=".5"/>`
           + [8, 26, 44].map(dx => `<rect x="${x + dx}" y="350" width="10" height="34" rx="2" fill="#3a3550" ${ink(1.6)}/><circle cx="${x + dx + 5}" cy="356" r="2.2" fill="${(i + dx) % 3 ? '#6bff9a' : '#ff6a6a'}"/>`).join(''); }).join('')
       + [170, 254, 338, 422].map(x => `<rect x="${x}" y="284" width="8" height="102" fill="#9c8870" ${ink(1.8)}/>`).join('');
+    s += STX.ekiMore();
     // right: a game centre with a vertical neon, and a little yakitori bar with red lanterns
     s += `<rect x="452" y="222" width="104" height="164" fill="#4a2a6a" ${ink()}/><rect x="452" y="222" width="104" height="164" fill="url(#st-dots)"/><rect x="448" y="214" width="112" height="12" rx="3" fill="#331d4a" ${ink(2.2)}/>`
       + win(500, 244, 'tv') + win(500, 312, 'lit') + `<rect x="462" y="236" width="28" height="140" rx="5" fill="${INK}"/>`
@@ -613,17 +613,20 @@ const STREET = (() => {
     ids = opts.ids; names = opts.names; onOpen = opts.onOpen || onOpen; onSign = opts.onSign || onSign; onStreet = opts.onStreet || onStreet; onDemo = opts.onDemo || onDemo; onLot = opts.onLot || onLot; onWarp = opts.onWarp || onWarp; onNeko = opts.onNeko || onNeko; onGift = opts.onGift || onGift; onBowl = opts.onBowl || onBowl; onCarry = opts.onCarry || null; carryExtra = opts.carryExtra || carryExtra;
     pos = opts.pos || ids.map((_, i) => i < X.length ? i : -1); lots = opts.lots || X.map(() => ({ state: 'machine' }));
     svg = $('street-svg');
+    STX.attach({ svg: () => svg, vx: () => vx, street: () => info ? info.id : 'nandemo', get amb() { return AMB; }, sg,
+      setNoClick: t => { noClickUntil = t; }, dragMoved: () => !!(drag && drag.moved) });
     // the backdrop never changes (but with the street): it goes in its own layer under the live one (machines, cats, pops)
     paintBg('nandemo');
     draw();
     svg.addEventListener('click', e => { if (Date.now() < noClickUntil) return; const t = e.target.closest && e.target;
       const sw = t && t.closest('.st-swap'), m = t && t.closest('.st-m'), l = t && t.closest('.st-lot'), gift = t && t.closest('.st-gift'), cat = t && t.closest('.nk-cat, .nk-box'), bowlEl = t && t.closest('.st-bowl'), post = t && t.closest('.st-post');
       if (dining) return;
+      const hot = t && t.closest('.st-hot'); if (hot && STX.tap(hot)) return;
       if (gift) onGift(); else if (bowlEl) onBowl(); else if (cat) onNeko(cat.dataset.cat || 'mike'); else if (sw && m) { SND.pop(); onLot(pos[+m.dataset.i]); } else if (m) open(+m.dataset.i); else if (l) { SND.pop(); onLot(+l.dataset.j); } else if (post) { SND.pop(); onSign(); } });
     // pan the street sideways: drag (a drag is not a tap), wheel / trackpad, or the chip at the edge
     let drag = null;
     svg.addEventListener('pointerdown', e => { drag = { x: e.clientX, vx, moved: false, k: 1 / fit.s }; });
-    addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x; if (!drag.moved && Math.abs(dx) > 7) { drag.moved = true; petStop(); } if (drag.moved) pan(drag.vx - dx * drag.k); });
+    addEventListener('pointermove', e => { if (!drag || STX.holding) return; const dx = e.clientX - drag.x; if (!drag.moved && Math.abs(dx) > 7) { drag.moved = true; petStop(); } if (drag.moved) pan(drag.vx - dx * drag.k); });
     // hold a cat to pet it (polish, 2026-10-15): its head leans into your hand, it purrs (the phone purrs along), hearts
     // float up; let go and it carries on as before — no card opens, nothing is counted, it is only for the two of you
     // (v0.43) the layers follow the screen's size (sizeLayers); the first fit happens as soon as the street has a size
@@ -713,7 +716,7 @@ const STREET = (() => {
     },
     // a window in view lights up (a strip-light flicker first) or goes dark, and some time later back again
     window() {
-      const list = WINS_BY[info ? info.id : 'nandemo'].filter(w => inView(w[0])); if (!list.length) return;
+      const list = WINS_BY[info ? info.id : 'nandemo'].filter(w => inView(w[0]) && !STX.held(info ? info.id : 'nandemo', w[0], w[1])); if (!list.length) return;
       const [x, y, kind, w = 28, h = 30] = UTIL.pick(list), on = kind === 'dark';
       const fill = on ? '#ffd86b' : '#232a52';
       play('st-amb-city', `<g><rect x="${x + 2}" y="${y + 2}" width="${w - 4}" height="${h - 4}" rx="2" fill="${fill}"/><path d="M${x + w / 2} ${y + 2}V${y + h - 2}" stroke="${INK}" stroke-width="1.6"/></g>`,
@@ -783,7 +786,7 @@ const STREET = (() => {
   }
   // the machines on their lots, the empty lots and the lots still to come (redrawn when the street changes)
   function draw() {
-    svg.innerHTML = ids.map((id, i) => pos[i] >= 0 ? machine(id, i, names[i]) : '').join('')
+    svg.innerHTML = STX.hots(info ? info.id : 'nandemo') + ids.map((id, i) => pos[i] >= 0 ? machine(id, i, names[i]) : '').join('')
       + lots.map((L, j) => L.state === 'machine' ? '' : lot(j, L)).join('') + signPost() + `<g id="st-cats"></g><g id="st-meal" class="st-neko"></g><g id="st-fx"></g>`;
     fx = $('st-fx'); catsG = $('st-cats'); mealG = $('st-meal'); drawCats();
     svg.querySelectorAll('.st-m').forEach(lift);
@@ -940,6 +943,7 @@ const STREET = (() => {
   }
   // changing streets: this one fades out, the next is drawn, and fades in (both layers are composited: opacity is cheap)
   async function swap(fn) {
+    STX.hide();
     const els = [svg, $('street-bg'), $('st-zs')];
     if (UTIL.reduced) { fn(); return; }
     els.forEach(e => { e.style.transition = 'opacity .16s'; e.style.opacity = 0; });

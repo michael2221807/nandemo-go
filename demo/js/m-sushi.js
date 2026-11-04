@@ -222,7 +222,7 @@
   const supply = {
     title: T`寿司料`, unit: T`份`, gap: 60, flyRot: 0, anyTarget: false,
     view: [[0, 0, 0], [112, 0, 0], [0, 74, 0], [112, 74, 0], [0, 0, 24], [112, 0, 24]],
-    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-su-pack', vars: `--c:${TOPC[m.g] || '#ff8a4a'}`, pos: [9 + j * 11.4, 9 + k * 13, 2], target: 'c' + k }))),
+    slots: () => [...MENU.flatMap((m, k) => Array.from({ length: CAP }, (_, j) => ({ glyph: 'g-su-pack-' + m.g, vars: `--c:${TOPC[m.g] || '#ff8a4a'}`, pos: [9 + j * 11.4, 9 + k * 13, 2], target: 'c' + k }))),
       { glyph: 'g-su-rice', vars: '', pos: [103, 38, 2], target: 'rice' }],
     back: crateBack, front: crateFront,
     entry: t => t === 'rice' ? [HOP.x, HOP.y, HOP.z1 + 8] : casTop(+t.slice(1)),
